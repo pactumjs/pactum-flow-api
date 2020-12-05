@@ -1,0 +1,32 @@
+{
+  "name": "pactum-flow-api",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Backend API for pactum flow",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "mocha test/component/specs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ASaiAnudeep/pactum-flow-api.git"
+  },
+  "keywords": [
+    "pactum"
+  ],
+  "author": "Anudeep <asa.anudeep4@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ASaiAnudeep/pactum-flow-api/issues"
+  },
+  "homepage": "https://github.com/ASaiAnudeep/pactum-flow-api#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "swagger-express-mw": "^0.7.0",
+    "swagger-tools": "^0.10.4"
+  },
+  "devDependencies": {
+    "mocha": "^8.2.1",
+    "pactum": "^2.0.14"
+  }
+}

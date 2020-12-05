@@ -1,0 +1,5 @@
+swagger:
+  mapErrorsToJson: true
+  doc:
+    raw: /api/pactum/flow/v1/json
+    ui: /api/pactum/flow/v1

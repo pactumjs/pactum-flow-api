@@ -1,0 +1,35 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "Pactum Flow API"
+basePath: "/api/pactum/flow/v1"
+consumes:
+  - "application/json"
+  - "text/html"
+produces:
+  - "application/json"
+  - "text/html"
+  - "text/plain"
+paths:
+  /health:
+    get:
+      tags:
+        - "HealthCheck"
+      description: "a health check status"
+      operationId: "getHealth"
+      parameters: []
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/HealthResponse"
+    x-swagger-router-controller: "health.controller"
+definitions:
+  HealthResponse:
+    description: "Health Response"
+    type: "object"
+    properties:
+      message:
+        type: "string"
+    example:
+      message: "OK"
