@@ -2,8 +2,8 @@ const Project = require('../models/project.model');
 
 class ProjectRepository {
 
-  getAll() {
-    return Project.find({});
+  get(query) {
+    return Project.find(query);
   }
 
   getById(_id) {

@@ -1,50 +1,50 @@
-const ProjectRepository = require('../repository/project.repository');
+const AnalysisRepository = require('../repository/Analysis.repository');
 
-class ProjectService {
+class AnalysisService {
 
   constructor(req, res) {
     this.req = req;
     this.res = res;
   }
 
-  async getProjectResponse() {
+  async getAnalysisByIdResponse() {
     try {
-      const projectRepo = new ProjectRepository();
+      const AnalysisRepo = new AnalysisRepository();
       const id = this.req.swagger.params.id.value;
-      const doc = await projectRepo.getById(id);
+      const doc = await AnalysisRepo.getById(id);
       this.res.status(200).json(doc);
     } catch (error) {
       handlerError(this.res, error);
     }
   }
 
-  async getProjectsResponse() {
+  async getAnalysisResponse() {
     try {
-      const projectRepo = new ProjectRepository();
-      const doc = await projectRepo.get(this.req.query);
+      const AnalysisRepo = new AnalysisRepository();
+      const doc = await AnalysisRepo.get(this.req.query);
       this.res.status(200).json(doc);
     } catch (error) {
       handlerError(this.res, error);
     }
   }
 
-  async postProjectResponse() {
+  async postAnalysisResponse() {
     try {
-      const projectRepo = new ProjectRepository();
-      const project = this.req.body;
-      project.createdAt = new Date();
-      const doc = await projectRepo.save(project);
+      const AnalysisRepo = new AnalysisRepository();
+      const analysis = this.req.body;
+      analysis.createdAt = new Date();
+      const doc = await AnalysisRepo.save(analysis);
       this.res.status(200).json(doc);
     } catch (error) {
       handlerError(this.res, error);
     }
   }
 
-  async deleteProjectResponse() {
+  async deleteAnalysisResponse() {
     try {
-      const projectRepo = new ProjectRepository();
+      const AnalysisRepo = new AnalysisRepository();
       const id = this.req.swagger.params.id.value;
-      const doc = await projectRepo.delete(id);
+      const doc = await AnalysisRepo.delete(id);
       this.res.status(200).json(doc);
     } catch (error) {
       handlerError(this.res, error);
@@ -58,4 +58,4 @@ function handlerError(res, error) {
   res.status(500).json({ error: "Internal Server Error" });
 }
 
-module.exports = ProjectService;
+module.exports = AnalysisService;

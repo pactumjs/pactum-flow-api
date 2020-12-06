@@ -30,7 +30,15 @@ paths:
         - "Project"
       description: "get projects"
       operationId: "getProjects"
-      parameters: []
+      parameters:
+        - in: "query"
+          name: "key"
+          description: "key of the project to fetch"
+          type: "string"
+        - in: "query"
+          name: "name"
+          description: "name of the project to fetch"
+          type: "string"
       responses:
         200:
           description: "Success"
@@ -88,6 +96,154 @@ paths:
           schema:
             $ref: "#/definitions/HealthResponse"
     x-swagger-router-controller: "project.controller"
+  /analysis:
+    get:
+      tags:
+        - "Analysis"
+      description: "get analysis"
+      operationId: "getAnalysis"
+      parameters:
+        - in: "query"
+          name: "projectId"
+          description: "id of the project to fetch"
+          type: "string"
+        - in: "query"
+          name: "version"
+          description: "version of the project to fetch"
+          type: "string"
+        - in: "query"
+          name: "branch"
+          description: "branch of the project to fetch"
+          type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/HealthResponse"
+    post:
+      tags:
+        - "Analysis"
+      description: "create a new analysis"
+      operationId: "postAnalysis"
+      parameters:
+        - in: "body"
+          name: "analysis"
+          description: "analysis to create"
+          required: true
+          schema:
+            $ref: "#/definitions/Analysis"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Analysis"
+    x-swagger-router-controller: "analysis.controller"
+  /analysis/{id}:
+    get:
+      tags:
+        - "Analysis"
+      description: "get analysis with id"
+      operationId: "getAnalysisById"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "analysis id to fetch"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Analysis"
+    delete:
+      tags:
+        - "Analysis"
+      description: "delete an analysis"
+      operationId: "deleteAnalysis"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "analysis id to delete"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/HealthResponse"
+    x-swagger-router-controller: "analysis.controller"
+  /flow:
+    get:
+      tags:
+        - "Flow"
+      description: "get flows"
+      operationId: "getFlows"
+      parameters:
+        - in: "query"
+          name: "analysisId"
+          description: "analysis id of the flow to fetch"
+          type: "string"
+        - in: "query"
+          name: "projectId"
+          description: "project id of the flow to fetch"
+          type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/HealthResponse"
+    post:
+      tags:
+        - "Flow"
+      description: "create a new flow"
+      operationId: "postFlow"
+      parameters:
+        - in: "body"
+          name: "flow"
+          description: "flow to create"
+          required: true
+          schema:
+            $ref: "#/definitions/Flow"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Flow"
+    x-swagger-router-controller: "flow.controller"
+  /flow/{id}:
+    get:
+      tags:
+        - "Flow"
+      description: "get flow with id"
+      operationId: "getFlow"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "flow id to fetch"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Flow"
+    delete:
+      tags:
+        - "Flow"
+      description: "delete a flow"
+      operationId: "deleteFlow"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "flow id to delete"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/HealthResponse"
+    x-swagger-router-controller: "flow.controller"
 definitions:
   Project:
     type: "object"
@@ -99,6 +255,63 @@ definitions:
     required:
      - "key"
      - "name"
+  Analysis:
+    type: "object"
+    properties:
+      projectId:
+        type: "string"
+      branch:
+        type: "string"
+      version:
+        type: "string"
+    required:
+     - "projectId"
+     - "branch"
+     - "version"
+  Flow:
+    type: "object"
+    properties:
+      projectId:
+        type: "string"
+      analysisId:
+        type: "string"
+      name:
+        type: "string"
+      request:
+        $ref: "#/definitions/FlowRequest"
+      response:
+        $ref: "#/definitions/FlowResponse"
+    required:
+     - "projectId"
+     - "analysisId"
+     - "name"
+     - "request"
+     - "response"
+  FlowRequest:
+    type: "object"
+    properties:
+      method:
+        type: "string"
+      path:
+        type: "string"
+      pathParams:
+        type: "object"
+      queryParams:
+        type: "object"
+      headers:
+        type: "object"
+    required:
+     - "method"
+     - "path"
+  FlowResponse:
+    type: "object"
+    properties:
+      statusCode:
+        type: "number"
+      headers:
+        type: "object"
+    required:
+     - "statusCode"
   HealthResponse:
     description: "Health Response"
     type: "object"
