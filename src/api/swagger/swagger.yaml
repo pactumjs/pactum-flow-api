@@ -15,7 +15,7 @@ paths:
     get:
       tags:
         - "HealthCheck"
-      description: "a health check status"
+      description: "check health"
       operationId: "getHealth"
       parameters: []
       responses:
@@ -24,7 +24,81 @@ paths:
           schema:
             $ref: "#/definitions/HealthResponse"
     x-swagger-router-controller: "health.controller"
+  /project:
+    get:
+      tags:
+        - "Project"
+      description: "get projects"
+      operationId: "getProjects"
+      parameters: []
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/HealthResponse"
+    post:
+      tags:
+        - "Project"
+      description: "create a new project"
+      operationId: "postProject"
+      parameters:
+        - in: "body"
+          name: "project"
+          description: "project to create"
+          required: true
+          schema:
+            $ref: "#/definitions/Project"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Project"
+    x-swagger-router-controller: "project.controller"
+  /project/{id}:
+    get:
+      tags:
+        - "Project"
+      description: "get project with id"
+      operationId: "getProject"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "project id to fetch"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Project"
+    delete:
+      tags:
+        - "Project"
+      description: "delete a project"
+      operationId: "deleteProject"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "project id to delete"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/HealthResponse"
+    x-swagger-router-controller: "project.controller"
 definitions:
+  Project:
+    type: "object"
+    properties:
+      key:
+        type: "string"
+      name:
+        type: "string"
+    required:
+     - "key"
+     - "name"
   HealthResponse:
     description: "Health Response"
     type: "object"

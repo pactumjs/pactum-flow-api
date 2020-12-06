@@ -1,5 +1,7 @@
+const HealthService = require('../services/health.service');
+
 function getHealth(req, res) {
-  res.status(200).json({ message: 'OK' });
+  new HealthService(req, res).getResponse();
 }
 
 module.exports = {
