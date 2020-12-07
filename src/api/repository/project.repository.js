@@ -20,6 +20,10 @@ class ProjectRepository {
     return Project.deleteOne({ _id: id });
   }
 
+  addAnalysis(_id, analysisId) {
+    return Project.updateOne({ _id}, { $push: { analysis: analysisId }});
+  }
+
 }
 
 module.exports = ProjectRepository;

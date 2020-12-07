@@ -1,4 +1,6 @@
 const AnalysisRepository = require('../repository/Analysis.repository');
+const ProjectRepository = require('../repository/project.repository');
+const FlowRepository = require('../repository/flow.repository');
 
 class AnalysisService {
 
@@ -9,9 +11,9 @@ class AnalysisService {
 
   async getAnalysisByIdResponse() {
     try {
-      const AnalysisRepo = new AnalysisRepository();
+      const analysisRepo = new AnalysisRepository();
       const id = this.req.swagger.params.id.value;
-      const doc = await AnalysisRepo.getById(id);
+      const doc = await analysisRepo.getById(id);
       this.res.status(200).json(doc);
     } catch (error) {
       handlerError(this.res, error);
@@ -20,8 +22,8 @@ class AnalysisService {
 
   async getAnalysisResponse() {
     try {
-      const AnalysisRepo = new AnalysisRepository();
-      const doc = await AnalysisRepo.get(this.req.query);
+      const analysisRepo = new AnalysisRepository();
+      const doc = await analysisRepo.get(this.req.query);
       this.res.status(200).json(doc);
     } catch (error) {
       handlerError(this.res, error);
@@ -30,10 +32,12 @@ class AnalysisService {
 
   async postAnalysisResponse() {
     try {
-      const AnalysisRepo = new AnalysisRepository();
+      const analysisRepo = new AnalysisRepository();
       const analysis = this.req.body;
       analysis.createdAt = new Date();
-      const doc = await AnalysisRepo.save(analysis);
+      const doc = await analysisRepo.save(analysis);
+      const projectRepo = new ProjectRepository();
+      await projectRepo.addAnalysis(analysis.projectId, doc._id);
       this.res.status(200).json(doc);
     } catch (error) {
       handlerError(this.res, error);
@@ -42,9 +46,11 @@ class AnalysisService {
 
   async deleteAnalysisResponse() {
     try {
-      const AnalysisRepo = new AnalysisRepository();
       const id = this.req.swagger.params.id.value;
-      const doc = await AnalysisRepo.delete(id);
+      const flowRepo = new FlowRepository();
+      await flowRepo.deleteByAnalysisId(id);
+      const analysisRepo = new AnalysisRepository();
+      const doc = await analysisRepo.delete(id);
       this.res.status(200).json(doc);
     } catch (error) {
       handlerError(this.res, error);

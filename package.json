@@ -6,7 +6,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "test": "mocha test/component/specs"
+    "test": "mocha -b test/component/specs"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,6 @@
   },
   "devDependencies": {
     "mocha": "^8.2.1",
-    "pactum": "^2.0.14"
+    "pactum": "^2.0.15"
   }
 }

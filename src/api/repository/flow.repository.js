@@ -20,6 +20,14 @@ class FlowRepository {
     return Flow.deleteOne({ _id: id });
   }
 
+  deleteByProjectId(id) {
+    return Flow.deleteMany({ projectId: id});
+  }
+
+  deleteByAnalysisId(id) {
+    return Flow.deleteMany({ analysisId: id});
+  }
+
 }
 
 module.exports = FlowRepository;

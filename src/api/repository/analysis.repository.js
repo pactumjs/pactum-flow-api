@@ -20,6 +20,14 @@ class AnalysisRepository {
     return Analysis.deleteOne({ _id: id });
   }
 
+  deleteByProjectId(id) {
+    return Analysis.deleteMany({ projectId: id});
+  }
+
+  addFlow(_id, flowId) {
+    return Analysis.updateOne({ _id}, { $push: { flows: flowId }});
+  }
+
 }
 
 module.exports = AnalysisRepository;

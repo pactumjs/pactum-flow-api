@@ -1,4 +1,5 @@
 const FlowRepository = require('../repository/flow.repository');
+const AnalysisRepository = require('../repository/analysis.repository');
 
 class FlowService {
 
@@ -34,6 +35,8 @@ class FlowService {
       const flow = this.req.body;
       flow.createdAt = new Date();
       const doc = await flowRepo.save(flow);
+      const analysisRepo = new AnalysisRepository();
+      await analysisRepo.addFlow(flow.analysisId, doc._id);
       this.res.status(200).json(doc);
     } catch (error) {
       handlerError(this.res, error);

@@ -1,4 +1,6 @@
 const ProjectRepository = require('../repository/project.repository');
+const AnalysisRepository = require('../repository/analysis.repository');
+const FlowRepository = require('../repository/flow.repository');
 
 class ProjectService {
 
@@ -42,8 +44,12 @@ class ProjectService {
 
   async deleteProjectResponse() {
     try {
-      const projectRepo = new ProjectRepository();
       const id = this.req.swagger.params.id.value;
+      const flowRepo = new FlowRepository();
+      await flowRepo.deleteByProjectId(id);
+      const analysisRepo = new AnalysisRepository();
+      await analysisRepo.deleteByProjectId(id);
+      const projectRepo = new ProjectRepository();
       const doc = await projectRepo.delete(id);
       this.res.status(200).json(doc);
     } catch (error) {
