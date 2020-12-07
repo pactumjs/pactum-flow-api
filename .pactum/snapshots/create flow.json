@@ -1,0 +1,17 @@
+{
+  "_id": "5fce3c6fdd765f04287cd482",
+  "name": "some flow name",
+  "projectId": "5fce3c6fdd765f04287cd480",
+  "analysisId": "5fce3c6fdd765f04287cd481",
+  "request": {
+    "_id": "5fce3c6fdd765f04287cd483",
+    "method": "GET",
+    "path": "/api/some/operation"
+  },
+  "response": {
+    "_id": "5fce3c6fdd765f04287cd484",
+    "statusCode": 200
+  },
+  "createdAt": "2020-12-07T14:30:07.351Z",
+  "__v": 0
+}

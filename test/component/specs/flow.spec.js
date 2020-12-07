@@ -24,8 +24,9 @@ describe('Flow - create, get & delete', () => {
       .returns('_id');
   });
 
-  it('create a new flow', async () => {
+  it('create flow', async () => {
     this.flowId = await pactum.spec()
+      .name('create flow')
       .post('/api/pactum/flow/v1/flow')
       .withJson({
         "name": "some flow name",
@@ -40,39 +41,47 @@ describe('Flow - create, get & delete', () => {
         },
       })
       .expectStatus(200)
-      .expectJsonMatch({
-        "_id": like('5fcc58fa26bcf83298099dd5'),
+      .expectJsonLike({
         "projectId": this.projectId,
-        "analysisId": this.analysisId,
+        "analysisId": this.analysisId
+      })
+      .expectJsonSnapshot({
+        "_id": like('5fcc58fa26bcf83298099dd5'),
+        "projectId": like('5fcc58fa26bcf83298099dd5'),
+        "analysisId": like('5fcc58fa26bcf83298099dd5'),
+        "createdAt": like('2020-12-06T04:37:08.165Z'),
         "request": {
-          "method": "GET",
-          "path": "/api/some/operation"
+          "_id": like('5fce3c6fdd765f04287cd483'),
         },
         "response": {
-          "statusCode": 200
-        },
-        "createdAt": like('2020-12-06T04:37:08.165Z')
+          "_id": like('5fce3c6fdd765f04287cd484'),
+        }
       })
       .returns('_id');
   });
 
   it('get flow by id', async () => {
     await pactum.spec()
+      .name('get flow')
       .get('/api/pactum/flow/v1/flow/{id}')
       .withPathParams('id', this.flowId)
       .expectStatus(200)
-      .expectJsonMatch({
+      .expectJsonLike({
         "_id": this.flowId,
         "projectId": this.projectId,
-        "analysisId": this.analysisId,
+        "analysisId": this.analysisId
+      })
+      .expectJsonSnapshot({
+        "_id": like('5fcc58fa26bcf83298099dd5'),
+        "projectId": like('5fcc58fa26bcf83298099dd5'),
+        "analysisId": like('5fcc58fa26bcf83298099dd5'),
+        "createdAt": like('2020-12-06T04:37:08.165Z'),
         "request": {
-          "method": "GET",
-          "path": "/api/some/operation"
+          "_id": like('5fce3c6fdd765f04287cd483'),
         },
         "response": {
-          "statusCode": 200
-        },
-        "createdAt": like('2020-12-06T04:37:08.165Z')
+          "_id": like('5fce3c6fdd765f04287cd484'),
+        }
       });
   });
 
@@ -96,7 +105,7 @@ describe('Flow - create, get & delete', () => {
       ]);
   });
 
-  it('delete an flow', async () => {
+  it('delete flow', async () => {
     await pactum.spec()
       .delete('/api/pactum/flow/v1/flow/{id}')
       .withPathParams('id', this.flowId)
@@ -107,10 +116,6 @@ describe('Flow - create, get & delete', () => {
     await pactum.spec()
       .delete('/api/pactum/flow/v1/project/{id}')
       .withPathParams('id', this.projectId)
-      .expectStatus(200);
-    await pactum.spec()
-      .delete('/api/pactum/flow/v1/analysis/{id}')
-      .withPathParams('id', this.analysisId)
       .expectStatus(200);
   });
 

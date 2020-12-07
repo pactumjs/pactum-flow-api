@@ -15,8 +15,9 @@ describe('Analysis - create, get & delete', () => {
       .returns('_id');
   });
 
-  it('create a new analysis', async () => {
+  it('create analysis', async () => {
     this.analysisId = await pactum.spec()
+      .name('create analysis')
       .post('/api/pactum/flow/v1/analysis')
       .withJson({
         "projectId": this.projectId,
@@ -24,27 +25,31 @@ describe('Analysis - create, get & delete', () => {
         "version": "1.0.2",
       })
       .expectStatus(200)
-      .expectJsonMatch({
+      .expectJsonLike({
+        "projectId": this.projectId,
+      })
+      .expectJsonSnapshot({
         "_id": like('5fcc58fa26bcf83298099dd5'),
-        "branch": "main",
-        "version": "1.0.2",
-        "createdAt": like('2020-12-06T04:37:08.165Z'),
-        "flows": []
+        "projectId": like('5fcc58fa26bcf83298099dd5'),
+        "createdAt": like('2020-12-06T04:37:08.165Z')
       })
       .returns('_id');
   });
 
   it('get analysis by id', async () => {
     await pactum.spec()
+      .name('get analysis')
       .get('/api/pactum/flow/v1/analysis/{id}')
       .withPathParams('id', this.analysisId)
       .expectStatus(200)
-      .expectJsonMatch({
+      .expectJsonLike({
         "_id": this.analysisId,
-        "branch": "main",
-        "version": "1.0.2",
-        "createdAt": like('2020-12-06T04:37:08.165Z'),
-        "flows": []
+        "projectId": this.projectId
+      })
+      .expectJsonSnapshot({
+        "_id": like('5fcc58fa26bcf83298099dd5'),
+        "projectId": like('5fcc58fa26bcf83298099dd5'),
+        "createdAt": like('2020-12-06T04:37:08.165Z')
       });
   });
 
@@ -71,9 +76,9 @@ describe('Analysis - create, get & delete', () => {
 
   after(async () => {
     await pactum.spec()
-    .delete('/api/pactum/flow/v1/project/{id}')
-    .withPathParams('id', this.projectId)
-    .expectStatus(200);
+      .delete('/api/pactum/flow/v1/project/{id}')
+      .withPathParams('id', this.projectId)
+      .expectStatus(200);
   });
 
 });
