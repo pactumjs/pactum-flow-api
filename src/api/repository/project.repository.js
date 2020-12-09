@@ -20,8 +20,13 @@ class ProjectRepository {
     return Project.deleteOne({ _id: id });
   }
 
-  addAnalysis(_id, analysisId) {
-    return Project.updateOne({ _id}, { $push: { analysis: analysisId }});
+  addAnalysis(_id, analysis) {
+    const { branch, _id: aId } = analysis;
+    if (!branch || branch === 'main' || branch === 'master') {
+      return Project.updateOne({ _id}, { $push: { "analysis.main": aId }});
+    } else {
+      return Project.updateOne({ _id}, { $push: { "analysis.branch": aId }});
+    }
   }
 
 }

@@ -1,4 +1,4 @@
-const AnalysisRepository = require('../repository/Analysis.repository');
+const AnalysisRepository = require('../repository/analysis.repository');
 const ProjectRepository = require('../repository/project.repository');
 const FlowRepository = require('../repository/flow.repository');
 
@@ -38,6 +38,16 @@ class AnalysisService {
       const doc = await analysisRepo.save(analysis);
       const projectRepo = new ProjectRepository();
       await projectRepo.addAnalysis(analysis.projectId, doc._id);
+      this.res.status(200).json(doc);
+    } catch (error) {
+      handlerError(this.res, error);
+    }
+  }
+
+  async postAnalysisSearchResponse() {
+    try {
+      const analysisRepo = new AnalysisRepository();
+      const doc = await analysisRepo.getByIds(this.req.body.analysisIds);
       this.res.status(200).json(doc);
     } catch (error) {
       handlerError(this.res, error);

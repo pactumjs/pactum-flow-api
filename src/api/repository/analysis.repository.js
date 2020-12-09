@@ -7,7 +7,11 @@ class AnalysisRepository {
   }
 
   getById(_id) {
-    return Analysis.findById({_id});
+    return Analysis.findById({ _id });
+  }
+
+  getByIds(ids) {
+    return Analysis.find({ _id: { $in: ids } });
   }
 
   async save(data) {
@@ -21,11 +25,11 @@ class AnalysisRepository {
   }
 
   deleteByProjectId(id) {
-    return Analysis.deleteMany({ projectId: id});
+    return Analysis.deleteMany({ projectId: id });
   }
 
   addFlow(_id, flowId) {
-    return Analysis.updateOne({ _id}, { $push: { flows: flowId }});
+    return Analysis.updateOne({ _id }, { $push: { flows: flowId } });
   }
 
 }

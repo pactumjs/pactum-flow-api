@@ -138,6 +138,25 @@ paths:
           schema:
             $ref: "#/definitions/Analysis"
     x-swagger-router-controller: "analysis.controller"
+  /analysis/search:
+    post:
+      tags:
+        - "Analysis"
+      description: "create a new analysis"
+      operationId: "postAnalysisSearch"
+      parameters:
+        - in: "body"
+          name: "analysis"
+          description: "analysis to create"
+          required: true
+          schema:
+            $ref: "#/definitions/AnalysisSearch"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Analysis"
+    x-swagger-router-controller: "analysis.controller"
   /analysis/{id}:
     get:
       tags:
@@ -268,6 +287,15 @@ definitions:
      - "projectId"
      - "branch"
      - "version"
+  AnalysisSearch:
+    type: "object"
+    properties:
+      analysisIds:
+        type: "array"
+        items:
+          type: "string"
+    required:
+      - "analysisIds"
   Flow:
     type: "object"
     properties:

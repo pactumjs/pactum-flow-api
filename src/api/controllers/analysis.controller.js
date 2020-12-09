@@ -12,6 +12,10 @@ function postAnalysis(req, res) {
   new AnalysisService(req, res).postAnalysisResponse();
 }
 
+function postAnalysisSearch(req, res) {
+  new AnalysisService(req, res).postAnalysisSearchResponse();
+}
+
 function deleteAnalysis(req, res) {
   new AnalysisService(req, res).deleteAnalysisResponse();
 }
@@ -20,5 +24,6 @@ module.exports = {
   getAnalysis,
   getAnalysisById,
   postAnalysis,
+  postAnalysisSearch,
   deleteAnalysis
 };

@@ -7,7 +7,9 @@ const AnalysisSchema = new Schema({
   branch: { type: String, required: true },
   version: { type: String, required: true },
   createdAt: { type: Date, required: true },
-  flows: { type: [mongoose.Schema.Types.ObjectId], default: [] }
+  flows: { type: [mongoose.Schema.Types.ObjectId], default: [] },
+  consumers: [ { type: String, default: [] }],
+  providers: [ { type: String, default: [] }]
 });
 
 module.exports = mongoose.model('Analysis', AnalysisSchema);
