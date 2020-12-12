@@ -12,6 +12,10 @@ function postFlow(req, res) {
   new FlowService(req, res).postFlowResponse();
 }
 
+function postFlowsSearch(req, res) {
+  new FlowService(req, res).postFlowsSearchResponse();
+}
+
 function deleteFlow(req, res) {
   new FlowService(req, res).deleteFlowResponse();
 }
@@ -20,5 +24,6 @@ module.exports = {
   getFlow,
   getFlows,
   postFlow,
+  postFlowsSearch,
   deleteFlow
 };

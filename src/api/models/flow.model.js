@@ -19,7 +19,7 @@ const ResponseSchema = new Schema({
 
 const FlowSchema = new Schema({
   name: { type: String, required: true },
-  projectId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  projectId: { type: String, required: true },
   analysisId: { type: mongoose.Schema.Types.ObjectId, required: true },
   request: { type: RequestSchema, required: true },
   response: { type: ResponseSchema, required: true },

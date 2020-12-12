@@ -34,6 +34,7 @@ class ProjectService {
     try {
       const projectRepo = new ProjectRepository();
       const project = this.req.body;
+      project._id = project.id;
       project.createdAt = new Date();
       const doc = await projectRepo.save(project);
       this.res.status(200).json(doc);

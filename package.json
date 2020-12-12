@@ -5,7 +5,7 @@
   "description": "Backend API for pactum flow",
   "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js",
+    "start": "nodemon src/server.js",
     "test": "mocha -b test/component/specs"
   },
   "repository": {

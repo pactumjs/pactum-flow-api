@@ -5,10 +5,10 @@ describe('Analysis - create, get & delete', () => {
 
   before(async () => {
     this.analysisId = '';
-    this.projectId = await pactum.spec()
-      .post('/api/pactum/flow/v1/project')
+    await pactum.spec()
+      .post('/api/flow/v1/projects')
       .withJson({
-        "key": "team_login-service",
+        "id": "team_login-service",
         "name": "[Team] login-service",
       })
       .expectStatus(200)
@@ -18,15 +18,15 @@ describe('Analysis - create, get & delete', () => {
   it('create analysis', async () => {
     this.analysisId = await pactum.spec()
       .name('create analysis')
-      .post('/api/pactum/flow/v1/analysis')
+      .post('/api/flow/v1/analysis')
       .withJson({
-        "projectId": this.projectId,
+        "projectId": "team_login-service",
         "branch": "main",
         "version": "1.0.2",
       })
       .expectStatus(200)
       .expectJsonLike({
-        "projectId": this.projectId,
+        "projectId": "team_login-service",
       })
       .expectJsonSnapshot({
         "_id": like('5fcc58fa26bcf83298099dd5'),
@@ -39,12 +39,12 @@ describe('Analysis - create, get & delete', () => {
   it('get analysis by id', async () => {
     await pactum.spec()
       .name('get analysis')
-      .get('/api/pactum/flow/v1/analysis/{id}')
+      .get('/api/flow/v1/analysis/{id}')
       .withPathParams('id', this.analysisId)
       .expectStatus(200)
       .expectJsonLike({
         "_id": this.analysisId,
-        "projectId": this.projectId
+        "projectId": "team_login-service"
       })
       .expectJsonSnapshot({
         "_id": like('5fcc58fa26bcf83298099dd5'),
@@ -55,7 +55,7 @@ describe('Analysis - create, get & delete', () => {
 
   it('get analysis', async () => {
     await pactum.spec()
-      .get('/api/pactum/flow/v1/analysis')
+      .get('/api/flow/v1/analysis')
       .expectStatus(200)
       .expectJsonLike([
         {
@@ -69,15 +69,15 @@ describe('Analysis - create, get & delete', () => {
 
   it('delete an analysis', async () => {
     await pactum.spec()
-      .delete('/api/pactum/flow/v1/analysis/{id}')
+      .delete('/api/flow/v1/analysis/{id}')
       .withPathParams('id', this.analysisId)
       .expectStatus(200);
   });
 
   after(async () => {
     await pactum.spec()
-      .delete('/api/pactum/flow/v1/project/{id}')
-      .withPathParams('id', this.projectId)
+      .delete('/api/flow/v1/projects/{id}')
+      .withPathParams('id', "team_login-service")
       .expectStatus(200);
   });
 

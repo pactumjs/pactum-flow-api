@@ -43,6 +43,16 @@ class FlowService {
     }
   }
 
+  async postFlowsSearchResponse() {
+    try {
+      const flowRepo = new FlowRepository();
+      const doc = await flowRepo.getByIds(this.req.body.flowIds);
+      this.res.status(200).json(doc);
+    } catch (error) {
+      handlerError(this.res, error);
+    }
+  }
+
   async deleteFlowResponse() {
     try {
       const flowRepo = new FlowRepository();

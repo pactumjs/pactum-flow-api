@@ -5,18 +5,18 @@ describe('Flow - create, get & delete', () => {
 
   before(async () => {
     this.flowId = '';
-    this.projectId = await pactum.spec()
-      .post('/api/pactum/flow/v1/project')
+    await pactum.spec()
+      .post('/api/flow/v1/projects')
       .withJson({
-        "key": "team_login-service",
+        "id": "team_login-service",
         "name": "[Team] login-service",
       })
       .expectStatus(200)
       .returns('_id');
     this.analysisId = await pactum.spec()
-      .post('/api/pactum/flow/v1/analysis')
+      .post('/api/flow/v1/analysis')
       .withJson({
-        "projectId": this.projectId,
+        "projectId": "team_login-service",
         "branch": "main",
         "version": "1.0.2",
       })
@@ -27,10 +27,10 @@ describe('Flow - create, get & delete', () => {
   it('create flow', async () => {
     this.flowId = await pactum.spec()
       .name('create flow')
-      .post('/api/pactum/flow/v1/flow')
+      .post('/api/flow/v1/flows')
       .withJson({
         "name": "some flow name",
-        "projectId": this.projectId,
+        "projectId": "team_login-service",
         "analysisId": this.analysisId,
         "request": {
           "method": "GET",
@@ -42,7 +42,7 @@ describe('Flow - create, get & delete', () => {
       })
       .expectStatus(200)
       .expectJsonLike({
-        "projectId": this.projectId,
+        "projectId": "team_login-service",
         "analysisId": this.analysisId
       })
       .expectJsonSnapshot({
@@ -63,12 +63,12 @@ describe('Flow - create, get & delete', () => {
   it('get flow by id', async () => {
     await pactum.spec()
       .name('get flow')
-      .get('/api/pactum/flow/v1/flow/{id}')
+      .get('/api/flow/v1/flows/{id}')
       .withPathParams('id', this.flowId)
       .expectStatus(200)
       .expectJsonLike({
         "_id": this.flowId,
-        "projectId": this.projectId,
+        "projectId": "team_login-service",
         "analysisId": this.analysisId
       })
       .expectJsonSnapshot({
@@ -87,12 +87,12 @@ describe('Flow - create, get & delete', () => {
 
   it('get flow', async () => {
     await pactum.spec()
-      .get('/api/pactum/flow/v1/flow')
+      .get('/api/flow/v1/flows')
       .expectStatus(200)
       .expectJsonLike([
         {
           "_id": this.flowId,
-          "projectId": this.projectId,
+          "projectId": "team_login-service",
           "analysisId": this.analysisId,
           "request": {
             "method": "GET",
@@ -107,15 +107,15 @@ describe('Flow - create, get & delete', () => {
 
   it('delete flow', async () => {
     await pactum.spec()
-      .delete('/api/pactum/flow/v1/flow/{id}')
+      .delete('/api/flow/v1/flows/{id}')
       .withPathParams('id', this.flowId)
       .expectStatus(200);
   });
 
   after(async () => {
     await pactum.spec()
-      .delete('/api/pactum/flow/v1/project/{id}')
-      .withPathParams('id', this.projectId)
+      .delete('/api/flow/v1/projects/{id}')
+      .withPathParams('id', "team_login-service")
       .expectStatus(200);
   });
 

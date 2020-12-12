@@ -1,11 +1,12 @@
 {
+  "branch": "main",
+  "version": "1.0.2",
   "flows": [],
   "consumers": [],
   "providers": [],
-  "_id": "5fd0f1fc84e9251768e9a0e1",
-  "projectId": "5fd0f1fc84e9251768e9a0e0",
-  "branch": "main",
-  "version": "1.0.2",
-  "createdAt": "2020-12-09T15:49:16.327Z",
+  "endpoints": 0,
+  "_id": "5fd4d6c353819834e4126751",
+  "projectId": "team_login-service",
+  "createdAt": "2020-12-12T14:42:11.202Z",
   "__v": 0
 }

@@ -2,7 +2,7 @@ swagger: "2.0"
 info:
   version: "1.0.0"
   title: "Pactum Flow API"
-basePath: "/api/pactum/flow/v1"
+basePath: "/api/flow/v1"
 consumes:
   - "application/json"
   - "text/html"
@@ -24,7 +24,7 @@ paths:
           schema:
             $ref: "#/definitions/HealthResponse"
     x-swagger-router-controller: "health.controller"
-  /project:
+  /projects:
     get:
       tags:
         - "Project"
@@ -62,7 +62,7 @@ paths:
           schema:
             $ref: "#/definitions/Project"
     x-swagger-router-controller: "project.controller"
-  /project/{id}:
+  /projects/{id}:
     get:
       tags:
         - "Project"
@@ -191,7 +191,7 @@ paths:
           schema:
             $ref: "#/definitions/HealthResponse"
     x-swagger-router-controller: "analysis.controller"
-  /flow:
+  /flows:
     get:
       tags:
         - "Flow"
@@ -229,7 +229,26 @@ paths:
           schema:
             $ref: "#/definitions/Flow"
     x-swagger-router-controller: "flow.controller"
-  /flow/{id}:
+  /flows/search:
+    post:
+      tags:
+        - "Flow"
+      description: "find analysis by ids"
+      operationId: "postFlowsSearch"
+      parameters:
+        - in: "body"
+          name: "flows"
+          description: "flows to search"
+          required: true
+          schema:
+            $ref: "#/definitions/FlowsSearch"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Analysis"
+    x-swagger-router-controller: "flow.controller"
+  /flows/{id}:
     get:
       tags:
         - "Flow"
@@ -267,12 +286,12 @@ definitions:
   Project:
     type: "object"
     properties:
-      key:
+      id:
         type: "string"
       name:
         type: "string"
     required:
-     - "key"
+     - "id"
      - "name"
   Analysis:
     type: "object"
@@ -315,6 +334,15 @@ definitions:
      - "name"
      - "request"
      - "response"
+  FlowsSearch:
+    type: "object"
+    properties:
+      flowIds:
+        type: "array"
+        items:
+          type: "string"
+    required:
+      - "flowIds"
   FlowRequest:
     type: "object"
     properties:

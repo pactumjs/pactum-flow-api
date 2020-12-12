@@ -10,6 +10,10 @@ class FlowRepository {
     return Flow.findById({_id});
   }
 
+  getByIds(ids) {
+    return Flow.find({ _id: { $in: ids } });
+  }
+
   async save(data) {
     const flow = new Flow(data);
     const doc = await flow.save();
