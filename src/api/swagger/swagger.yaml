@@ -282,6 +282,19 @@ paths:
           schema:
             $ref: "#/definitions/HealthResponse"
     x-swagger-router-controller: "flow.controller"
+  /metrics/projects:
+    get:
+      tags:
+        - "Metrics"
+      description: "get project metrics"
+      operationId: "getProjectMetrics"
+      parameters: []
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/HealthResponse"
+    x-swagger-router-controller: "metric.controller"
 definitions:
   Project:
     type: "object"

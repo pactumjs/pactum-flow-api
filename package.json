@@ -29,6 +29,6 @@
   },
   "devDependencies": {
     "mocha": "^8.2.1",
-    "pactum": "^2.0.15"
+    "pactum": "^2.0.16"
   }
 }
