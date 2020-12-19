@@ -8,22 +8,12 @@ function getFlows(req, res) {
   new FlowService(req, res).getFlowsResponse();
 }
 
-function postFlow(req, res) {
-  new FlowService(req, res).postFlowResponse();
-}
-
-function postFlowsSearch(req, res) {
-  new FlowService(req, res).postFlowsSearchResponse();
-}
-
-function deleteFlow(req, res) {
-  new FlowService(req, res).deleteFlowResponse();
+function postFlows(req, res) {
+  new FlowService(req, res).postFlowsResponse();
 }
 
 module.exports = {
   getFlow,
   getFlows,
-  postFlow,
-  postFlowsSearch,
-  deleteFlow
+  postFlows
 };

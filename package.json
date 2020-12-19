@@ -6,7 +6,8 @@
   "main": "src/server.js",
   "scripts": {
     "start": "nodemon src/server.js",
-    "test": "mocha -b test/component/specs"
+    "test": "mocha -b test/component/specs",
+    "seed": "node test/seed/index.js"
   },
   "repository": {
     "type": "git",

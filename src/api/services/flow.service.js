@@ -29,36 +29,20 @@ class FlowService {
     }
   }
 
-  async postFlowResponse() {
+  async postFlowsResponse() {
     try {
       const flowRepo = new FlowRepository();
-      const flow = this.req.body;
-      flow.createdAt = new Date();
-      const doc = await flowRepo.save(flow);
       const analysisRepo = new AnalysisRepository();
-      await analysisRepo.addFlow(flow.analysisId, doc._id);
-      this.res.status(200).json(doc);
-    } catch (error) {
-      handlerError(this.res, error);
-    }
-  }
-
-  async postFlowsSearchResponse() {
-    try {
-      const flowRepo = new FlowRepository();
-      const doc = await flowRepo.getByIds(this.req.body.flowIds);
-      this.res.status(200).json(doc);
-    } catch (error) {
-      handlerError(this.res, error);
-    }
-  }
-
-  async deleteFlowResponse() {
-    try {
-      const flowRepo = new FlowRepository();
-      const id = this.req.swagger.params.id.value;
-      const doc = await flowRepo.delete(id);
-      this.res.status(200).json(doc);
+      const flows = this.req.body;
+      const docs = [];
+      for (let i = 0; i < flows.length; i++) {
+        const flow = flows[i];
+        flow.createdAt = new Date();
+        const doc = await flowRepo.save(flow);
+        await analysisRepo.addFlow(flow.analysisId, doc._id);
+        docs.push(doc);
+      }
+      this.res.status(200).json(docs);
     } catch (error) {
       handlerError(this.res, error);
     }

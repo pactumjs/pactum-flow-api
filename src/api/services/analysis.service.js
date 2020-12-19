@@ -1,5 +1,4 @@
 const AnalysisRepository = require('../repository/analysis.repository');
-const ProjectRepository = require('../repository/project.repository');
 const FlowRepository = require('../repository/flow.repository');
 
 class AnalysisService {
@@ -20,7 +19,7 @@ class AnalysisService {
     }
   }
 
-  async getAnalysisResponse() {
+  async getAnalysesResponse() {
     try {
       const analysisRepo = new AnalysisRepository();
       const doc = await analysisRepo.get(this.req.query);
@@ -36,18 +35,6 @@ class AnalysisService {
       const analysis = this.req.body;
       analysis.createdAt = new Date();
       const doc = await analysisRepo.save(analysis);
-      const projectRepo = new ProjectRepository();
-      await projectRepo.addAnalysis(analysis.projectId, doc._id);
-      this.res.status(200).json(doc);
-    } catch (error) {
-      handlerError(this.res, error);
-    }
-  }
-
-  async postAnalysisSearchResponse() {
-    try {
-      const analysisRepo = new AnalysisRepository();
-      const doc = await analysisRepo.getByIds(this.req.body.analysisIds);
       this.res.status(200).json(doc);
     } catch (error) {
       handlerError(this.res, error);

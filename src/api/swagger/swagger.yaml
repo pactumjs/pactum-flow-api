@@ -96,12 +96,12 @@ paths:
           schema:
             $ref: "#/definitions/HealthResponse"
     x-swagger-router-controller: "project.controller"
-  /analysis:
+  /analyses:
     get:
       tags:
-        - "Analysis"
-      description: "get analysis"
-      operationId: "getAnalysis"
+        - "Analyses"
+      description: "get analyses"
+      operationId: "getAnalyses"
       parameters:
         - in: "query"
           name: "projectId"
@@ -119,10 +119,10 @@ paths:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/HealthResponse"
+            $ref: "#/definitions/Analyses"
     post:
       tags:
-        - "Analysis"
+        - "Analyses"
       description: "create a new analysis"
       operationId: "postAnalysis"
       parameters:
@@ -138,29 +138,10 @@ paths:
           schema:
             $ref: "#/definitions/Analysis"
     x-swagger-router-controller: "analysis.controller"
-  /analysis/search:
-    post:
-      tags:
-        - "Analysis"
-      description: "create a new analysis"
-      operationId: "postAnalysisSearch"
-      parameters:
-        - in: "body"
-          name: "analysis"
-          description: "analysis to create"
-          required: true
-          schema:
-            $ref: "#/definitions/AnalysisSearch"
-      responses:
-        200:
-          description: "Success"
-          schema:
-            $ref: "#/definitions/Analysis"
-    x-swagger-router-controller: "analysis.controller"
-  /analysis/{id}:
+  /analyses/{id}:
     get:
       tags:
-        - "Analysis"
+        - "Analyses"
       description: "get analysis with id"
       operationId: "getAnalysisById"
       parameters:
@@ -176,7 +157,7 @@ paths:
             $ref: "#/definitions/Analysis"
     delete:
       tags:
-        - "Analysis"
+        - "Analyses"
       description: "delete an analysis"
       operationId: "deleteAnalysis"
       parameters:
@@ -191,10 +172,63 @@ paths:
           schema:
             $ref: "#/definitions/HealthResponse"
     x-swagger-router-controller: "analysis.controller"
+  /interactions:
+    get:
+      tags:
+        - "Interactions"
+      description: "get interactions"
+      operationId: "getInteractions"
+      parameters:
+        - in: "query"
+          name: "analysisId"
+          description: "id of the analysis"
+          type: "string"
+          required: true
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Interaction"
+    post:
+      tags:
+        - "Interactions"
+      description: "create a new interaction"
+      operationId: "postInteractions"
+      parameters:
+        - in: "body"
+          name: "interactions"
+          description: "interactions to create"
+          required: true
+          schema:
+            $ref: "#/definitions/Interactions"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Interaction"
+    x-swagger-router-controller: "interaction.controller"
+  /interactions/{id}:
+    get:
+      tags:
+        - "Interactions"
+      description: "get interaction with id"
+      operationId: "getInteractionById"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "interaction id to fetch"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Interaction"
+    x-swagger-router-controller: "interaction.controller"
   /flows:
     get:
       tags:
-        - "Flow"
+        - "Flows"
       description: "get flows"
       operationId: "getFlows"
       parameters:
@@ -210,48 +244,29 @@ paths:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/HealthResponse"
+            $ref: "#/definitions/Flows"
     post:
       tags:
-        - "Flow"
-      description: "create a new flow"
-      operationId: "postFlow"
+        - "Flows"
+      description: "create a new flows"
+      operationId: "postFlows"
       parameters:
         - in: "body"
           name: "flow"
           description: "flow to create"
           required: true
           schema:
-            $ref: "#/definitions/Flow"
+            $ref: "#/definitions/Flows"
       responses:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/Flow"
-    x-swagger-router-controller: "flow.controller"
-  /flows/search:
-    post:
-      tags:
-        - "Flow"
-      description: "find analysis by ids"
-      operationId: "postFlowsSearch"
-      parameters:
-        - in: "body"
-          name: "flows"
-          description: "flows to search"
-          required: true
-          schema:
-            $ref: "#/definitions/FlowsSearch"
-      responses:
-        200:
-          description: "Success"
-          schema:
-            $ref: "#/definitions/Analysis"
+            $ref: "#/definitions/Flows"
     x-swagger-router-controller: "flow.controller"
   /flows/{id}:
     get:
       tags:
-        - "Flow"
+        - "Flows"
       description: "get flow with id"
       operationId: "getFlow"
       parameters:
@@ -265,22 +280,6 @@ paths:
           description: "Success"
           schema:
             $ref: "#/definitions/Flow"
-    delete:
-      tags:
-        - "Flow"
-      description: "delete a flow"
-      operationId: "deleteFlow"
-      parameters:
-        - in: "path"
-          name: "id"
-          description: "flow id to delete"
-          required: true
-          type: "string"
-      responses:
-        200:
-          description: "Success"
-          schema:
-            $ref: "#/definitions/HealthResponse"
     x-swagger-router-controller: "flow.controller"
   /metrics/projects:
     get:
@@ -295,6 +294,82 @@ paths:
           schema:
             $ref: "#/definitions/HealthResponse"
     x-swagger-router-controller: "metric.controller"
+  /process/analysis:
+    post:
+      tags:
+        - "Process"
+      description: "process analysis"
+      operationId: "postProcessAnalysis"
+      parameters:
+        - in: "body"
+          name: "process body"
+          description: "analysis to process"
+          required: true
+          schema:
+            $ref: "#/definitions/ProcessAnalysis"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/HealthResponse"
+    x-swagger-router-controller: "processor.controller"
+  /search/analyses:
+    post:
+      tags:
+        - "Search"
+      description: "search analyses"
+      operationId: "postSearchAnalyses"
+      parameters:
+        - in: "body"
+          name: "search"
+          description: "search payload"
+          required: true
+          schema:
+            $ref: "#/definitions/SearchIds"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Analyses"
+    x-swagger-router-controller: "search.controller"
+  /search/interactions:
+    post:
+      tags:
+        - "Search"
+      description: "search interactions"
+      operationId: "postSearchInteractions"
+      parameters:
+        - in: "body"
+          name: "search"
+          description: "search payload"
+          required: true
+          schema:
+            $ref: "#/definitions/SearchIds"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Interactions"
+    x-swagger-router-controller: "search.controller"
+  /search/flows:
+    post:
+      tags:
+        - "Search"
+      description: "search flows"
+      operationId: "postSearchFlows"
+      parameters:
+        - in: "body"
+          name: "search"
+          description: "search payload"
+          required: true
+          schema:
+            $ref: "#/definitions/SearchIds"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Flows"
+    x-swagger-router-controller: "search.controller"
 definitions:
   Project:
     type: "object"
@@ -319,15 +394,33 @@ definitions:
      - "projectId"
      - "branch"
      - "version"
-  AnalysisSearch:
+  Analyses:
+    type: "array"
+    items:
+      $ref: "#/definitions/Analysis"
+  Interaction:
     type: "object"
     properties:
-      analysisIds:
-        type: "array"
-        items:
-          type: "string"
+      analysisId:
+        type: "string"
+      provider:
+        type: "string"
+      flow:
+        type: "string"
+      request:
+        type: "object"
+      response:
+        type: "object"
     required:
-      - "analysisIds"
+      - "analysisId"
+      - "provider"
+      - "flow"
+      - "request"
+      - "response"
+  Interactions:
+    type: "array"
+    items:
+      $ref: "#/definitions/Interaction"
   Flow:
     type: "object"
     properties:
@@ -347,15 +440,10 @@ definitions:
      - "name"
      - "request"
      - "response"
-  FlowsSearch:
-    type: "object"
-    properties:
-      flowIds:
-        type: "array"
-        items:
-          type: "string"
-    required:
-      - "flowIds"
+  Flows:
+    type: "array"
+    items:
+      $ref: "#/definitions/Flow"
   FlowRequest:
     type: "object"
     properties:
@@ -381,6 +469,23 @@ definitions:
         type: "object"
     required:
      - "statusCode"
+  ProcessAnalysis:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        minLength: 2
+    required:
+      - "id"
+  SearchIds:
+    type: "object"
+    properties:
+      ids:
+        type: "array"
+        items:
+          type: "string"
+    required:
+      - "ids"
   HealthResponse:
     description: "Health Response"
     type: "object"
