@@ -11,7 +11,7 @@ const AnalysisSchema = new Schema({
   flows: { type: [mongoose.Schema.Types.ObjectId], default: [] },
   consumers: [ { type: String, default: [] }],
   providers: [ { type: String, default: [] }],
-  endpoints: { type: Number, default: 0 }
+  metrics: { type: mongoose.Schema.Types.ObjectId, default: '' }
 });
 
 module.exports = mongoose.model('Analysis', AnalysisSchema);

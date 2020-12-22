@@ -31,6 +31,13 @@ async function projects() {
       "name": "[Team] flow-service",
     })
     .expectStatus(200);
+  await pactum.spec()
+    .post('/api/flow/v1/projects')
+    .withJson({
+      "id": "team_process-service",
+      "name": "[Team] process-service",
+    })
+    .expectStatus(200);
 }
 
 async function analyses() {
@@ -42,7 +49,16 @@ async function analyses() {
       "version": "1.0.2",
     })
     .expectStatus(200)
-    .stores('AID1', '_id');
+    .stores('P1A1', '_id');
+  await pactum.spec()
+    .post('/api/flow/v1/analyses')
+    .withJson({
+      "projectId": "team_process-service",
+      "branch": "main",
+      "version": "2.2.1",
+    })
+    .expectStatus(200)
+    .stores('P3A1', '_id');
 }
 
 async function interactions() {
@@ -50,8 +66,20 @@ async function interactions() {
     .post('/api/flow/v1/interactions')
     .withJson([
       {
-        "analysisId": "$S{AID1}",
+        "analysisId": "$S{P1A1}",
         "provider": "team_flow-service",
+        "flow": "some flow name",
+        "request": {},
+        "response": {}
+      }
+    ])
+    .expectStatus(200);
+  await pactum.spec()
+    .post('/api/flow/v1/interactions')
+    .withJson([
+      {
+        "analysisId": "$S{P3A1}",
+        "provider": "team_login-service",
         "flow": "some flow name",
         "request": {},
         "response": {}
