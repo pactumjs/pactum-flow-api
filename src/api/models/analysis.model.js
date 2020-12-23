@@ -10,8 +10,7 @@ const AnalysisSchema = new Schema({
   interactions: { type: [mongoose.Schema.Types.ObjectId], default: [] },
   flows: { type: [mongoose.Schema.Types.ObjectId], default: [] },
   consumers: [ { type: String, default: [] }],
-  providers: [ { type: String, default: [] }],
-  metrics: { type: mongoose.Schema.Types.ObjectId, default: '' }
+  providers: [ { type: String, default: [] }]
 });
 
 module.exports = mongoose.model('Analysis', AnalysisSchema);

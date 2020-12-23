@@ -2,13 +2,15 @@ const AnalysisRepository = require('../repository/analysis.repository');
 const ProjectRepository = require('../repository/project.repository');
 const InteractionRepository = require('../repository/interaction.repository');
 const FlowRepository = require('../repository/flow.repository');
+const MetricsRepository = require('../repository/metrics.repository');
 
 class AnalysisProcessor {
 
-  constructor(analysis) {
+  constructor(analysis, isProcessed) {
     this.project = null;
     this.projects = [];
     this.analysis = analysis;
+    this.isProcessed = isProcessed;
     this.interactions = [];
     this.flows = [];
     this.providers = [];
@@ -21,13 +23,18 @@ class AnalysisProcessor {
   }
 
   async process() {
-    await this.setProjects();
-    await this.setCurrentAnalysis();
-    await this.setPreviousAnalysis();
-    await this.processAnalysis();
-    await this.processMetrics();
-    // await this.processFlows();
-    // await this.addAnalysisToProject();
+    try {
+      await this.setProjects();
+      await this.setCurrentAnalysis();
+      await this.setPreviousAnalysis();
+      await this.processAnalysis();
+      await this.processMetrics();
+      if (!this.isProcessed) {
+        await this.addAnalysisToProject();
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async setProjects() {
@@ -45,7 +52,7 @@ class AnalysisProcessor {
     this.interactions.forEach(interaction => providers.add(interaction.provider));
     this.providers = Array.from(providers);
     const lastAnalysisIds = [];
-    for(let i = 0; i < this.projects.length; i++) {
+    for (let i = 0; i < this.projects.length; i++) {
       const project = this.projects[i];
       const ids = project.analysis.main;
       if (ids.length > 0) {
@@ -54,7 +61,7 @@ class AnalysisProcessor {
     }
     const analysisRepo = new AnalysisRepository();
     const lastAnalyses = await analysisRepo.getByIds(lastAnalysisIds);
-    for(let i = 0; i < lastAnalyses.length; i++) {
+    for (let i = 0; i < lastAnalyses.length; i++) {
       const analysis = lastAnalyses[i];
       const providers = analysis.providers;
       if (providers.includes(this.project._id)) {
@@ -85,7 +92,7 @@ class AnalysisProcessor {
 
   async processMetrics() {
     const metrics = [];
-    const analysisRepo = new AnalysisRepository();
+    const metricsRepo = new MetricsRepository();
     const newInteractions = interactionDifferences(this.interactions, this.prevInteractions);
     const removedInteractions = interactionDifferences(this.prevInteractions, this.interactions);
     metrics.push({
@@ -93,33 +100,40 @@ class AnalysisProcessor {
       new: newInteractions.map(interaction => interaction._id),
       removed: removedInteractions.map(interaction => interaction._id),
     });
-    const newProviders = this.providers.filter(x => !this.prevProviders.includes(x) );
-    const removedProviders = this.prevProviders.filter(x => !this.providers.includes(x) );
+    const newProviders = this.providers.filter(x => !this.prevProviders.includes(x));
+    const removedProviders = this.prevProviders.filter(x => !this.providers.includes(x));
     metrics.push({
       name: 'Providers',
       new: newProviders,
       removed: removedProviders,
     });
-    const newConsumers = this.consumers.filter(x => !this.prevConsumers.includes(x) );
-    const removedConsumers = this.prevConsumers.filter(x => !this.consumers.includes(x) );
+    const newConsumers = this.consumers.filter(x => !this.prevConsumers.includes(x));
+    const removedConsumers = this.prevConsumers.filter(x => !this.consumers.includes(x));
     metrics.push({
       name: 'Consumers',
       new: newConsumers,
       removed: removedConsumers,
     });
-    // flow metrics
-    await analysisRepo.saveMetrics(metrics);
-    // save provider metrics
-  }
-
-  async processFlows() {
-    // process flows
-    // get new flows
-    // get removed flows
-    // get new endpoints
-    // get removed endpoints
-    // compare flows
-    // consumer verification
+    const newFlows = flowDifferences(this.flows, this.prevFlows);
+    const removedFlows = flowDifferences(this.prevFlows, this.flows);
+    metrics.push({
+      name: 'Flows',
+      new: newFlows.map(flow => flow._id),
+      removed: removedFlows.map(flow => flow._id),
+    });
+    const data = {
+      _id: this.analysis._id,
+      metrics
+    };
+    await metricsRepo.saveAnalysisMetrics(data);
+    await metricsRepo.saveProjectMetrics({
+      _id: this.project._id,
+      name: this.project.name,
+      flows: this.flows.length,
+      consumers: this.consumers.length,
+      providers: this.providers.length,
+      interactions: this.interactions.length
+    });
   }
 
   async addAnalysisToProject() {
@@ -149,6 +163,24 @@ function interactionDifferences(sources, targets) {
   return diff;
 }
 
+function flowDifferences(sources, targets) {
+  const diff = [];
+  for (let i = 0; i < sources.length; i++) {
+    const source = sources[i];
+    let found = false;
+    for (let j = 0; j < targets.length; j++) {
+      if (source.name === targets[j].name) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      diff.push(source);
+    }
+  }
+  return diff;
+}
+
 class ProcessorService {
 
   constructor(req, res) {
@@ -161,14 +193,33 @@ class ProcessorService {
       const id = this.req.body.id;
       const analysisRepo = new AnalysisRepository();
       const analysis = await analysisRepo.getById(id);
-      const processor = new AnalysisProcessor(analysis);
-      processor.process();
-      this.res.status(202).json({ id });
+      if (analysis) {
+        const isProcessed = await isAnalysisProcessed(id);
+        if (!isProcessed) {
+          const processor = new AnalysisProcessor(analysis);
+          processor.process();
+          this.res.status(202).json({ id });
+        } else {
+          this.res.status(400).json({ message: 'Analysis already processed' });
+        }
+      } else {
+        this.res.status(404).json({ message: 'Analysis Not Found' });
+      }
     } catch (error) {
       handlerError(this.res, error);
     }
   }
 
+}
+
+async function isAnalysisProcessed(id) {
+  try {
+    const metricsRepo = new MetricsRepository();
+    const doc = await metricsRepo.getAnalysisMetricsById(id);
+    return doc ? true : false;
+  } catch (error) {
+    return false;
+  }
 }
 
 function handlerError(res, error) {

@@ -1,5 +1,4 @@
 const Analysis = require('../models/analysis.model');
-const AnalysisMetrics = require('../models/analysis.metrics.model');
 
 class AnalysisRepository {
 
@@ -43,12 +42,6 @@ class AnalysisRepository {
 
   updateConsumers(_id, consumers) {
     return Analysis.updateOne({ _id }, { $set : { consumers }});
-  }
-
-  async saveMetrics(data) {
-    const metrics = new AnalysisMetrics({ metrics: data });
-    const doc = await metrics.save();
-    return doc;
   }
 
 }
