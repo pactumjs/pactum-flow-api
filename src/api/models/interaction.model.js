@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const InteractionSchema = new Schema({
+  projectId: { type: String, required: true },
   analysisId: { type: mongoose.Schema.Types.ObjectId, required: true },
   provider: { type: String, required: true },
   flow: { type: String, required: true },

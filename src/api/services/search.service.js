@@ -1,12 +1,12 @@
+const BaseService = require('./base.service');
 const AnalysisRepository = require('../repository/analysis.repository');
 const InteractionRepository = require('../repository/interaction.repository');
 const FlowRepository = require('../repository/flow.repository');
 
-class InteractionService {
+class InteractionService extends BaseService {
 
   constructor(req, res) {
-    this.req = req;
-    this.res = res;
+    super(req, res);
   }
 
   async postSearchAnalysesResponse() {
@@ -15,7 +15,7 @@ class InteractionService {
       const doc = await analysisRepo.getByIds(this.req.body.ids);
       this.res.status(200).json(doc);
     } catch (error) {
-      handlerError(this.res, error);
+      this.handleError(error);
     }
   }
 
@@ -25,7 +25,7 @@ class InteractionService {
       const doc = await interactionRepo.getByIds(this.req.body.ids);
       this.res.status(200).json(doc);
     } catch (error) {
-      handlerError(this.res, error);
+      this.handleError(error);
     }
   }
 
@@ -35,15 +35,10 @@ class InteractionService {
       const doc = await flowRepo.getByIds(this.req.body.ids);
       this.res.status(200).json(doc);
     } catch (error) {
-      handlerError(this.res, error);
+      this.handleError(error);
     }
   }
 
-}
-
-function handlerError(res, error) {
-  console.log(error);
-  res.status(500).json({ error: "Internal Server Error" });
 }
 
 module.exports = InteractionService;

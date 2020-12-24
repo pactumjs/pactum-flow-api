@@ -7,7 +7,7 @@ class ProjectRepository {
   }
 
   getById(_id) {
-    return Project.findById({_id});
+    return Project.findById({ _id });
   }
 
   async save(data) {
@@ -23,9 +23,18 @@ class ProjectRepository {
   addAnalysis(_id, analysis) {
     const { branch, _id: aId } = analysis;
     if (!branch || branch === 'main' || branch === 'master') {
-      return Project.updateOne({ _id}, { $push: { "analysis.main": aId }});
+      return Project.updateOne({ _id }, { $push: { "analysis.main": aId } });
     } else {
-      return Project.updateOne({ _id}, { $push: { "analysis.branch": aId }});
+      return Project.updateOne({ _id }, { $push: { "analysis.branch": aId } });
+    }
+  }
+
+  deleteAnalysis(_id, analysis) {
+    const { branch, _id: aId } = analysis;
+    if (!branch || branch === 'main' || branch === 'master') {
+      return Project.updateOne({ _id }, { $pull: { "analysis.main": aId } });
+    } else {
+      return Project.updateOne({ _id }, { $pull: { "analysis.branch": aId } });
     }
   }
 

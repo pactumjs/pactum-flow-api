@@ -294,6 +294,24 @@ paths:
           schema:
             $ref: "#/definitions/HealthResponse"
     x-swagger-router-controller: "metric.controller"
+  /metrics/analysis/{id}:
+    get:
+      tags:
+        - "Metrics"
+      description: "get analysis metrics"
+      operationId: "getAnalysisMetrics"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "analysis id to fetch"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/HealthResponse"
+    x-swagger-router-controller: "metric.controller"
   /process/analysis:
     post:
       tags:

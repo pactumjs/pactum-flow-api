@@ -1,8 +1,9 @@
-class HealthService {
+const BaseService = require('./base.service');
+
+class HealthService extends BaseService {
 
   constructor(req, res) {
-    this.req = req;
-    this.res = res;
+    super(req, res);
   }
 
   getResponse() {

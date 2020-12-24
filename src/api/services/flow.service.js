@@ -1,11 +1,11 @@
+const BaseService = require('./base.service');
 const FlowRepository = require('../repository/flow.repository');
 const AnalysisRepository = require('../repository/analysis.repository');
 
-class FlowService {
+class FlowService extends BaseService {
 
   constructor(req, res) {
-    this.req = req;
-    this.res = res;
+    super(req, res);
   }
 
   async getFlowResponse() {
@@ -15,7 +15,7 @@ class FlowService {
       const doc = await flowRepo.getById(id);
       this.res.status(200).json(doc);
     } catch (error) {
-      handlerError(this.res, error);
+      this.handleError(error);
     }
   }
 
@@ -25,7 +25,7 @@ class FlowService {
       const doc = await flowRepo.get(this.req.query);
       this.res.status(200).json(doc);
     } catch (error) {
-      handlerError(this.res, error);
+      this.handleError(error);
     }
   }
 
@@ -44,15 +44,10 @@ class FlowService {
       }
       this.res.status(200).json(docs);
     } catch (error) {
-      handlerError(this.res, error);
+      this.handleError(error);
     }
   }
 
-}
-
-function handlerError(res, error) {
-  console.log(error);
-  res.status(500).json({ error: "Internal Server Error" });
 }
 
 module.exports = FlowService;

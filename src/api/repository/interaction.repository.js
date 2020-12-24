@@ -24,6 +24,14 @@ class InteractionRepository {
     return Interaction.deleteOne({ _id: id });
   }
 
+  deleteByAnalysisId(id) {
+    return Interaction.deleteMany({ analysisId: id });
+  }
+
+  deleteByProjectId(id) {
+    return Interaction.deleteMany({ projectId: id });
+  }
+
 }
 
 module.exports = InteractionRepository;

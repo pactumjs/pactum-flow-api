@@ -1,11 +1,11 @@
+const BaseService = require('./base.service');
 const InteractionRepository = require('../repository/interaction.repository');
 const AnalysisRepository = require('../repository/analysis.repository');
 
-class InteractionService {
+class InteractionService extends BaseService {
 
   constructor(req, res) {
-    this.req = req;
-    this.res = res;
+    super(req, res);
   }
 
   async getInteractionByIdResponse() {
@@ -15,7 +15,7 @@ class InteractionService {
       const doc = await interactionRepo.getById(id);
       this.res.status(200).json(doc);
     } catch (error) {
-      handlerError(this.res, error);
+      this.handleError(error);
     }
   }
 
@@ -25,7 +25,7 @@ class InteractionService {
       const doc = await interactionRepo.get(this.req.query);
       this.res.status(200).json(doc);
     } catch (error) {
-      handlerError(this.res, error);
+      this.handleError(error);
     }
   }
 
@@ -35,23 +35,31 @@ class InteractionService {
       const analysisRepo = new AnalysisRepository();
       const interactions = this.req.body;
       const docs = [];
+      const analyses = [];
       for (let i = 0; i < interactions.length; i++) {
         const interaction = interactions[i];
-        const doc = await interactionRepo.save(interaction);
-        await analysisRepo.addInteraction(interaction.analysisId, doc._id);
-        docs.push(doc);
+        let analysis = analyses.find(_analysis => _analysis._id.toString() === interaction.analysisId.toString());
+        if (!analysis) {
+          analysis =  await analysisRepo.getById(interaction.analysisId);
+          if (analysis) {
+            analyses.push(analysis);
+          }
+        }
+        if (analysis) {
+          interaction.projectId = analysis.projectId;
+          const doc = await interactionRepo.save(interaction);
+          await analysisRepo.addInteraction(interaction.analysisId, doc._id);
+          docs.push(doc);
+        } else {
+          // throw analysis not found error
+        }
       }
       this.res.status(200).json(docs);
     } catch (error) {
-      handlerError(this.res, error);
+      this.handleError(error);
     }
   }
 
-}
-
-function handlerError(res, error) {
-  console.log(error);
-  res.status(500).json({ error: "Internal Server Error" });
 }
 
 module.exports = InteractionService;

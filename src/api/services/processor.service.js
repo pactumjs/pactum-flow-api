@@ -1,3 +1,4 @@
+const BaseService = require('./base.service');
 const AnalysisRepository = require('../repository/analysis.repository');
 const ProjectRepository = require('../repository/project.repository');
 const InteractionRepository = require('../repository/interaction.repository');
@@ -6,11 +7,10 @@ const MetricsRepository = require('../repository/metrics.repository');
 
 class AnalysisProcessor {
 
-  constructor(analysis, isProcessed) {
+  constructor(analysis) {
     this.project = null;
     this.projects = [];
     this.analysis = analysis;
-    this.isProcessed = isProcessed;
     this.interactions = [];
     this.flows = [];
     this.providers = [];
@@ -29,9 +29,7 @@ class AnalysisProcessor {
       await this.setPreviousAnalysis();
       await this.processAnalysis();
       await this.processMetrics();
-      if (!this.isProcessed) {
-        await this.addAnalysisToProject();
-      }
+      await this.addAnalysisToProject();
     } catch (error) {
       console.log(error);
     }
@@ -123,6 +121,7 @@ class AnalysisProcessor {
     });
     const data = {
       _id: this.analysis._id,
+      projectId: this.project._id,
       metrics
     };
     await metricsRepo.saveAnalysisMetrics(data);
@@ -181,11 +180,10 @@ function flowDifferences(sources, targets) {
   return diff;
 }
 
-class ProcessorService {
+class ProcessorService extends BaseService {
 
   constructor(req, res) {
-    this.req = req;
-    this.res = res;
+    super(req, res);
   }
 
   async postProcessAnalysisResponse() {
@@ -206,7 +204,7 @@ class ProcessorService {
         this.res.status(404).json({ message: 'Analysis Not Found' });
       }
     } catch (error) {
-      handlerError(this.res, error);
+      this.handleError(error);
     }
   }
 
@@ -220,11 +218,6 @@ async function isAnalysisProcessed(id) {
   } catch (error) {
     return false;
   }
-}
-
-function handlerError(res, error) {
-  console.log(error);
-  res.status(500).json({ error: "Internal Server Error" });
 }
 
 module.exports = ProcessorService;
