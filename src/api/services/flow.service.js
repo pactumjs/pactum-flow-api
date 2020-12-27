@@ -35,12 +35,25 @@ class FlowService extends BaseService {
       const analysisRepo = new AnalysisRepository();
       const flows = this.req.body;
       const docs = [];
+      const analyses = [];
       for (let i = 0; i < flows.length; i++) {
         const flow = flows[i];
-        flow.createdAt = new Date();
-        const doc = await flowRepo.save(flow);
-        await analysisRepo.addFlow(flow.analysisId, doc._id);
-        docs.push(doc);
+        let analysis = analyses.find(_analysis => _analysis._id.toString() === flow.analysisId.toString());
+        if (!analysis) {
+          analysis = await analysisRepo.getById(flow.analysisId);
+          if (analysis) {
+            analyses.push(analysis);
+          }
+        }
+        if (analysis) {
+          flow.projectId = analysis.projectId;
+          flow.createdAt = new Date();
+          const doc = await flowRepo.save(flow);
+          await analysisRepo.addFlow(flow.analysisId, doc._id);
+          docs.push(doc);
+        } else {
+          // throw analysis not found error
+        }
       }
       this.res.status(200).json(docs);
     } catch (error) {

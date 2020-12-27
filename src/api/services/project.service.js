@@ -5,6 +5,8 @@ const InteractionRepository = require('../repository/interaction.repository');
 const FlowRepository = require('../repository/flow.repository');
 const MetricsRepository = require('../repository/metrics.repository');
 
+const { ClientRequestError } = require('../../utils/errors');
+
 class ProjectService extends BaseService {
 
   constructor(req, res) {
@@ -16,6 +18,9 @@ class ProjectService extends BaseService {
       const projectRepo = new ProjectRepository();
       const id = this.req.swagger.params.id.value;
       const doc = await projectRepo.getById(id);
+      if (!doc) {
+        throw new ClientRequestError('Project does not exist', 404);
+      }
       this.res.status(200).json(doc);
     } catch (error) {
       this.handleError(error);
@@ -41,13 +46,22 @@ class ProjectService extends BaseService {
       const doc = await projectRepo.save(project);
       this.res.status(200).json(doc);
     } catch (error) {
-      this.handleError(error);
+      if (error.toString().includes('duplicate key')) {
+        this.handleError(new ClientRequestError('Project already exists', 400));
+      } else {
+        this.handleError(error);
+      }
     }
   }
 
   async deleteProjectResponse() {
     try {
       const id = this.req.swagger.params.id.value;
+      const projectRepo = new ProjectRepository();
+      const _doc = await projectRepo.getById(id);
+      if (!_doc) {
+        throw new ClientRequestError('Project does not exist', 404);
+      }
       const flowRepo = new FlowRepository();
       await flowRepo.deleteByProjectId(id);
       const interactionRepo = new InteractionRepository();
@@ -57,7 +71,6 @@ class ProjectService extends BaseService {
       const metricsRepo = new MetricsRepository();
       await metricsRepo.deleteProjectMetrics(id);
       await metricsRepo.deleteAnalysisMetricsByProjectId(id);
-      const projectRepo = new ProjectRepository();
       const doc = await projectRepo.delete(id);
       this.res.status(200).json(doc);
     } catch (error) {

@@ -294,7 +294,7 @@ paths:
           schema:
             $ref: "#/definitions/HealthResponse"
     x-swagger-router-controller: "metric.controller"
-  /metrics/analysis/{id}:
+  /metrics/analyses/{id}:
     get:
       tags:
         - "Metrics"
@@ -442,8 +442,6 @@ definitions:
   Flow:
     type: "object"
     properties:
-      projectId:
-        type: "string"
       analysisId:
         type: "string"
       name:
@@ -453,7 +451,6 @@ definitions:
       response:
         $ref: "#/definitions/FlowResponse"
     required:
-     - "projectId"
      - "analysisId"
      - "name"
      - "request"

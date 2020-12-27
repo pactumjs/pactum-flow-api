@@ -1,10 +1,10 @@
-const pactum = require('pactum');
+// const pactum = require('pactum');
 
-describe('Fuzz', () => {
+// describe('Fuzz', () => {
 
-  it('fuzz tests', async () => {
-    await pactum.fuzz()
-      .onSwagger('/api/flow/v1/json');
-  }).timeout(10000);
+//   it('fuzz tests', async () => {
+//     await pactum.fuzz()
+//       .onSwagger('/api/flow/v1/json');
+//   }).timeout(10000);
 
-});
+// });
