@@ -5,6 +5,8 @@ const InteractionRepository = require('../repository/interaction.repository');
 const FlowRepository = require('../repository/flow.repository');
 const MetricsRepository = require('../repository/metrics.repository');
 
+// TODO: move repo to base service
+
 const { ClientRequestError } = require('../../utils/errors');
 
 class ProjectService extends BaseService {
@@ -66,6 +68,7 @@ class ProjectService extends BaseService {
       await flowRepo.deleteByProjectId(id);
       const interactionRepo = new InteractionRepository();
       await interactionRepo.deleteByProjectId(id);
+      // TODO: remove requests & responses
       const analysisRepo = new AnalysisRepository();
       await analysisRepo.deleteByProjectId(id);
       const metricsRepo = new MetricsRepository();

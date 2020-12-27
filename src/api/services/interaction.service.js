@@ -1,6 +1,7 @@
 const BaseService = require('./base.service');
 const InteractionRepository = require('../repository/interaction.repository');
 const AnalysisRepository = require('../repository/analysis.repository');
+const ExchangeRepository = require('../repository/exchange.repository');
 
 class InteractionService extends BaseService {
 
@@ -33,6 +34,7 @@ class InteractionService extends BaseService {
     try {
       const interactionRepo = new InteractionRepository();
       const analysisRepo = new AnalysisRepository();
+      const exchangeRepo = new ExchangeRepository();
       const interactions = this.req.body;
       const docs = [];
       const analyses = [];
@@ -45,10 +47,20 @@ class InteractionService extends BaseService {
             analyses.push(analysis);
           }
         }
+        // TODO - check if analysis is already processed
         if (analysis) {
           interaction.projectId = analysis.projectId;
+          // TODO - add info
           const doc = await interactionRepo.save(interaction);
           await analysisRepo.addInteraction(interaction.analysisId, doc._id);
+          interaction.request._id = doc._id;
+          interaction.request.projectId = interaction.projectId;
+          interaction.request.analysisId = interaction.analysisId;
+          await exchangeRepo.saveRequest(interaction.request);
+          interaction.response._id = doc._id;
+          interaction.response.projectId = interaction.projectId;
+          interaction.response.analysisId = interaction.analysisId;
+          await exchangeRepo.saveResponse(interaction.response);
           docs.push(doc);
         } else {
           // throw analysis not found error

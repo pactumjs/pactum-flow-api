@@ -388,6 +388,42 @@ paths:
           schema:
             $ref: "#/definitions/Flows"
     x-swagger-router-controller: "search.controller"
+  /requests/{id}:
+    get:
+      tags:
+        - "Exchanges"
+      description: "get request with id"
+      operationId: "getExchangeRequestById"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "request id to fetch"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/FlowRequest"
+    x-swagger-router-controller: "exchange.controller"
+  /responses/{id}:
+    get:
+      tags:
+        - "Exchanges"
+      description: "get response with id"
+      operationId: "getExchangeResponseById"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "response id to fetch"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/FlowResponse"
+    x-swagger-router-controller: "exchange.controller"
 definitions:
   Project:
     type: "object"

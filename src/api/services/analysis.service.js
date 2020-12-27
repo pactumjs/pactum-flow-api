@@ -54,6 +54,7 @@ class AnalysisService extends BaseService {
         await flowRepo.deleteByAnalysisId(id);
         const interactionRepo = new InteractionRepository();
         await interactionRepo.deleteByAnalysisId(id);
+        // TODO: remove requests & responses
         const metricsRepo = new MetricsRepository();
         await metricsRepo.deleteAnalysisMetrics(id);
         // TODO: remove/update project metrics if this is the last analysis
