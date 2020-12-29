@@ -1,7 +1,4 @@
 const BaseService = require('./base.service');
-const FlowRepository = require('../repository/flow.repository');
-const AnalysisRepository = require('../repository/analysis.repository');
-const ExchangeRepository = require('../repository/exchange.repository');
 
 class FlowService extends BaseService {
 
@@ -11,9 +8,8 @@ class FlowService extends BaseService {
 
   async getFlowResponse() {
     try {
-      const flowRepo = new FlowRepository();
       const id = this.req.swagger.params.id.value;
-      const doc = await flowRepo.getById(id);
+      const doc = await this.$repo.flow.getById(id);
       this.res.status(200).json(doc);
     } catch (error) {
       this.handleError(error);
@@ -22,8 +18,7 @@ class FlowService extends BaseService {
 
   async getFlowsResponse() {
     try {
-      const flowRepo = new FlowRepository();
-      const doc = await flowRepo.get(this.req.query);
+      const doc = await this.$repo.flow.get(this.req.query);
       this.res.status(200).json(doc);
     } catch (error) {
       this.handleError(error);
@@ -32,9 +27,6 @@ class FlowService extends BaseService {
 
   async postFlowsResponse() {
     try {
-      const flowRepo = new FlowRepository();
-      const analysisRepo = new AnalysisRepository();
-      const exchangeRepo = new ExchangeRepository();
       const flows = this.req.body;
       const docs = [];
       const analyses = [];
@@ -42,26 +34,30 @@ class FlowService extends BaseService {
         const flow = flows[i];
         let analysis = analyses.find(_analysis => _analysis._id.toString() === flow.analysisId.toString());
         if (!analysis) {
-          analysis = await analysisRepo.getById(flow.analysisId);
+          analysis = await this.$repo.analysis.getById(flow.analysisId);
           if (analysis) {
             analyses.push(analysis);
           }
         }
-        // TODO - check if analysis is already processed
         if (analysis) {
-          flow.projectId = analysis.projectId;
-          // TODO - add info
-          const doc = await flowRepo.save(flow);
-          await analysisRepo.addFlow(flow.analysisId, doc._id);
-          flow.request._id = doc._id;
-          flow.request.projectId = flow.projectId;
-          flow.request.analysisId = flow.analysisId;
-          await exchangeRepo.saveRequest(flow.request);
-          flow.response._id = doc._id;
-          flow.response.projectId = flow.projectId;
-          flow.response.analysisId = flow.analysisId;
-          await exchangeRepo.saveResponse(flow.response);
-          docs.push(doc);
+          if (analysis.processed) {
+            // throw analysis already processed error
+          } else {
+            const request = flow.request;
+            const response = flow.response;
+            flow.projectId = analysis.projectId;
+            flow.info = `${request.method}::${request.path}::${response.statusCode}`;
+            const doc = await this.$repo.flow.save(flow);
+            request._id = doc._id;
+            request.projectId = flow.projectId;
+            request.analysisId = flow.analysisId;
+            await  this.$repo.exchange.saveRequest(request);
+            response._id = doc._id;
+            response.projectId = flow.projectId;
+            response.analysisId = flow.analysisId;
+            await  this.$repo.exchange.saveResponse(response);
+            docs.push(doc);
+          }
         } else {
           // throw analysis not found error
         }

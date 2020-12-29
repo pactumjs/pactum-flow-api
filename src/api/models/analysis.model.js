@@ -7,10 +7,9 @@ const AnalysisSchema = new Schema({
   branch: { type: String, default: 'main' },
   version: { type: String, default: 'NA' },
   createdAt: { type: Date, required: true },
-  interactions: { type: [mongoose.Schema.Types.ObjectId], default: [] },
-  flows: { type: [mongoose.Schema.Types.ObjectId], default: [] },
-  consumers: [ { type: String, default: [] }],
-  providers: [ { type: String, default: [] }]
+  processed: { type: Boolean, default: false }
 });
+
+AnalysisSchema.index({ projectId: 1, version: 1}, { unique: true });
 
 module.exports = mongoose.model('Analysis', AnalysisSchema);

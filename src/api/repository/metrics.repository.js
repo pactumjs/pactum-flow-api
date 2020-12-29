@@ -6,6 +6,10 @@ class MetricsRepository {
     return AnalysisMetrics.findById({ _id });
   }
 
+  getAnalysisMetricsByIds(ids) {
+    return AnalysisMetrics.find({ _id: { $in: ids } });
+  }
+
   saveAnalysisMetrics(data) {
     return AnalysisMetrics.updateOne({ _id: data._id }, data, { upsert: true });
   }

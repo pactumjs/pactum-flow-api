@@ -10,7 +10,7 @@ before(async () => {
   request.setBaseUrl('http://localhost:3000');
   await clean();
   pf.config.url = 'http://localhost:3000';
-  pf.config.projectId = '[PACTUM] flow-api';
+  pf.config.projectId = 'pactum_flow-api';
   pf.config.projectName = '[PACTUM] flow-api';
   pf.config.version = '1.0.1';
   reporter.add(pf.reporter);
@@ -19,6 +19,6 @@ before(async () => {
 after(async () => {
   await clean();
   await reporter.end();
-  await sleep(100);
+  await sleep(500); // wait for analysis process to complete
   await app.stop();
 });

@@ -27,7 +27,6 @@ class AnalysisProcessor {
       await this.setProjects();
       await this.setCurrentAnalysis();
       await this.setPreviousAnalysis();
-      await this.processAnalysis();
       await this.processMetrics();
       await this.addAnalysisToProject();
     } catch (error) {
@@ -43,9 +42,9 @@ class AnalysisProcessor {
 
   async setCurrentAnalysis() {
     const interactionRepo = new InteractionRepository();
-    this.interactions = await interactionRepo.getByIds(this.analysis.interactions);
+    this.interactions = await interactionRepo.get({ analysisId: this.analysis._id });
     const flowRepo = new FlowRepository();
-    this.flows = await flowRepo.getByIds(this.analysis.flows);
+    this.flows = await flowRepo.get({ analysisId: this.analysis._id });
     const providers = new Set();
     this.interactions.forEach(interaction => providers.add(interaction.provider));
     this.providers = Array.from(providers);
@@ -57,13 +56,13 @@ class AnalysisProcessor {
         lastAnalysisIds.push(ids[ids.length - 1]);
       }
     }
-    const analysisRepo = new AnalysisRepository();
-    const lastAnalyses = await analysisRepo.getByIds(lastAnalysisIds);
-    for (let i = 0; i < lastAnalyses.length; i++) {
-      const analysis = lastAnalyses[i];
-      const providers = analysis.providers;
+    const metricsRepo = new MetricsRepository();
+    const metrics = await metricsRepo.getAnalysisMetricsByIds(lastAnalysisIds);
+    for (let i = 0; i < metrics.length; i++) {
+      const metric = metrics[i];
+      const providers = metric.providers.total;
       if (providers.includes(this.project._id)) {
-        this.consumers.push(analysis.projectId);
+        this.consumers.push(metric.projectId);
       }
     }
   }
@@ -74,57 +73,50 @@ class AnalysisProcessor {
       const analysisRepo = new AnalysisRepository();
       this.prevAnalysis = await analysisRepo.getById(ids[ids.length - 1]);
       const interactionRepo = new InteractionRepository();
-      this.prevInteractions = await interactionRepo.getByIds(this.prevAnalysis.interactions);
+      this.prevInteractions = await interactionRepo.get({ analysisId: this.prevAnalysis._id });
       const flowRepo = new FlowRepository();
-      this.prevFlows = await flowRepo.getByIds(this.prevAnalysis.flows);
-      this.prevProviders = this.prevAnalysis.providers;
-      this.prevConsumers = this.prevAnalysis.consumers;
+      this.prevFlows = await flowRepo.get({ analysisId: this.prevAnalysis._id });
+      const metricsRepo = new MetricsRepository();
+      const metric = await metricsRepo.getAnalysisMetricsById(this.prevAnalysis._id);
+      this.prevProviders = metric.providers.total;
+      this.prevConsumers = metric.consumers.total;
     }
   }
 
-  async processAnalysis() {
-    const analysisRepo = new AnalysisRepository();
-    await analysisRepo.updateProviders(this.analysis._id, this.providers);
-    await analysisRepo.updateConsumers(this.analysis._id, this.consumers);
-  }
-
   async processMetrics() {
-    const metrics = [];
+    const metrics = {};
     const metricsRepo = new MetricsRepository();
     const newInteractions = interactionDifferences(this.interactions, this.prevInteractions);
     const removedInteractions = interactionDifferences(this.prevInteractions, this.interactions);
-    metrics.push({
-      name: 'Interactions',
+    metrics.interactions = {
+      total: this.interactions.map(interaction => interaction._id),
       new: newInteractions.map(interaction => interaction._id),
       removed: removedInteractions.map(interaction => interaction._id),
-    });
+    };
     const newProviders = this.providers.filter(x => !this.prevProviders.includes(x));
     const removedProviders = this.prevProviders.filter(x => !this.providers.includes(x));
-    metrics.push({
-      name: 'Providers',
+    metrics.providers = {
+      total: this.providers,
       new: newProviders,
       removed: removedProviders,
-    });
+    };
     const newConsumers = this.consumers.filter(x => !this.prevConsumers.includes(x));
     const removedConsumers = this.prevConsumers.filter(x => !this.consumers.includes(x));
-    metrics.push({
-      name: 'Consumers',
+    metrics.consumers = {
+      total: this.consumers,
       new: newConsumers,
       removed: removedConsumers,
-    });
+    };
     const newFlows = flowDifferences(this.flows, this.prevFlows);
     const removedFlows = flowDifferences(this.prevFlows, this.flows);
-    metrics.push({
-      name: 'Flows',
+    metrics.flows = {
+      total: this.flows.map(flow => flow._id),
       new: newFlows.map(flow => flow._id),
       removed: removedFlows.map(flow => flow._id),
-    });
-    const data = {
-      _id: this.analysis._id,
-      projectId: this.project._id,
-      metrics
     };
-    await metricsRepo.saveAnalysisMetrics(data);
+    metrics._id = this.analysis._id;
+    metrics.projectId = this.project._id;
+    await metricsRepo.saveAnalysisMetrics(metrics);
     await metricsRepo.saveProjectMetrics({
       _id: this.project._id,
       name: this.project.name,
@@ -138,6 +130,8 @@ class AnalysisProcessor {
   async addAnalysisToProject() {
     const projectRepo = new ProjectRepository();
     await projectRepo.addAnalysis(this.analysis.projectId, this.analysis);
+    const analysisRepo = new AnalysisRepository();
+    await analysisRepo.updateProcess(this.analysis._id, true);
   }
 
 }
@@ -192,8 +186,7 @@ class ProcessorService extends BaseService {
       const analysisRepo = new AnalysisRepository();
       const analysis = await analysisRepo.getById(id);
       if (analysis) {
-        const isProcessed = await isAnalysisProcessed(id);
-        if (!isProcessed) {
+        if (!analysis.processed) {
           const processor = new AnalysisProcessor(analysis);
           processor.process();
           this.res.status(202).json({ id });
@@ -208,16 +201,6 @@ class ProcessorService extends BaseService {
     }
   }
 
-}
-
-async function isAnalysisProcessed(id) {
-  try {
-    const metricsRepo = new MetricsRepository();
-    const doc = await metricsRepo.getAnalysisMetricsById(id);
-    return doc ? true : false;
-  } catch (error) {
-    return false;
-  }
 }
 
 module.exports = ProcessorService;

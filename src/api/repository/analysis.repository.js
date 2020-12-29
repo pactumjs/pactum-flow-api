@@ -28,20 +28,8 @@ class AnalysisRepository {
     return Analysis.deleteMany({ projectId: id });
   }
 
-  addFlow(_id, flowId) {
-    return Analysis.updateOne({ _id }, { $push: { flows: flowId } });
-  }
-
-  addInteraction(_id, interactionId) {
-    return Analysis.updateOne({ _id }, { $push: { interactions: interactionId } });
-  }
-
-  updateProviders(_id, providers) {
-    return Analysis.updateOne({ _id }, { $set : { providers }});
-  }
-
-  updateConsumers(_id, consumers) {
-    return Analysis.updateOne({ _id }, { $set : { consumers }});
+  updateProcess(_id, processed) {
+    return Analysis.updateOne({ _id }, { $set: { processed } });
   }
 
 }

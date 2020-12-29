@@ -1,9 +1,4 @@
 const BaseService = require('./base.service');
-const ProjectRepository = require('../repository/project.repository');
-const AnalysisRepository = require('../repository/analysis.repository');
-const InteractionRepository = require('../repository/interaction.repository');
-const FlowRepository = require('../repository/flow.repository');
-const MetricsRepository = require('../repository/metrics.repository');
 
 class AnalysisService extends BaseService {
 
@@ -13,10 +8,13 @@ class AnalysisService extends BaseService {
 
   async getAnalysisByIdResponse() {
     try {
-      const analysisRepo = new AnalysisRepository();
       const id = this.req.swagger.params.id.value;
-      const doc = await analysisRepo.getById(id);
-      this.res.status(200).json(doc);
+      const doc = await this.$repo.analysis.getById(id);
+      if (doc) {
+        this.res.status(200).json(doc);
+      } else {
+        this.res.status(404).json({ message: 'Analysis not found' });
+      }
     } catch (error) {
       this.handleError(error);
     }
@@ -24,8 +22,7 @@ class AnalysisService extends BaseService {
 
   async getAnalysesResponse() {
     try {
-      const analysisRepo = new AnalysisRepository();
-      const doc = await analysisRepo.get(this.req.query);
+      const doc = await this.$repo.analysis.get(this.req.query);
       this.res.status(200).json(doc);
     } catch (error) {
       this.handleError(error);
@@ -34,33 +31,32 @@ class AnalysisService extends BaseService {
 
   async postAnalysisResponse() {
     try {
-      const analysisRepo = new AnalysisRepository();
       const analysis = this.req.body;
       analysis.createdAt = new Date();
-      const doc = await analysisRepo.save(analysis);
+      const doc = await this.$repo.analysis.save(analysis);
       this.res.status(200).json(doc);
     } catch (error) {
-      this.handleError(error);
+      if (error.toString().includes('duplicate key')) {
+        this.handleError(new this.$error.ClientRequestError('Analysis already exists', 400));
+      } else {
+        this.handleError(error);
+      }
     }
   }
 
   async deleteAnalysisResponse() {
     try {
       const id = this.req.swagger.params.id.value;
-      const analysisRepo = new AnalysisRepository();
-      const analysis = await analysisRepo.getById(id);
+      const analysis = await this.$repo.analysis.getById(id);
       if (analysis) {
-        const flowRepo = new FlowRepository();
-        await flowRepo.deleteByAnalysisId(id);
-        const interactionRepo = new InteractionRepository();
-        await interactionRepo.deleteByAnalysisId(id);
-        // TODO: remove requests & responses
-        const metricsRepo = new MetricsRepository();
-        await metricsRepo.deleteAnalysisMetrics(id);
+        await this.$repo.flow.deleteByAnalysisId(id);
+        await this.$repo.interaction.deleteByAnalysisId(id);
+        await this.$repo.exchange.deleteRequestByAnalysisId(id);
+        await this.$repo.exchange.deleteResponseByAnalysisId(id);
+        await this.$repo.metrics.deleteAnalysisMetrics(id);
         // TODO: remove/update project metrics if this is the last analysis
-        const projectRepo = new ProjectRepository();
-        await projectRepo.deleteAnalysis(analysis.projectId, analysis);
-        const doc = await analysisRepo.delete(id);
+        await this.$repo.project.deleteAnalysis(analysis.projectId, analysis);
+        const doc = await this.$repo.analysis.delete(id);
         this.res.status(200).json(doc);
       } else {
         this.res.status(404).json({ message: 'Analysis not found' });

@@ -1,7 +1,4 @@
 const BaseService = require('./base.service');
-const AnalysisRepository = require('../repository/analysis.repository');
-const InteractionRepository = require('../repository/interaction.repository');
-const FlowRepository = require('../repository/flow.repository');
 
 class InteractionService extends BaseService {
 
@@ -11,8 +8,7 @@ class InteractionService extends BaseService {
 
   async postSearchAnalysesResponse() {
     try {
-      const analysisRepo = new AnalysisRepository();
-      const doc = await analysisRepo.getByIds(this.req.body.ids);
+      const doc = await this.$repo.analysis.getByIds(this.req.body.ids);
       this.res.status(200).json(doc);
     } catch (error) {
       this.handleError(error);
@@ -21,8 +17,7 @@ class InteractionService extends BaseService {
 
   async postSearchInteractionsResponse() {
     try {
-      const interactionRepo = new InteractionRepository();
-      const doc = await interactionRepo.getByIds(this.req.body.ids);
+      const doc = await this.$repo.interaction.getByIds(this.req.body.ids);
       this.res.status(200).json(doc);
     } catch (error) {
       this.handleError(error);
@@ -31,8 +26,7 @@ class InteractionService extends BaseService {
 
   async postSearchFlowsResponse() {
     try {
-      const flowRepo = new FlowRepository();
-      const doc = await flowRepo.getByIds(this.req.body.ids);
+      const doc = await this.$repo.flow.getByIds(this.req.body.ids);
       this.res.status(200).json(doc);
     } catch (error) {
       this.handleError(error);

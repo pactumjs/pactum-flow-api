@@ -1,5 +1,4 @@
 const BaseService = require('./base.service');
-const MetricsRepository = require('../repository/metrics.repository');
 
 class MetricService extends BaseService {
 
@@ -9,8 +8,7 @@ class MetricService extends BaseService {
 
   async getProjectMetricsResponse() {
     try {
-      const metricsRepo = new MetricsRepository();
-      const metrics = await metricsRepo.getProjectMetrics();
+      const metrics = await this.$repo.metrics.getProjectMetrics();
       this.res.status(200).json(metrics);
     } catch (error) {
       this.handleError(error);
@@ -20,8 +18,7 @@ class MetricService extends BaseService {
   async getAnalysisMetricsResponse() {
     try {
       const id = this.req.swagger.params.id.value;
-      const metricsRepo = new MetricsRepository();
-      const metrics = await metricsRepo.getAnalysisMetricsById(id);
+      const metrics = await this.$repo.metrics.getAnalysisMetricsById(id);
       this.res.status(200).json(metrics);
     } catch (error) {
       this.handleError(error);

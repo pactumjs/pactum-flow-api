@@ -107,14 +107,7 @@ paths:
           name: "projectId"
           description: "id of the project to fetch"
           type: "string"
-        - in: "query"
-          name: "version"
-          description: "version of the project to fetch"
-          type: "string"
-        - in: "query"
-          name: "branch"
-          description: "branch of the project to fetch"
-          type: "string"
+          required: true
       responses:
         200:
           description: "Success"
@@ -150,6 +143,8 @@ paths:
           description: "analysis id to fetch"
           required: true
           type: "string"
+          minLength: 24
+          maxLength: 24
       responses:
         200:
           description: "Success"
@@ -166,6 +161,8 @@ paths:
           description: "analysis id to delete"
           required: true
           type: "string"
+          minLength: 24
+          maxLength: 24
       responses:
         200:
           description: "Success"
@@ -219,6 +216,8 @@ paths:
           description: "interaction id to fetch"
           required: true
           type: "string"
+          minLength: 24
+          maxLength: 24
       responses:
         200:
           description: "Success"
@@ -234,12 +233,9 @@ paths:
       parameters:
         - in: "query"
           name: "analysisId"
-          description: "analysis id of the flow to fetch"
+          description: "analysis id of the flows to fetch"
           type: "string"
-        - in: "query"
-          name: "projectId"
-          description: "project id of the flow to fetch"
-          type: "string"
+          required: true
       responses:
         200:
           description: "Success"
@@ -275,6 +271,8 @@ paths:
           description: "flow id to fetch"
           required: true
           type: "string"
+          minLength: 24
+          maxLength: 24
       responses:
         200:
           description: "Success"
@@ -306,6 +304,8 @@ paths:
           description: "analysis id to fetch"
           required: true
           type: "string"
+          minLength: 24
+          maxLength: 24
       responses:
         200:
           description: "Success"
@@ -400,6 +400,8 @@ paths:
           description: "request id to fetch"
           required: true
           type: "string"
+          minLength: 24
+          maxLength: 24
       responses:
         200:
           description: "Success"
@@ -418,6 +420,8 @@ paths:
           description: "response id to fetch"
           required: true
           type: "string"
+          minLength: 24
+          maxLength: 24
       responses:
         200:
           description: "Success"

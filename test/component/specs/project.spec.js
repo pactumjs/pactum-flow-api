@@ -39,39 +39,14 @@ describe('POST /api/flow/v1/projects', () => {
 
 describe('GET /api/flow/v1/projects', () => {
 
-  it('get empty projects', async () => {
+  it('get projects when there are no projects in the system', async () => {
     await pactum.flow('get projects when there are no projects in the system')
       .get('/api/flow/v1/projects')
       .expectStatus(200)
       .expectJson([]);
   });
 
-  it('get a single projects', async () => {
-    await pactum.spec()
-      .post('/api/flow/v1/projects')
-      .withJson({
-        "id": "team_login-service",
-        "name": "[Team] login-service"
-      })
-      .expectStatus(200);
-    await pactum.flow('get projects when there is a single in the system')
-      .get('/api/flow/v1/projects')
-      .expectStatus(200)
-      .expectJsonMatch([
-        {
-          "analysis": {
-            "main": [],
-            "branch": []
-          },
-          "_id": "team_login-service",
-          "name": "[Team] login-service",
-          "createdAt": like("2020-12-26T09:04:57.255Z"),
-          "__v": 0
-        }
-      ]);
-  });
-
-  it('get multiple projects', async () => {
+  it('get projects', async () => {
     await pactum.spec()
       .post('/api/flow/v1/projects')
       .withJson({
@@ -168,11 +143,13 @@ describe('DELETE /api/flow/v1/projects/{id}', () => {
         "name": "[Team] login-service"
       })
       .expectStatus(200);
+
     await pactum.flow('delete a project')
       .delete('/api/flow/v1/projects/{id}')
       .withPathParams('id', 'team_login-service')
       .expectStatus(200);
-    await pactum.flow('get a non existing project')
+
+    await pactum.spec()
       .get('/api/flow/v1/projects/{id}')
       .withPathParams('id', 'team_login-service')
       .expectStatus(404);

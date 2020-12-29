@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 
 const FlowSchema = new Schema({
   name: { type: String, required: true },
+  info: { type: String, required: true },
   projectId: { type: String, required: true },
   analysisId: { type: mongoose.Schema.Types.ObjectId, required: true },
 });

@@ -1,5 +1,4 @@
 const BaseService = require('./base.service');
-const ExchangeRepository = require('../repository/exchange.repository');
 
 class ExchangeService extends BaseService {
 
@@ -9,9 +8,8 @@ class ExchangeService extends BaseService {
 
   async getExchangeRequestResponse() {
     try {
-      const exchangeRepo = new ExchangeRepository();
       const id = this.req.swagger.params.id.value;
-      const doc = await exchangeRepo.getRequestById(id);
+      const doc = await this.$repo.exchange.getRequestById(id);
       this.res.status(200).json(doc);
     } catch (error) {
       this.handleError(error);
@@ -20,9 +18,8 @@ class ExchangeService extends BaseService {
 
   async getExchangeResponseResponse() {
     try {
-      const exchangeRepo = new ExchangeRepository();
       const id = this.req.swagger.params.id.value;
-      const doc = await exchangeRepo.getResponseById(id);
+      const doc = await this.$repo.exchange.getResponseById(id);
       this.res.status(200).json(doc);
     } catch (error) {
       this.handleError(error);

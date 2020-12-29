@@ -30,7 +30,8 @@
   },
   "devDependencies": {
     "mocha": "^8.2.1",
-    "pactum": "^3.0.2",
+    "pactum": "file:../pactum",
+    "pactum-matchers": "file:../pactum-matchers",
     "pactum-flow-plugin": "file:../pactumjs/pactum-flow-plugin"
   }
 }

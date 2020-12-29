@@ -1,7 +1,4 @@
 const BaseService = require('./base.service');
-const InteractionRepository = require('../repository/interaction.repository');
-const AnalysisRepository = require('../repository/analysis.repository');
-const ExchangeRepository = require('../repository/exchange.repository');
 
 class InteractionService extends BaseService {
 
@@ -11,9 +8,8 @@ class InteractionService extends BaseService {
 
   async getInteractionByIdResponse() {
     try {
-      const interactionRepo = new InteractionRepository();
       const id = this.req.swagger.params.id.value;
-      const doc = await interactionRepo.getById(id);
+      const doc = await this.$repo.interaction.getById(id);
       this.res.status(200).json(doc);
     } catch (error) {
       this.handleError(error);
@@ -22,8 +18,7 @@ class InteractionService extends BaseService {
 
   async getInteractionsResponse() {
     try {
-      const interactionRepo = new InteractionRepository();
-      const doc = await interactionRepo.get(this.req.query);
+      const doc = await this.$repo.interaction.get(this.req.query);
       this.res.status(200).json(doc);
     } catch (error) {
       this.handleError(error);
@@ -32,9 +27,6 @@ class InteractionService extends BaseService {
 
   async postInteractionsResponse() {
     try {
-      const interactionRepo = new InteractionRepository();
-      const analysisRepo = new AnalysisRepository();
-      const exchangeRepo = new ExchangeRepository();
       const interactions = this.req.body;
       const docs = [];
       const analyses = [];
@@ -42,26 +34,29 @@ class InteractionService extends BaseService {
         const interaction = interactions[i];
         let analysis = analyses.find(_analysis => _analysis._id.toString() === interaction.analysisId.toString());
         if (!analysis) {
-          analysis =  await analysisRepo.getById(interaction.analysisId);
+          analysis = await this.$repo.analysis.getById(interaction.analysisId);
           if (analysis) {
             analyses.push(analysis);
           }
         }
-        // TODO - check if analysis is already processed
         if (analysis) {
-          interaction.projectId = analysis.projectId;
-          // TODO - add info
-          const doc = await interactionRepo.save(interaction);
-          await analysisRepo.addInteraction(interaction.analysisId, doc._id);
-          interaction.request._id = doc._id;
-          interaction.request.projectId = interaction.projectId;
-          interaction.request.analysisId = interaction.analysisId;
-          await exchangeRepo.saveRequest(interaction.request);
-          interaction.response._id = doc._id;
-          interaction.response.projectId = interaction.projectId;
-          interaction.response.analysisId = interaction.analysisId;
-          await exchangeRepo.saveResponse(interaction.response);
-          docs.push(doc);
+          if (analysis.processed) {
+            // throw analysis already processed error
+          } else {
+            const { request, response } = interaction;
+            interaction.projectId = analysis.projectId;
+            interaction.info = `${request.method}::${request.path}::${response.statusCode}`;
+            const doc = await this.$repo.interaction.save(interaction);
+            request._id = doc._id;
+            request.projectId = interaction.projectId;
+            request.analysisId = interaction.analysisId;
+            await this.$repo.exchange.saveRequest(request);
+            response._id = doc._id;
+            response.projectId = interaction.projectId;
+            response.analysisId = interaction.analysisId;
+            await this.$repo.exchange.saveResponse(response);
+            docs.push(doc);
+          }
         } else {
           // throw analysis not found error
         }
