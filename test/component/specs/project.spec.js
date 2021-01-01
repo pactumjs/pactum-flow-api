@@ -1,6 +1,6 @@
 const pactum = require('pactum');
 const { like } = require('pactum-matchers');
-const { clean } = require('../helpers/db');
+const { clean, createProject } = require('../helpers/db');
 
 describe('POST /api/flow/v1/projects', () => {
 
@@ -15,13 +15,7 @@ describe('POST /api/flow/v1/projects', () => {
   });
 
   it('create a new project with existing id', async () => {
-    await pactum.spec()
-      .post('/api/flow/v1/projects')
-      .withJson({
-        "id": "team_login-service",
-        "name": "[Team] login-service"
-      })
-      .expectStatus(200);
+    await createProject();
     await pactum.flow('create a new project with existing id')
       .post('/api/flow/v1/projects')
       .withJson({
@@ -97,13 +91,7 @@ describe('GET /api/flow/v1/projects', () => {
 describe('GET /api/flow/v1/projects/{id}', () => {
 
   it('get a project', async () => {
-    await pactum.spec()
-      .post('/api/flow/v1/projects')
-      .withJson({
-        "id": "team_login-service",
-        "name": "[Team] login-service"
-      })
-      .expectStatus(200);
+    await createProject();
     await pactum.flow('get a project')
       .get('/api/flow/v1/projects/{id}')
       .withPathParams('id', 'team_login-service')
@@ -136,19 +124,11 @@ describe('GET /api/flow/v1/projects/{id}', () => {
 describe('DELETE /api/flow/v1/projects/{id}', () => {
 
   it('delete a project', async () => {
-    await pactum.spec()
-      .post('/api/flow/v1/projects')
-      .withJson({
-        "id": "team_login-service",
-        "name": "[Team] login-service"
-      })
-      .expectStatus(200);
-
+    await createProject();
     await pactum.flow('delete a project')
       .delete('/api/flow/v1/projects/{id}')
       .withPathParams('id', 'team_login-service')
       .expectStatus(200);
-
     await pactum.spec()
       .get('/api/flow/v1/projects/{id}')
       .withPathParams('id', 'team_login-service')

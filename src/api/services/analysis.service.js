@@ -32,9 +32,14 @@ class AnalysisService extends BaseService {
   async postAnalysisResponse() {
     try {
       const analysis = this.req.body;
-      analysis.createdAt = new Date();
-      const doc = await this.$repo.analysis.save(analysis);
-      this.res.status(200).json(doc);
+      const project = await this.$repo.project.getById(analysis.projectId);
+      if (project) {
+        analysis.createdAt = new Date();
+        const doc = await this.$repo.analysis.save(analysis);
+        this.res.status(200).json(doc);
+      } else {
+        this.res.status(400).json({ error: 'Project not found'});
+      }
     } catch (error) {
       if (error.toString().includes('duplicate key')) {
         this.handleError(new this.$error.ClientRequestError('Analysis already exists', 400));
