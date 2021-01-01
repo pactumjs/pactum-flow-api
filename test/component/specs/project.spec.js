@@ -60,20 +60,12 @@ describe('GET /api/flow/v1/projects', () => {
       .expectStatus(200)
       .expectJsonMatch([
         {
-          "analysis": {
-            "main": [],
-            "branch": []
-          },
           "_id": "team_login-service",
           "name": "[Team] login-service",
           "createdAt": like("2020-12-26T09:04:57.255Z"),
           "__v": 0
         },
         {
-          "analysis": {
-            "main": [],
-            "branch": []
-          },
           "_id": "team_process-service",
           "name": "[Team] process-service",
           "createdAt": like("2020-12-26T09:04:57.255Z"),
@@ -97,10 +89,6 @@ describe('GET /api/flow/v1/projects/{id}', () => {
       .withPathParams('id', 'team_login-service')
       .expectStatus(200)
       .expectJsonMatch({
-        "analysis": {
-          "main": [],
-          "branch": []
-        },
         "_id": "team_login-service",
         "name": "[Team] login-service",
         "createdAt": like("2020-12-26T09:04:57.255Z"),

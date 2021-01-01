@@ -77,6 +77,10 @@ describe('Analyses', () => {
             "_id": like("5fe9f0896b7cdd2938643fa8"),
             "projectId": "team_login-service",
             "createdAt": like("2020-12-28T14:49:45.842Z"),
+            "interactions": 0,
+            "flows": 0,
+            "providers": 0,
+            "consumers": 0,
             "__v": 0
           }
         ]);
@@ -114,6 +118,10 @@ describe('Analyses', () => {
           "_id": like("5fe9f0896b7cdd2938643fa8"),
           "projectId": "team_login-service",
           "createdAt": like("2020-12-28T14:49:45.842Z"),
+          "interactions": 0,
+          "flows": 0,
+          "providers": 0,
+          "consumers": 0,
           "__v": 0
         });
     });

@@ -6,15 +6,6 @@ class MetricService extends BaseService {
     super(req, res);
   }
 
-  async getProjectMetricsResponse() {
-    try {
-      const metrics = await this.$repo.metrics.getProjectMetrics();
-      this.res.status(200).json(metrics);
-    } catch (error) {
-      this.handleError(error);
-    }
-  }
-
   async getAnalysisMetricsResponse() {
     try {
       const id = this.req.swagger.params.id.value;

@@ -28,8 +28,8 @@ class AnalysisRepository {
     return Analysis.deleteMany({ projectId: id });
   }
 
-  updateProcess(_id, processed) {
-    return Analysis.updateOne({ _id }, { $set: { processed } });
+  updateProcess(_id, data) {
+    return Analysis.updateOne({ _id }, { $set: data });
   }
 
 }

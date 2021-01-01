@@ -6,10 +6,6 @@ const ProjectSchema = new Schema({
   _id: { type: String, required: true },
   name: { type: String, required: true },
   createdAt: { type: Date, required: true },
-  analysis: {
-    main: { type: [mongoose.Schema.Types.ObjectId], default: [] },
-    branch: { type: [mongoose.Schema.Types.ObjectId], default: [] }
-  }
 });
 
 module.exports = mongoose.model('Project', ProjectSchema);

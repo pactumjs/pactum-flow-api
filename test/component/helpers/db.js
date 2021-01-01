@@ -1,4 +1,5 @@
 const pactum = require('pactum');
+const Environment = require('../../../src/api/models/environment.model');
 
 async function createProject() {
   await pactum.spec()
@@ -24,9 +25,9 @@ async function createAnalysis() {
 
 async function deleteAnalysis() {
   await pactum.spec()
-  .delete('/api/flow/v1/analyses/{id}')
-  .withPathParams('id', '$S{AnalysisId}')
-  .expectStatus(200);
+    .delete('/api/flow/v1/analyses/{id}')
+    .withPathParams('id', '$S{AnalysisId}')
+    .expectStatus(200);
 }
 
 async function clean() {
@@ -38,6 +39,8 @@ async function clean() {
       .delete('/api/flow/v1/projects/{id}')
       .withPathParams('id', ids[i]);
   }
+
+  await Environment.deleteMany();
 }
 
 module.exports = {

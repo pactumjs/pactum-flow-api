@@ -7,7 +7,11 @@ const AnalysisSchema = new Schema({
   branch: { type: String, default: 'main' },
   version: { type: String, default: 'NA' },
   createdAt: { type: Date, required: true },
-  processed: { type: Boolean, default: false }
+  processed: { type: Boolean, default: false },
+  interactions: { type: Number, default: 0 },
+  flows: { type: Number, default: 0 },
+  providers: { type: Number, default: 0 },
+  consumers: { type: Number, default: 0 }
 });
 
 AnalysisSchema.index({ projectId: 1, version: 1}, { unique: true });

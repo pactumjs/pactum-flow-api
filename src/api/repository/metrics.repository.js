@@ -22,18 +22,6 @@ class MetricsRepository {
     return AnalysisMetrics.deleteOne({ _id });
   }
 
-  getProjectMetrics() {
-    return ProjectMetrics.find();
-  }
-
-  saveProjectMetrics(data) {
-    return ProjectMetrics.updateOne({ _id: data._id }, data, { upsert: true });
-  }
-
-  deleteProjectMetrics(_id) {
-    return ProjectMetrics.deleteOne({ _id });
-  }
-
 }
 
 module.exports = MetricsRepository;
