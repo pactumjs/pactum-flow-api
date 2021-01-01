@@ -428,14 +428,46 @@ paths:
           schema:
             $ref: "#/definitions/FlowResponse"
     x-swagger-router-controller: "exchange.controller"
+  /environments:
+    get:
+      tags:
+        - "Environments"
+      description: "get environments"
+      operationId: "getEnvironments"
+      parameters: []
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Environments"
+    post:
+      tags:
+        - "Environments"
+      description: "publish a version of project to a environment"
+      operationId: "postEnvironment"
+      parameters:
+        - in: "body"
+          name: "environment"
+          description: "project, version & environment to publish"
+          required: true
+          schema:
+            $ref: "#/definitions/Environment"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Environment"
+    x-swagger-router-controller: "environment.controller"
 definitions:
   Project:
     type: "object"
     properties:
       id:
         type: "string"
+        minLength: 1
       name:
         type: "string"
+        minLength: 1
     required:
      - "id"
      - "name"
@@ -444,10 +476,13 @@ definitions:
     properties:
       projectId:
         type: "string"
+        minLength: 1
       branch:
         type: "string"
+        minLength: 1
       version:
         type: "string"
+        minLength: 1
     required:
      - "projectId"
      - "branch"
@@ -461,10 +496,13 @@ definitions:
     properties:
       analysisId:
         type: "string"
+        minLength: 1
       provider:
         type: "string"
+        minLength: 1
       flow:
         type: "string"
+        minLength: 1
       request:
         type: "object"
       response:
@@ -484,8 +522,10 @@ definitions:
     properties:
       analysisId:
         type: "string"
+        minLength: 1
       name:
         type: "string"
+        minLength: 1
       request:
         $ref: "#/definitions/FlowRequest"
       response:
@@ -504,8 +544,10 @@ definitions:
     properties:
       method:
         type: "string"
+        minLength: 1
       path:
         type: "string"
+        minLength: 1
       pathParams:
         type: "object"
       queryParams:
@@ -541,6 +583,26 @@ definitions:
           type: "string"
     required:
       - "ids"
+  Environment:
+    type: "object"
+    properties:
+      projectId:
+        type: "string"
+        minLength: 1
+      version:
+        type: "string"
+        minLength: 1
+      environment:
+        type: "string"
+        minLength: 1
+    required:
+      - "projectId"
+      - "version"
+      - "environment"
+  Environments:
+    type: "array"
+    items:
+      $ref: "#/definitions/Environment"
   HealthResponse:
     description: "Health Response"
     type: "object"

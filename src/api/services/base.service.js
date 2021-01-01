@@ -5,6 +5,7 @@ const AnalysisRepository = require('../repository/analysis.repository');
 const InteractionRepository = require('../repository/interaction.repository');
 const ExchangeRepository = require('../repository/exchange.repository');
 const MetricsRepository = require('../repository/metrics.repository');
+const EnvironmentRepository = require('../repository/environment.repository');
 
 class BaseService {
 
@@ -17,7 +18,8 @@ class BaseService {
       interaction: new InteractionRepository(),
       flow: new FlowRepository(),
       exchange: new ExchangeRepository(),
-      metrics: new MetricsRepository()
+      metrics: new MetricsRepository(),
+      environment: new EnvironmentRepository(),
     };
     this.$error = {
       ClientRequestError

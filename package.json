@@ -11,17 +11,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ASaiAnudeep/pactum-flow-api.git"
+    "url": "git+https://github.com/pactumjs/pactum-flow-api.git"
   },
   "keywords": [
-    "pactum"
+    "pactum",
+    "pactumjs"
   ],
   "author": "Anudeep <asa.anudeep4@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ASaiAnudeep/pactum-flow-api/issues"
+    "url": "https://github.com/pactumjs/pactum-flow-api/issues"
   },
-  "homepage": "https://github.com/ASaiAnudeep/pactum-flow-api#readme",
+  "homepage": "https://github.com/pactumjs/pactum-flow-api#readme",
   "dependencies": {
     "express": "^4.17.1",
     "mongoose": "^5.11.4",
@@ -30,8 +31,8 @@
   },
   "devDependencies": {
     "mocha": "^8.2.1",
-    "pactum": "file:../pactum",
-    "pactum-matchers": "file:../pactum-matchers",
-    "pactum-flow-plugin": "file:../pactumjs/pactum-flow-plugin"
+    "pactum": "file:../../pactum",
+    "pactum-matchers": "file:../../pactum-matchers",
+    "pactum-flow-plugin": "file:../../pactumjs/pactum-flow-plugin"
   }
 }
