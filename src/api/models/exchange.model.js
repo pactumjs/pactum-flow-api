@@ -8,10 +8,10 @@ const RequestSchema = new Schema({
   analysisId: { type: mongoose.Schema.Types.ObjectId },
   method: { type: String, required: true },
   path: { type: String, required: true },
-  pathParams: { type: Object },
-  queryParams: { type: Object },
-  headers: { type: Object },
-  body: { type: mongoose.Schema.Types.Mixed },
+  pathParams: { type: String },
+  queryParams: { type: String },
+  headers: { type: String },
+  body: { type: String },
   matchingRules: { type: String }
 });
 
@@ -20,8 +20,8 @@ const ResponseSchema = new Schema({
   projectId: { type: String },
   analysisId: { type: mongoose.Schema.Types.ObjectId },
   statusCode: { type: Number, required: true },
-  headers: { type: Object },
-  body: { type: mongoose.Schema.Types.Mixed },
+  headers: { type: String },
+  body: { type: String },
   matchingRules: { type: String }
 });
 

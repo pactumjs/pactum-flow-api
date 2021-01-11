@@ -491,9 +491,9 @@ definitions:
         type: "string"
         minLength: 1
       request:
-        type: "object"
+        $ref: "#/definitions/FlowRequest"
       response:
-        type: "object"
+        $ref: "#/definitions/FlowResponse"
     required:
       - "analysisId"
       - "provider"
@@ -541,6 +541,8 @@ definitions:
         type: "object"
       headers:
         type: "object"
+      matchingRules:
+        type: "object"
     required:
      - "method"
      - "path"
@@ -550,6 +552,8 @@ definitions:
       statusCode:
         type: "number"
       headers:
+        type: "object"
+      matchingRules:
         type: "object"
     required:
      - "statusCode"

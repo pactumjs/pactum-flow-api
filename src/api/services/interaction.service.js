@@ -63,7 +63,18 @@ class InteractionService extends BaseService {
       }
       this.res.status(200).json(docs);
     } catch (error) {
-      this.handleError(error);
+      if (error.name === 'MongoError') {
+        switch (error.code) {
+          case 11000:
+            this.handleError(new this.$error.ClientRequestError('Duplicate Interaction', 400));
+            break;
+          default:
+            this.handleError(error);
+            break;
+        }
+      } else {
+        this.handleError(error);
+      }
     }
   }
 

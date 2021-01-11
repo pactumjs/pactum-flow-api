@@ -1,23 +1,23 @@
 const pactum = require('pactum');
 const Environment = require('../../../src/api/models/environment.model');
 
-async function createProject() {
+async function createProject(id, name) {
   await pactum.spec()
     .post('/api/flow/v1/projects')
     .withJson({
-      "id": "team_login-service",
-      "name": "[Team] login-service"
+      "id": id || "team_login-service",
+      "name": name || "[Team] login-service"
     })
     .expectStatus(200);
 }
 
-async function createAnalysis() {
+async function createAnalysis(project, version) {
   await pactum.spec()
     .post('/api/flow/v1/analyses')
     .withJson({
-      "projectId": "team_login-service",
+      "projectId": project || "team_login-service",
       "branch": "main",
-      "version": "1.0.1"
+      "version": version || "1.0.1"
     })
     .expectStatus(200)
     .stores('AnalysisId', '_id');
