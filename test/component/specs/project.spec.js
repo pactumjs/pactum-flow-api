@@ -55,7 +55,7 @@ describe('GET /api/flow/v1/projects', () => {
         "name": "[Team] process-service"
       })
       .expectStatus(200);
-    await pactum.flow('get projects when there are multiple in the system')
+    await pactum.flow('get projects')
       .get('/api/flow/v1/projects')
       .expectStatus(200)
       .expectJsonMatch([

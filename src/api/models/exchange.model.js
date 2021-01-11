@@ -12,7 +12,7 @@ const RequestSchema = new Schema({
   queryParams: { type: Object },
   headers: { type: Object },
   body: { type: mongoose.Schema.Types.Mixed },
-  matchingRules: { type: Object }
+  matchingRules: { type: String }
 });
 
 const ResponseSchema = new Schema({
@@ -22,7 +22,7 @@ const ResponseSchema = new Schema({
   statusCode: { type: Number, required: true },
   headers: { type: Object },
   body: { type: mongoose.Schema.Types.Mixed },
-  matchingRules: { type: Object }
+  matchingRules: { type: String }
 });
 
 module.exports = {
