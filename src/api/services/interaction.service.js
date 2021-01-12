@@ -41,7 +41,7 @@ class InteractionService extends BaseService {
         }
         if (analysis) {
           if (analysis.processed) {
-            // throw analysis already processed error
+            throw new this.$error.ClientRequestError('Analysis already processed', 400);
           } else {
             const { request, response } = interaction;
             interaction.projectId = analysis.projectId;
@@ -58,7 +58,7 @@ class InteractionService extends BaseService {
             docs.push(doc);
           }
         } else {
-          // throw analysis not found error
+          throw new this.$error.ClientRequestError('Analysis not found', 400);
         }
       }
       this.res.status(200).json(docs);
@@ -66,7 +66,7 @@ class InteractionService extends BaseService {
       if (error.name === 'MongoError') {
         switch (error.code) {
           case 11000:
-            this.handleError(new this.$error.ClientRequestError('Duplicate Interaction', 400));
+            this.handleError(new this.$error.ClientRequestError('Duplicate interaction', 400));
             break;
           default:
             this.handleError(error);
