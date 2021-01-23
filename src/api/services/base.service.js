@@ -27,7 +27,9 @@ class BaseService {
   }
 
   handleError(error) {
-    if (error instanceof ClientRequestError) {
+    if (error.name === 'MongoError' && error.code === 11000) {
+      this.res.status(400).json({ error: 'Duplicate Record' });
+    } else if (error instanceof ClientRequestError) {
       this.res.status(error.code).json({ error: error.message });
     } else {
       console.log(error);

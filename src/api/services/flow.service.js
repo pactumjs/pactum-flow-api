@@ -41,7 +41,7 @@ class FlowService extends BaseService {
         }
         if (analysis) {
           if (analysis.processed) {
-            // throw analysis already processed error
+            throw new this.$error.ClientRequestError('Analysis already processed', 400);
           } else {
             const request = flow.request;
             const response = flow.response;
@@ -51,15 +51,15 @@ class FlowService extends BaseService {
             request._id = doc._id;
             request.projectId = flow.projectId;
             request.analysisId = flow.analysisId;
-            await  this.$repo.exchange.saveRequest(request);
+            await this.$repo.exchange.saveRequest(request);
             response._id = doc._id;
             response.projectId = flow.projectId;
             response.analysisId = flow.analysisId;
-            await  this.$repo.exchange.saveResponse(response);
+            await this.$repo.exchange.saveResponse(response);
             docs.push(doc);
           }
         } else {
-          // throw analysis not found error
+          throw new this.$error.ClientRequestError('Analysis not found', 400);
         }
       }
       this.res.status(200).json(docs);

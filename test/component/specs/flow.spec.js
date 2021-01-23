@@ -1,122 +1,370 @@
-// const pactum = require('pactum');
-// const { like } = pactum.matchers;
+const pactum = require('pactum');
+const db = require('../helpers/db');
 
-// describe('Flow - create, get & delete', () => {
+describe('Flows', () => {
 
-//   before(async () => {
-//     this.flowId = '';
-//     await pactum.spec()
-//       .post('/api/flow/v1/projects')
-//       .withJson({
-//         "id": "team_login-service",
-//         "name": "[Team] login-service",
-//       })
-//       .expectStatus(200)
-//       .returns('_id');
-//     this.analysisId = await pactum.spec()
-//       .post('/api/flow/v1/analysis')
-//       .withJson({
-//         "projectId": "team_login-service",
-//         "branch": "main",
-//         "version": "1.0.2",
-//       })
-//       .expectStatus(200)
-//       .returns('_id');
-//   });
+  before(async () => {
+    await db.clean();
+    await db.createProject();
+    await db.createAnalysis();
+  });
 
-//   it('create flow', async () => {
-//     this.flowId = await pactum.spec()
-//       .name('create flow')
-//       .post('/api/flow/v1/flows')
-//       .withJson({
-//         "name": "some flow name",
-//         "projectId": "team_login-service",
-//         "analysisId": this.analysisId,
-//         "request": {
-//           "method": "GET",
-//           "path": "/api/some/operation"
-//         },
-//         "response": {
-//           "statusCode": 200
-//         },
-//       })
-//       .expectStatus(200)
-//       .expectJsonLike({
-//         "projectId": "team_login-service",
-//         "analysisId": this.analysisId
-//       })
-//       .expectJsonSnapshot({
-//         "_id": like('5fcc58fa26bcf83298099dd5'),
-//         "projectId": like('5fcc58fa26bcf83298099dd5'),
-//         "analysisId": like('5fcc58fa26bcf83298099dd5'),
-//         "createdAt": like('2020-12-06T04:37:08.165Z'),
-//         "request": {
-//           "_id": like('5fce3c6fdd765f04287cd483'),
-//         },
-//         "response": {
-//           "_id": like('5fce3c6fdd765f04287cd484'),
-//         }
-//       })
-//       .returns('_id');
-//   });
+  describe('/api/flow/v1/flows', () => {
 
-//   it('get flow by id', async () => {
-//     await pactum.spec()
-//       .name('get flow')
-//       .get('/api/flow/v1/flows/{id}')
-//       .withPathParams('id', this.flowId)
-//       .expectStatus(200)
-//       .expectJsonLike({
-//         "_id": this.flowId,
-//         "projectId": "team_login-service",
-//         "analysisId": this.analysisId
-//       })
-//       .expectJsonSnapshot({
-//         "_id": like('5fcc58fa26bcf83298099dd5'),
-//         "projectId": like('5fcc58fa26bcf83298099dd5'),
-//         "analysisId": like('5fcc58fa26bcf83298099dd5'),
-//         "createdAt": like('2020-12-06T04:37:08.165Z'),
-//         "request": {
-//           "_id": like('5fce3c6fdd765f04287cd483'),
-//         },
-//         "response": {
-//           "_id": like('5fce3c6fdd765f04287cd484'),
-//         }
-//       });
-//   });
+    it('add & fetch a basic flow details', async () => {
+      await pactum.flow('add a basic flow')
+        .post('/api/flow/v1/flows')
+        .withJson([
+          {
+            "analysisId": "$S{AnalysisId}",
+            "name": "flow-name-1",
+            "request": {
+              "method": "GET",
+              "path": "/api/path"
+            },
+            "response": {
+              "statusCode": 200
+            }
+          }
+        ])
+        .expectStatus(200)
+        .stores('FlowId', '[0]._id');
+      await pactum.flow('get a basic flow')
+        .get('/api/flow/v1/flows/{id}')
+        .withPathParams('id', '$S{FlowId}')
+        .expectStatus(200)
+        .expectJson({
+          "__v": 0,
+          "_id": "$S{FlowId}",
+          "analysisId": "$S{AnalysisId}",
+          "name": "flow-name-1",
+          "info": "GET::/api/path::200",
+          "projectId": "team_login-service",
+        });
+      await pactum.flow('get a basic flow request')
+        .get('/api/flow/v1/requests/{id}')
+        .withPathParams('id', '$S{FlowId}')
+        .expectStatus(200)
+        .expectJson({
+          "__v": 0,
+          "_id": "$S{FlowId}",
+          "analysisId": "$S{AnalysisId}",
+          "method": "GET",
+          "path": "/api/path",
+          "projectId": "team_login-service"
+        });
+      await pactum.flow('get a basic flow response')
+        .get('/api/flow/v1/responses/{id}')
+        .withPathParams('id', '$S{FlowId}')
+        .expectStatus(200)
+        .expectJson({
+          "__v": 0,
+          "_id": "$S{FlowId}",
+          "analysisId": "$S{AnalysisId}",
+          "statusCode": 200,
+          "projectId": "team_login-service"
+        });
+    });
 
-//   it('get flow', async () => {
-//     await pactum.spec()
-//       .get('/api/flow/v1/flows')
-//       .expectStatus(200)
-//       .expectJsonLike([
-//         {
-//           "_id": this.flowId,
-//           "projectId": "team_login-service",
-//           "analysisId": this.analysisId,
-//           "request": {
-//             "method": "GET",
-//             "path": "/api/some/operation"
-//           },
-//           "response": {
-//             "statusCode": 200
-//           }
-//         }
-//       ]);
-//   });
+    it('add & fetch a flow with headers & body', async () => {
+      await pactum.flow('add a flow with headers & body')
+        .post('/api/flow/v1/flows')
+        .withJson([
+          {
+            "analysisId": "$S{AnalysisId}",
+            "name": "flow-name-2",
+            "request": {
+              "method": "POST",
+              "path": "/api/path",
+              "headers": {
+                "x-token": "abc"
+              },
+              "body": {
+                "message": "text"
+              }
+            },
+            "response": {
+              "statusCode": 200,
+              "headers": {
+                "x-token": "xyz"
+              },
+              "body": {
+                "message": "text"
+              }
+            }
+          }
+        ])
+        .expectStatus(200)
+        .stores('FlowId', '[0]._id');
+      await pactum.flow('get a flow with headers & body')
+        .get('/api/flow/v1/flows/{id}')
+        .withPathParams('id', '$S{FlowId}')
+        .expectStatus(200)
+        .expectJson({
+          "__v": 0,
+          "_id": "$S{FlowId}",
+          "analysisId": "$S{AnalysisId}",
+          "name": "flow-name-2",
+          "info": "POST::/api/path::200",
+          "projectId": "team_login-service"
+        });
+      await pactum.flow('get a flow request with headers & body')
+        .get('/api/flow/v1/requests/{id}')
+        .withPathParams('id', '$S{FlowId}')
+        .expectStatus(200)
+        .expectJson({
+          "__v": 0,
+          "_id": "$S{FlowId}",
+          "analysisId": "$S{AnalysisId}",
+          "method": "POST",
+          "path": "/api/path",
+          "body": {
+            "message": "text"
+          },
+          "headers": {
+            "x-token": "abc"
+          },
+          "projectId": "team_login-service"
+        });
+      await pactum.flow('get a flow response with headers & body')
+        .get('/api/flow/v1/responses/{id}')
+        .withPathParams('id', '$S{FlowId}')
+        .expectStatus(200)
+        .expectJson({
+          "__v": 0,
+          "_id": "$S{FlowId}",
+          "analysisId": "$S{AnalysisId}",
+          "statusCode": 200,
+          "body": {
+            "message": "text"
+          },
+          "headers": {
+            "x-token": "xyz"
+          },
+          "projectId": "team_login-service"
+        });
+    });
 
-//   it('delete flow', async () => {
-//     await pactum.spec()
-//       .delete('/api/flow/v1/flows/{id}')
-//       .withPathParams('id', this.flowId)
-//       .expectStatus(200);
-//   });
+    it('add a flow with query params & path params', async () => {
+      await pactum.flow('add a flow with query params & path params')
+        .post('/api/flow/v1/flows')
+        .withJson([
+          {
+            "analysisId": "$S{AnalysisId}",
+            "name": "flow-name-3",
+            "request": {
+              "method": "DELETE",
+              "path": "/api/path/{id}",
+              "pathParams": {
+                "id": "resource-id"
+              },
+              "queryParams": {
+                "count": "2"
+              }
+            },
+            "response": {
+              "statusCode": 200,
+              "body": {
+                "message": "text"
+              }
+            }
+          }
+        ])
+        .expectStatus(200)
+        .stores('FlowId', '[0]._id');
+      await pactum.flow('get a flow with query params & path params')
+        .get('/api/flow/v1/flows/{id}')
+        .withPathParams('id', '$S{FlowId}')
+        .expectStatus(200)
+        .expectJson({
+          "__v": 0,
+          "_id": "$S{FlowId}",
+          "analysisId": "$S{AnalysisId}",
+          "name": "flow-name-3",
+          "info": "DELETE::/api/path/{id}::200",
+          "projectId": "team_login-service",
+        });
+      await pactum.flow('get a flow request with query params & path params')
+        .get('/api/flow/v1/requests/{id}')
+        .withPathParams('id', '$S{FlowId}')
+        .expectStatus(200)
+        .expectJson({
+          "__v": 0,
+          "_id": "$S{FlowId}",
+          "analysisId": "$S{AnalysisId}",
+          "method": "DELETE",
+          "path": "/api/path/{id}",
+          "queryParams": {
+            "count": "2"
+          },
+          "pathParams": {
+            "id": "resource-id"
+          },
+          "projectId": "team_login-service"
+        });
+      await pactum.spec()
+        .get('/api/flow/v1/responses/{id}')
+        .withPathParams('id', '$S{FlowId}')
+        .expectStatus(200)
+        .expectJson({
+          "__v": 0,
+          "_id": "$S{FlowId}",
+          "analysisId": "$S{AnalysisId}",
+          "statusCode": 200,
+          "body": {
+            "message": "text"
+          },
+          "projectId": "team_login-service"
+        });
+    });
 
-//   after(async () => {
-//     await pactum.spec()
-//       .delete('/api/flow/v1/projects/{id}')
-//       .withPathParams('id', "team_login-service")
-//       .expectStatus(200);
-//   });
+    it('add a flow with matching rules', async () => {
+      await pactum.flow('add a flow with matching rules')
+        .post('/api/flow/v1/flows')
+        .withJson([
+          {
+            "analysisId": "$S{AnalysisId}",
+            "name": "flow-name-4",
+            "request": {
+              "method": "POST",
+              "path": "/api/path",
+              "matchingRules": {
+                "$.body.message": {
+                  "match": "type"
+                }
+              },
+              "body": {
+                "message": "text"
+              }
+            },
+            "response": {
+              "statusCode": 200,
+              "matchingRules": {
+                "$.body.message": {
+                  "match": "type"
+                }
+              },
+              "body": {
+                "message": "text"
+              }
+            }
+          }
+        ])
+        .expectStatus(200)
+        .stores('FlowId', '[0]._id');
+      await pactum.flow('get a flow with matching rules')
+        .get('/api/flow/v1/flows/{id}')
+        .withPathParams('id', '$S{FlowId}')
+        .expectStatus(200)
+        .expectJson({
+          "__v": 0,
+          "_id": "$S{FlowId}",
+          "analysisId": "$S{AnalysisId}",
+          "name": "flow-name-4",
+          "info": "POST::/api/path::200",
+          "projectId": "team_login-service",
+        });
+      await pactum.flow('get a flow request with matching rules')
+        .get('/api/flow/v1/requests/{id}')
+        .withPathParams('id', '$S{FlowId}')
+        .expectStatus(200)
+        .expectJson({
+          "__v": 0,
+          "_id": "$S{FlowId}",
+          "analysisId": "$S{AnalysisId}",
+          "method": "POST",
+          "path": "/api/path",
+          "body": {
+            "message": "text"
+          },
+          "matchingRules": {
+            "$.body.message": {
+              "match": "type"
+            }
+          },
+          "projectId": "team_login-service"
+        });
+      await pactum.flow('get a flow response with matching rules')
+        .get('/api/flow/v1/responses/{id}')
+        .withPathParams('id', '$S{FlowId}')
+        .expectStatus(200)
+        .expectJson({
+          "__v": 0,
+          "_id": "$S{FlowId}",
+          "analysisId": "$S{AnalysisId}",
+          "statusCode": 200,
+          "body": {
+            "message": "text"
+          },
+          "matchingRules": {
+            "$.body.message": {
+              "match": "type"
+            }
+          },
+          "projectId": "team_login-service"
+        });
+    });
 
-// });
+    it('add duplicate flow details', async () => {
+      await pactum.spec()
+        .post('/api/flow/v1/flows')
+        .withJson([
+          {
+            "analysisId": "$S{AnalysisId}",
+            "name": "flow-name",
+            "request": {
+              "method": "GET",
+              "path": "/api/path"
+            },
+            "response": {
+              "statusCode": 200
+            }
+          }
+        ])
+        .expectStatus(200);
+      await pactum.flow('add a duplicate flow')
+        .post('/api/flow/v1/flows')
+        .withJson([
+          {
+            "analysisId": "$S{AnalysisId}",
+            "name": "flow-name",
+            "request": {
+              "method": "GET",
+              "path": "/api/path"
+            },
+            "response": {
+              "statusCode": 200
+            }
+          }
+        ])
+        .expectStatus(400);
+    });
+
+    it('add flow with invalid analysis id', async () => {
+      await pactum.flow('add a flow with invalid analysis id')
+        .post('/api/flow/v1/flows')
+        .withJson([
+          {
+            "analysisId": "507f191e810c19729de860ea",
+            "name": "flow-name",
+            "request": {
+              "method": "GET",
+              "path": "/api/path"
+            },
+            "response": {
+              "statusCode": 200
+            }
+          }
+        ])
+        .expectStatus(400);
+    });
+
+    // add a flow to already processed analysis
+
+  });
+
+  after(async () => {
+    await db.clean();
+  });
+
+});
