@@ -445,6 +445,25 @@ paths:
           schema:
             $ref: "#/definitions/Environment"
     x-swagger-router-controller: "environment.controller"
+  /verification:
+    post:
+      tags:
+        - "Verification"
+      description: "verify contracts"
+      operationId: "verify"
+      parameters:
+        - in: "body"
+          name: "verify"
+          description: "project to verify"
+          required: true
+          schema:
+            $ref: "#/definitions/Verify"
+      responses:
+        202:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/HealthResponse"
+    x-swagger-router-controller: "verification.controller"
 definitions:
   Project:
     type: "object"
@@ -596,6 +615,12 @@ definitions:
     type: "array"
     items:
       $ref: "#/definitions/Environment"
+  Verify:
+    type: "object"
+    properties:
+      projectId:
+        type: "string"
+        minLength: 2
   HealthResponse:
     description: "Health Response"
     type: "object"

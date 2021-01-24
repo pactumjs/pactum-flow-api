@@ -1,5 +1,4 @@
 const BaseService = require('./base.service');
-const { ClientRequestError } = require('../../utils/errors');
 
 class ProjectService extends BaseService {
 
@@ -12,7 +11,7 @@ class ProjectService extends BaseService {
       const id = this.req.swagger.params.id.value;
       const doc = await this.$repo.project.getById(id);
       if (!doc) {
-        throw new ClientRequestError('Project does not exist', 404);
+        throw new this.$error.ClientRequestError('Project does not exist', 404);
       }
       this.res.status(200).json(doc);
     } catch (error) {
@@ -38,7 +37,7 @@ class ProjectService extends BaseService {
       this.res.status(200).json(doc);
     } catch (error) {
       if (error.toString().includes('duplicate key')) {
-        this.handleError(new ClientRequestError('Project already exists', 400));
+        this.handleError(new this.$error.ClientRequestError('Project already exists', 400));
       } else {
         this.handleError(error);
       }
@@ -50,7 +49,7 @@ class ProjectService extends BaseService {
       const id = this.req.swagger.params.id.value;
       const _doc = await this.$repo.project.getById(id);
       if (!_doc) {
-        throw new ClientRequestError('Project does not exist', 404);
+        throw new this.$error.ClientRequestError('Project does not exist', 404);
       }
       await this.$repo.flow.deleteByProjectId(id);
       await this.$repo.interaction.deleteByProjectId(id);

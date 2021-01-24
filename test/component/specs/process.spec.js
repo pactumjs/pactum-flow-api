@@ -273,7 +273,7 @@ describe('Process analysis with history', () => {
       await pactum.sleep(50);
     });
 
-    it('create new analysis with same flows & interactions & process', async () => {
+    it('analysis with same flows & interactions', async () => {
       await db.createAnalysis(null, '1.0.2');
       await db.createBasicFlow();
       await db.createBasicInteraction();
@@ -313,7 +313,7 @@ describe('Process analysis with history', () => {
         });
     });
 
-    it('create new analysis with new flows & interactions & process', async () => {
+    it('analysis with new flows & interactions', async () => {
       await db.createAnalysis(null, '1.0.2');
       await db.createBasicFlow();
       await db.createBasicFlow('flow-name-2');
@@ -356,7 +356,7 @@ describe('Process analysis with history', () => {
         });
     });
 
-    it('create new analysis with removed flows & interactions & process', async () => {
+    it('analysis with removed flows & interactions', async () => {
       await db.createAnalysis(null, '1.0.2');
       await db.processAnalysis();
       await pactum.spec()
