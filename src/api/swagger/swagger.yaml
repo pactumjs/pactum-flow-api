@@ -446,6 +446,27 @@ paths:
             $ref: "#/definitions/Environment"
     x-swagger-router-controller: "environment.controller"
   /verification:
+    get:
+      tags:
+        - "Verification"
+      description: "get verification results"
+      operationId: "getVerificationResults"
+      parameters:
+        - in: "query"
+          name: "projectId"
+          description: "id of the project to fetch"
+          type: "string"
+          required: true
+        - in: "query"
+          name: "version"
+          description: "version of the project to fetch"
+          type: "string"
+          required: false
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/VerificationResults"
     post:
       tags:
         - "Verification"
@@ -621,6 +642,34 @@ definitions:
       projectId:
         type: "string"
         minLength: 2
+  Exception:
+    type: "object"
+    properties:
+      flow:
+        type: "string"
+      error:
+        type: "string"
+  VerificationResult:
+    type: "object"
+    properties:
+      consumer:
+        type: "string"
+      consumerVersion:
+        type: "string"
+      provider:
+        type: "string"
+      providerVersion:
+        type: "string"
+      status:
+        type: "string"
+      exceptions:
+        type: "array"
+        items:
+          $ref: "#/definitions/Exception"
+  VerificationResults:
+    type: "array"
+    items:
+      $ref: "#/definitions/VerificationResult"
   HealthResponse:
     description: "Health Response"
     type: "object"

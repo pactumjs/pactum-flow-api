@@ -22,6 +22,24 @@ class VerificationService extends BaseService {
     }
   }
 
+  async getVerificationResults() {
+    try {
+      const consumerQuery = {
+        consumer: this.req.query.projectId
+      };
+      if (this.req.query.version) consumerQuery.consumerVersion = this.req.query.version;
+      const consumerResults = await this.$repo.contract.get(consumerQuery);
+      const providerQuery = {
+        provider: this.req.query.projectId
+      };
+      if (this.req.query.version) providerQuery.providerVersion = this.req.query.version;
+      const providerResults = await this.$repo.contract.get(providerQuery);
+      this.res.status(200).json(consumerResults.concat(providerResults));
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
 }
 
 module.exports = VerificationService;
