@@ -26,6 +26,7 @@ function init(app, rootDir) {
 
 function error_middleware(err, _, res, __) {
   if (!res.headersSent) {
+    console.log(err);
     res.status(err.status || 500).send(err);
   }
 }

@@ -31,7 +31,7 @@ describe('Process new analysis', () => {
       await pactum.spec()
         .get('/api/flow/v1/analyses/{id}')
         .withPathParams('id', '$S{AnalysisId}')
-        .retry({ delay: 50, count: 5, strategy: 'till processed'})
+        .retry({ delay: 50, count: 5, strategy: 'till processed' })
         .expectStatus(200)
         .expectJsonMatch({
           "branch": "main",
@@ -99,7 +99,7 @@ describe('Process new analysis', () => {
       await pactum.spec()
         .get('/api/flow/v1/analyses/{id}')
         .withPathParams('id', '$S{AnalysisId}')
-        .retry({ delay: 50, count: 5, strategy: 'till processed'})
+        .retry({ delay: 50, count: 5, strategy: 'till processed' })
         .expectStatus(200)
         .expectJsonMatch({
           "branch": "main",
@@ -156,7 +156,7 @@ describe('Process new analysis', () => {
         .get('/api/flow/v1/analyses/{id}')
         .withPathParams('id', '$S{AnalysisId}')
         .expectStatus(200)
-        .retry({ delay: 50, count: 5, strategy: 'till processed'})
+        .retry({ delay: 50, count: 5, strategy: 'till processed' })
         .expectJsonMatch({
           "branch": "main",
           "version": "1.0.1",
@@ -212,7 +212,7 @@ describe('Process new analysis', () => {
       await pactum.spec()
         .get('/api/flow/v1/analyses/{id}')
         .withPathParams('id', '$S{AnalysisId}')
-        .retry({ delay: 50, count: 5, strategy: 'till processed'})
+        .retry({ delay: 50, count: 5, strategy: 'till processed' })
         .expectStatus(200);
       await pactum.flow('get analyses metrics')
         .get('/api/flow/v1/metrics/analyses/{id}')
@@ -281,7 +281,7 @@ describe('Process analysis with history', () => {
       await pactum.spec()
         .get('/api/flow/v1/analyses/{id}')
         .withPathParams('id', '$S{AnalysisId}')
-        .retry({ delay: 50, count: 5, strategy: 'till processed'})
+        .retry({ delay: 50, count: 5, strategy: 'till processed' })
         .expectStatus(200);
       await pactum.flow('get analyses metrics')
         .get('/api/flow/v1/metrics/analyses/{id}')
@@ -324,7 +324,7 @@ describe('Process analysis with history', () => {
       await pactum.spec()
         .get('/api/flow/v1/analyses/{id}')
         .withPathParams('id', '$S{AnalysisId}')
-        .retry({ delay: 50, count: 5, strategy: 'till processed'})
+        .retry({ delay: 50, count: 5, strategy: 'till processed' })
         .expectStatus(200);
       await pactum.flow('get analyses metrics')
         .get('/api/flow/v1/metrics/analyses/{id}')
@@ -362,7 +362,7 @@ describe('Process analysis with history', () => {
       await pactum.spec()
         .get('/api/flow/v1/analyses/{id}')
         .withPathParams('id', '$S{AnalysisId}')
-        .retry({ delay: 50, count: 5, strategy: 'till processed'})
+        .retry({ delay: 50, count: 5, strategy: 'till processed' })
         .expectStatus(200);
       await pactum.flow('get analyses metrics')
         .get('/api/flow/v1/metrics/analyses/{id}')
@@ -396,6 +396,119 @@ describe('Process analysis with history', () => {
 
     afterEach(async () => {
       await db.deleteProject();
+    });
+
+  });
+
+  after(async () => {
+    await db.clean();
+  });
+
+});
+
+describe('Process analysis with valid providers', () => {
+
+  before(async () => {
+    await db.clean();
+    await db.createProject();
+    await db.createProject('team_process-service', '[Team] process-service');
+  });
+
+  describe('/api/flow/v1/process/analysis', () => {
+
+    it('provider verification passed', async () => {
+      await db.createAnalysis();
+      await db.createBasicFlow();
+      await db.processAnalysis();
+      await pactum.spec()
+        .get('/api/flow/v1/analyses/{id}')
+        .withPathParams('id', '$S{AnalysisId}')
+        .retry({ delay: 50, count: 5, strategy: 'till processed' })
+        .expectStatus(200);
+      await db.createAnalysis('team_process-service', '2.0.1');
+      await db.createBasicInteraction('team_login-service');
+      await db.processAnalysis();
+      await pactum.spec()
+        .get('/api/flow/v1/analyses/{id}')
+        .withPathParams('id', '$S{AnalysisId}')
+        .retry({ delay: 50, count: 5, strategy: 'till processed' })
+        .expectStatus(200);
+    });
+
+    it('provider verification failed at request', async () => {
+      await db.createAnalysis('team_login-service', '1.0.2');
+      await db.createBasicFlow();
+      await db.processAnalysis();
+      await pactum.spec()
+        .get('/api/flow/v1/analyses/{id}')
+        .withPathParams('id', '$S{AnalysisId}')
+        .retry({ delay: 50, count: 5, strategy: 'till processed' })
+        .expectStatus(200);
+      await db.createAnalysis('team_process-service', '2.0.2');
+      await pactum.spec()
+        .post('/api/flow/v1/interactions')
+        .withJson([
+          {
+            "analysisId": "$S{AnalysisId}",
+            "provider": "team_login-service",
+            "flow": "flow-name-1",
+            "request": {
+              "method": "GET",
+              "path": "/api/path",
+              "queryParams": {
+                "key": "value"
+              }
+            },
+            "response": {
+              "statusCode": 200
+            }
+          }
+        ])
+        .expectStatus(200);
+      await db.processAnalysis();
+      await pactum.spec()
+        .get('/api/flow/v1/analyses/{id}')
+        .withPathParams('id', '$S{AnalysisId}')
+        .retry({ delay: 50, count: 5, strategy: 'till processed' })
+        .expectStatus(200);
+    });
+
+    it('provider verification failed at response', async () => {
+      await db.createAnalysis('team_login-service', '1.0.3');
+      await db.createBasicFlow();
+      await db.processAnalysis();
+      await pactum.spec()
+        .get('/api/flow/v1/analyses/{id}')
+        .withPathParams('id', '$S{AnalysisId}')
+        .retry({ delay: 50, count: 5, strategy: 'till processed' })
+        .expectStatus(200);
+      await db.createAnalysis('team_process-service', '2.0.3');
+      await pactum.spec()
+        .post('/api/flow/v1/interactions')
+        .withJson([
+          {
+            "analysisId": "$S{AnalysisId}",
+            "provider": "team_login-service",
+            "flow": "flow-name-1",
+            "request": {
+              "method": "GET",
+              "path": "/api/path"
+            },
+            "response": {
+              "statusCode": 200,
+              "body": {
+                "key": "value"
+              }
+            }
+          }
+        ])
+        .expectStatus(200);
+      await db.processAnalysis();
+      await pactum.spec()
+        .get('/api/flow/v1/analyses/{id}')
+        .withPathParams('id', '$S{AnalysisId}')
+        .retry({ delay: 50, count: 5, strategy: 'till processed' })
+        .expectStatus(200);
     });
 
   });
