@@ -13,7 +13,7 @@ before(async () => {
   pf.config.projectId = 'pactum_flow-api';
   pf.config.projectName = '[PACTUM] flow-api';
   pf.config.version = '1.0.1';
-  // reporter.add(pf.reporter);
+  reporter.add(pf.reporter);
 });
 
 after(async () => {

@@ -283,7 +283,7 @@ describe('Process analysis with history', () => {
         .withPathParams('id', '$S{AnalysisId}')
         .retry({ delay: 50, count: 5, strategy: 'till processed' })
         .expectStatus(200);
-      await pactum.flow('get analyses metrics')
+      await pactum.spec()
         .get('/api/flow/v1/metrics/analyses/{id}')
         .withPathParams('id', '$S{AnalysisId}')
         .expectStatus(200)
@@ -326,7 +326,7 @@ describe('Process analysis with history', () => {
         .withPathParams('id', '$S{AnalysisId}')
         .retry({ delay: 50, count: 5, strategy: 'till processed' })
         .expectStatus(200);
-      await pactum.flow('get analyses metrics')
+      await pactum.spec()
         .get('/api/flow/v1/metrics/analyses/{id}')
         .withPathParams('id', '$S{AnalysisId}')
         .expectStatus(200)
@@ -364,7 +364,7 @@ describe('Process analysis with history', () => {
         .withPathParams('id', '$S{AnalysisId}')
         .retry({ delay: 50, count: 5, strategy: 'till processed' })
         .expectStatus(200);
-      await pactum.flow('get analyses metrics')
+      await pactum.spec()
         .get('/api/flow/v1/metrics/analyses/{id}')
         .withPathParams('id', '$S{AnalysisId}')
         .expectStatus(200)

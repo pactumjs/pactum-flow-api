@@ -305,6 +305,69 @@ describe('Flows', () => {
         });
     });
 
+    it('add a flow with empty query, path, headers & body', async () => {
+      await pactum.spec()
+        .post('/api/flow/v1/flows')
+        .withJson([
+          {
+            "analysisId": "$S{AnalysisId}",
+            "name": "flow-name-5",
+            "request": {
+              "method": "POST",
+              "path": "/api/path/{id}",
+              "pathParams": {},
+              "queryParams": {},
+              "headers": {},
+              "body": []
+            },
+            "response": {
+              "statusCode": 200,
+              "headers": {},
+              "body": {}
+            }
+          }
+        ])
+        .expectStatus(200)
+        .stores('FlowId', '[0]._id');
+      await pactum.spec()
+        .get('/api/flow/v1/flows/{id}')
+        .withPathParams('id', '$S{FlowId}')
+        .expectStatus(200)
+        .expectJson({
+          "__v": 0,
+          "_id": "$S{FlowId}",
+          "analysisId": "$S{AnalysisId}",
+          "name": "flow-name-5",
+          "info": "POST::/api/path/{id}::200",
+          "projectId": "team_login-service",
+        });
+      await pactum.spec()
+        .get('/api/flow/v1/requests/{id}')
+        .withPathParams('id', '$S{FlowId}')
+        .expectStatus(200)
+        .expectJson({
+          "__v": 0,
+          "_id": "$S{FlowId}",
+          "analysisId": "$S{AnalysisId}",
+          "method": "POST",
+          "path": "/api/path/{id}",
+          "body": [],
+          "projectId": "team_login-service"
+        });
+      await pactum.spec()
+        .get('/api/flow/v1/responses/{id}')
+        .withPathParams('id', '$S{FlowId}')
+        .expectStatus(200)
+        .expectJson({
+          "__v": 0,
+          "_id": "$S{FlowId}",
+          "analysisId": "$S{AnalysisId}",
+          "statusCode": 200,
+          "body": {},
+          "projectId": "team_login-service"
+        });
+    });
+
     it('add duplicate flow details', async () => {
       await pactum.spec()
         .post('/api/flow/v1/flows')

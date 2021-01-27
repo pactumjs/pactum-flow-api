@@ -1,10 +1,11 @@
 const { RequestSchema, ResponseSchema } = require('../models/exchange.model');
 
-function stringify(data) {
+function stringify(data, ignore) {
   if (data && typeof data === 'object') {
     if (Object.keys(data).length > 0) {
       return JSON.stringify(data);
     } else {
+      if (ignore) return JSON.stringify(data);
       return;
     }
   }
@@ -25,22 +26,32 @@ function sanitize(data) {
   const qp = stringify(data.queryParams);
   if (qp) {
     data.queryParams = qp;
+  } else {
+    delete data.queryParams;
   }
   const pp = stringify(data.pathParams);
   if (pp) {
     data.pathParams = pp;
+  } else {
+    delete data.pathParams;
   }
   const hr = stringify(data.headers);
   if (hr) {
     data.headers = hr;
+  } else {
+    delete data.headers;
   }
-  const body = stringify(data.body);
+  const body = stringify(data.body, true);
   if (body) {
     data.body = body;
+  } else {
+    delete data.body;
   }
   const mr = stringify(data.matchingRules);
   if (mr) {
     data.matchingRules = mr;
+  } else {
+    delete data.matchingRules;
   }
   return data;
 }
