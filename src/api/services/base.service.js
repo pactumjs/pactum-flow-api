@@ -6,7 +6,7 @@ const InteractionRepository = require('../repository/interaction.repository');
 const ExchangeRepository = require('../repository/exchange.repository');
 const MetricsRepository = require('../repository/metrics.repository');
 const EnvironmentRepository = require('../repository/environment.repository');
-const ContractRepository = require('../repository/contract.repository');
+const CompatibilityRepository = require('../repository/compatibility.repository');
 
 class BaseService {
 
@@ -21,7 +21,7 @@ class BaseService {
       exchange: new ExchangeRepository(),
       metrics: new MetricsRepository(),
       environment: new EnvironmentRepository(),
-      contract: new ContractRepository()
+      compatibility: new CompatibilityRepository()
     };
     this.$error = {
       ClientRequestError

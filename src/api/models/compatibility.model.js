@@ -7,7 +7,7 @@ const ErrorSchema = new Schema({
   error: { type: String, required: true },
 });
 
-const ContractSchema = new Schema({
+const CompatibilitySchema = new Schema({
   consumer: { type: String, required: true },
   consumerVersion: { type: String, required: true },
   provider: { type: String, required: true },
@@ -16,6 +16,6 @@ const ContractSchema = new Schema({
   exceptions: { type: [ErrorSchema], default: [] }
 });
 
-ContractSchema.index({ consumer: 1, consumerVersion: 1, provider: 1, providerVersion: 1 });
+CompatibilitySchema.index({ consumer: 1, consumerVersion: 1, provider: 1, providerVersion: 1 });
 
-module.exports = mongoose.model('Contract', ContractSchema);
+module.exports = mongoose.model('Compatibility', CompatibilitySchema);

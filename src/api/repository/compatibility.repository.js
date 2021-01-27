@@ -1,0 +1,21 @@
+const Compatibility = require('../models/compatibility.model');
+
+class CompatibilityRepository {
+
+  save(contract) {
+    const query = {
+      consumer: contract.consumer,
+      consumerVersion: contract.consumerVersion,
+      provider: contract.provider,
+      providerVersion: contract.providerVersion
+    };
+    return Compatibility.updateOne(query, { $set: contract }, { upsert: true });
+  }
+
+  get(query) {
+    return Compatibility.find(query, null, { lean: true });
+  }
+
+}
+
+module.exports = CompatibilityRepository;

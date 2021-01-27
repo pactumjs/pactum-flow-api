@@ -445,12 +445,12 @@ paths:
           schema:
             $ref: "#/definitions/Environment"
     x-swagger-router-controller: "environment.controller"
-  /verification:
+  /compatibility:
     get:
       tags:
-        - "Verification"
-      description: "get verification results"
-      operationId: "getVerificationResults"
+        - "Compatibility"
+      description: "get compatibility results"
+      operationId: "getCompatibilityResults"
       parameters:
         - in: "query"
           name: "projectId"
@@ -466,12 +466,12 @@ paths:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/VerificationResults"
+            $ref: "#/definitions/CompatibilityResults"
     post:
       tags:
-        - "Verification"
-      description: "verify contracts"
-      operationId: "verify"
+        - "Compatibility"
+      description: "verify compatibility"
+      operationId: "verifyCompatibility"
       parameters:
         - in: "body"
           name: "verify"
@@ -484,7 +484,7 @@ paths:
           description: "Success"
           schema:
             $ref: "#/definitions/HealthResponse"
-    x-swagger-router-controller: "verification.controller"
+    x-swagger-router-controller: "compatibility.controller"
 definitions:
   Project:
     type: "object"
@@ -649,7 +649,7 @@ definitions:
         type: "string"
       error:
         type: "string"
-  VerificationResult:
+  CompatibilityResult:
     type: "object"
     properties:
       consumer:
@@ -666,10 +666,10 @@ definitions:
         type: "array"
         items:
           $ref: "#/definitions/Exception"
-  VerificationResults:
+  CompatibilityResults:
     type: "array"
     items:
-      $ref: "#/definitions/VerificationResult"
+      $ref: "#/definitions/CompatibilityResult"
   HealthResponse:
     description: "Health Response"
     type: "object"

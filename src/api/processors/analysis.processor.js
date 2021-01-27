@@ -1,4 +1,4 @@
-const VerificationProcessor = require('./verification.processor');
+const CompatibilityProcessor = require('./compatibility.processor');
 
 class AnalysisProcessor {
 
@@ -130,7 +130,7 @@ class AnalysisProcessor {
   }
 
   async verify() {
-    const processor = new VerificationProcessor(this.analysis.projectId, this.$repo);
+    const processor = new CompatibilityProcessor(this.analysis.projectId, this.$repo);
     await processor.verify();
   }
 

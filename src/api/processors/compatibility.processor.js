@@ -1,6 +1,6 @@
 const { utils } = require('pactum-matchers');
 
-class VerificationProcessor {
+class CompatibilityProcessor {
 
   constructor(project, repo) {
     this.project = project;
@@ -83,7 +83,7 @@ class VerificationProcessor {
           status: provider.exceptions.length > 0 ? 'FAILED' : 'PASSED',
           exceptions: provider.exceptions
         };
-        await this.$repo.contract.save(contract);
+        await this.$repo.compatibility.save(contract);
       }
     }
   }
@@ -135,4 +135,4 @@ class VerificationProcessor {
 
 }
 
-module.exports = VerificationProcessor;
+module.exports = CompatibilityProcessor;
