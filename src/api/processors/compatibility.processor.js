@@ -108,9 +108,11 @@ class CompatibilityProcessor {
     if (!queryParamsResult.equal) {
       return `Failed to match request query params - ${queryParamsResult.message}`;
     }
-    const headersResult = utils.compare(actual.headers, expected.headers, rules, '$.headers', false);
-    if (!headersResult.equal) {
-      return `Failed to match request headers - ${headersResult.message}`;
+    if (typeof expected.headers !== 'undefined') {
+      const headersResult = utils.compare(actual.headers, expected.headers, rules, '$.headers', false);
+      if (!headersResult.equal) {
+        return `Failed to match request headers - ${headersResult.message}`;
+      }
     }
     const bodyResult = utils.compare(actual.body, expected.body, rules, '$.body', true);
     if (!bodyResult.equal) {
@@ -123,13 +125,17 @@ class CompatibilityProcessor {
     if (actual.statusCode !== expected.statusCode) {
       return 'Failed to match response status code';
     }
-    const headersResult = utils.compare(actual.headers, expected.headers, rules, '$.headers', false);
-    if (!headersResult.equal) {
-      return `Failed to match response headers - ${headersResult.message}`;
+    if (typeof expected.headers !== 'undefined') {
+      const headersResult = utils.compare(actual.headers, expected.headers, rules, '$.headers', false);
+      if (!headersResult.equal) {
+        return `Failed to match response headers - ${headersResult.message}`;
+      }
     }
-    const bodyResult = utils.compare(actual.body, expected.body, rules, '$.body', false);
-    if (!bodyResult.equal) {
-      return `Failed to match response body - ${bodyResult.message}`;
+    if (typeof expected.body !== 'undefined') {
+      const bodyResult = utils.compare(actual.body, expected.body, rules, '$.body', false);
+      if (!bodyResult.equal) {
+        return `Failed to match response body - ${bodyResult.message}`;
+      }
     }
   }
 
