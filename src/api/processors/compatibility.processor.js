@@ -22,7 +22,7 @@ class CompatibilityProcessor {
 
   async providerVerification() {
     for (let i = 0; i < this.environments.length; i++) {
-      const environment = this.environments[i].toObject();
+      const environment = this.environments[i];
       const analysisId = environment.projects[this.project];
       if (!analysisId) {
         console.log(`Project not found in environment - ${environment._id}`);
@@ -89,7 +89,54 @@ class CompatibilityProcessor {
   }
 
   async consumerVerification() {
+    // for (let i = 0; i < this.environments.length; i++) {
+    //   const environment = this.environments[i];
+    //   const analysisId = environment.projects[this.project];
+    //   if (!analysisId) {
+    //     console.log(`Project not found in environment - ${environment._id}`);
+    //     continue;
+    //   }
+    //   const flows = await this.$repo.flow.get({ analysisId });
+    //   if (flows.length === 0) {
+    //     console.log(`Project does not have flows in environment - ${environment._id}`);
+    //     continue;
+    //   }
+    //   const projects = Object.keys(environment.projects);
+    //   for (let j = 0; j < projects.length; j++) {
+    //     const consumer = projects[j];
+    //     if (consumer === this.project) {
+    //       continue;
+    //     }
+    //     const consumerAnalysisId = environment.projects[consumer];
+    //     const consumerAnalysis = await this.$repo.analysis.getById(consumerAnalysisId);
+    //     if (consumerAnalysis.providers === 0) {
+    //       continue;
+    //     }
+    //     const consumerAnalysisMetrics = await this.$repo.metrics.getAnalysisMetricsById(consumerAnalysisId);
+    //     if (consumerAnalysisMetrics.providers.all.includes(this.project)) {
+    //       const interactions = await this.$repo.interaction.get({ analysisId: consumerAnalysisId });
+    //       const consumers = {};
+    //       for (let k = 0; k < interactions.length; k++) {
+    //         const { _id, provider, flow } = interactions[k];
+    //         if (provider !== this.project) {
+    //           continue;
+    //         }
+    //         if (!consumers[`${consumer}`]) {
+    //           consumers[`${consumer}`] = { exceptions: [] };
+    //           consumers[`${consumer}`]['analysis'] = consumerAnalysis;
+    //         }
+    //         const flowDocs = await this.$repo.flow.get({ name: flow, analysisId });
+    //         if (flowDocs.length === 0) {
+    //           console.log(`Flow - '${flow}' does not exist in provider - '${provider}'`);
+    //           consumers[`${consumer}`].exceptions.push({ flow, error: 'flow does not exist' });
+    //           continue;
+    //         }
+    //         const flowDoc = flowDocs[0];
+    //       }
+    //     }
+    //   }
 
+    // }
   }
 
   compareRequest(actual, expected) {

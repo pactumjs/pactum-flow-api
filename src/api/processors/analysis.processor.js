@@ -26,8 +26,8 @@ class AnalysisProcessor {
       await this.setCurrentAnalysis();
       await this.setPreviousAnalysis();
       await this.processMetrics();
-      await this.updateAnalysis();
       await this.updateEnvironment();
+      await this.updateAnalysis();
       await this.verify();
     } catch (error) {
       console.log(error);
@@ -41,7 +41,7 @@ class AnalysisProcessor {
 
   async setLatestEnvironment() {
     const envs = await this.$repo.environment.get();
-    this.latestEnvironment = envs.find(_env => _env.id === 'latest');
+    this.latestEnvironment = envs.find(_env => _env._id === 'latest');
   }
 
   async setCurrentAnalysis() {

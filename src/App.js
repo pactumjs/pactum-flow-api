@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const mongoose = require('mongoose');
 
+const config = require('./config');
 const swaggerMiddleware = require('./middleware/swagger.middleware');
 
 class App {
@@ -25,12 +26,9 @@ class App {
   }
 
   async initDatabase() {
-    await mongoose.connect('mongodb://localhost/test', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useFindAndModify: false,
-      useCreateIndex: true
-    });
+    const { mongo } = config;
+    const cs = `'mongodb://${mongo.host}:${mongo.port}/${mongo.name}`;
+    await mongoose.connect(cs, config.mongo.options);
     console.log('Database connection created');
   }
 

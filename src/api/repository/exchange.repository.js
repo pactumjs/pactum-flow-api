@@ -78,18 +78,18 @@ function unSanitize(data) {
 class ExchangeRepository {
 
   async getRequestById(_id) {
-    const doc = await RequestSchema.findById({ _id });
+    const doc = await RequestSchema.findById({ _id }, null, { lean: true });
     if (doc) {
-      return unSanitize(doc.toObject());
+      return unSanitize(doc);
     } else {
       return doc;
     }
   }
 
   async getResponseById(_id) {
-    const doc = await ResponseSchema.findById({ _id });
+    const doc = await ResponseSchema.findById({ _id }, null, { lean: true });
     if (doc) {
-      return unSanitize(doc.toObject());
+      return unSanitize(doc);
     } else {
       return doc;
     }

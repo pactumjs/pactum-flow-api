@@ -3,15 +3,15 @@ const Flow = require('../models/flow.model');
 class FlowRepository {
 
   get(query) {
-    return Flow.find(query);
+    return Flow.find(query, null, { lean: true });
   }
 
   getById(_id) {
-    return Flow.findById({_id});
+    return Flow.findById({ _id }, null, { lean: true });
   }
 
   getByIds(ids) {
-    return Flow.find({ _id: { $in: ids } });
+    return Flow.find({ _id: { $in: ids } }, null, { lean: true });
   }
 
   async save(data) {
@@ -25,11 +25,11 @@ class FlowRepository {
   }
 
   deleteByProjectId(id) {
-    return Flow.deleteMany({ projectId: id});
+    return Flow.deleteMany({ projectId: id });
   }
 
   deleteByAnalysisId(id) {
-    return Flow.deleteMany({ analysisId: id});
+    return Flow.deleteMany({ analysisId: id });
   }
 
 }

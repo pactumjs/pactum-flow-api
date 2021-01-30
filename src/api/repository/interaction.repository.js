@@ -3,15 +3,15 @@ const Interaction = require('../models/interaction.model');
 class InteractionRepository {
 
   get(query) {
-    return Interaction.find(query);
+    return Interaction.find(query, null, { lean: true });
   }
 
   getById(_id) {
-    return Interaction.findById({_id});
+    return Interaction.findById({_id}, null, { lean: true });
   }
 
   getByIds(ids) {
-    return Interaction.find({ _id: { $in: ids } });
+    return Interaction.find({ _id: { $in: ids } }, null, { lean: true });
   }
 
   async save(data) {
