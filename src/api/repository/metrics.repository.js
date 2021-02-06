@@ -1,4 +1,4 @@
-const { AnalysisMetrics, ProjectMetrics } = require('../models/metrics.model');
+const { AnalysisMetrics } = require('../models/metrics.model');
 
 class MetricsRepository {
 

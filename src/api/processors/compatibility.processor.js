@@ -89,54 +89,88 @@ class CompatibilityProcessor {
   }
 
   async consumerVerification() {
-    // for (let i = 0; i < this.environments.length; i++) {
-    //   const environment = this.environments[i];
-    //   const analysisId = environment.projects[this.project];
-    //   if (!analysisId) {
-    //     console.log(`Project not found in environment - ${environment._id}`);
-    //     continue;
-    //   }
-    //   const flows = await this.$repo.flow.get({ analysisId });
-    //   if (flows.length === 0) {
-    //     console.log(`Project does not have flows in environment - ${environment._id}`);
-    //     continue;
-    //   }
-    //   const projects = Object.keys(environment.projects);
-    //   for (let j = 0; j < projects.length; j++) {
-    //     const consumer = projects[j];
-    //     if (consumer === this.project) {
-    //       continue;
-    //     }
-    //     const consumerAnalysisId = environment.projects[consumer];
-    //     const consumerAnalysis = await this.$repo.analysis.getById(consumerAnalysisId);
-    //     if (consumerAnalysis.providers === 0) {
-    //       continue;
-    //     }
-    //     const consumerAnalysisMetrics = await this.$repo.metrics.getAnalysisMetricsById(consumerAnalysisId);
-    //     if (consumerAnalysisMetrics.providers.all.includes(this.project)) {
-    //       const interactions = await this.$repo.interaction.get({ analysisId: consumerAnalysisId });
-    //       const consumers = {};
-    //       for (let k = 0; k < interactions.length; k++) {
-    //         const { _id, provider, flow } = interactions[k];
-    //         if (provider !== this.project) {
-    //           continue;
-    //         }
-    //         if (!consumers[`${consumer}`]) {
-    //           consumers[`${consumer}`] = { exceptions: [] };
-    //           consumers[`${consumer}`]['analysis'] = consumerAnalysis;
-    //         }
-    //         const flowDocs = await this.$repo.flow.get({ name: flow, analysisId });
-    //         if (flowDocs.length === 0) {
-    //           console.log(`Flow - '${flow}' does not exist in provider - '${provider}'`);
-    //           consumers[`${consumer}`].exceptions.push({ flow, error: 'flow does not exist' });
-    //           continue;
-    //         }
-    //         const flowDoc = flowDocs[0];
-    //       }
-    //     }
-    //   }
-
-    // }
+    for (let i = 0; i < this.environments.length; i++) {
+      const environment = this.environments[i];
+      const analysisId = environment.projects[this.project];
+      if (!analysisId) {
+        console.log(`Project not found in environment - ${environment._id}`);
+        continue;
+      }
+      const analysis = await this.$repo.analysis.getById(analysisId);
+      const metrics = await this.$repo.metrics.getAnalysisMetricsById(analysisId);
+      const flows = [];
+      const flowRequests = [];
+      const flowResponses = [];
+      const consumers = metrics.consumers.all;
+      for (let j = 0; j < consumers.length; j++) {
+        const consumerId = consumers[j];
+        const consumerAnalysisId = environment.projects[consumerId];
+        const exceptions = [];
+        if (!consumerAnalysisId) {
+          console.log(`Consumer - '${consumerId}' not found in environment - '${environment._id}'`);
+          continue;
+        }
+        const interactions = await this.$repo.interaction.get({ analysisId: consumerAnalysisId });
+        let count = 0;
+        for (let k = 0; k < interactions.length; k++) {
+          const { _id, provider, flow } = interactions[k];
+          if (provider !== this.project) {
+            continue;
+          }
+          count++;
+          let flowDoc = flows.find(_flow => _flow.name === flow);
+          let flowRequest, flowResponse;
+          if (!flowDoc) {
+            const flowDocs = await this.$repo.flow.get({
+              name: flow,
+              analysisId
+            });
+            if (!flowDocs || flowDocs.length === 0) {
+              console.log(`Flow - '${flow}' does not exist in project - '${this.project}'`);
+              continue;
+            } else {
+              flowDoc = flowDocs[0];
+              flowRequest = await this.$repo.exchange.getRequestById(flowDoc._id);
+              flowResponse = await this.$repo.exchange.getResponseById(flowDoc._id);
+              flows.push(flowDoc);
+              flowRequests.push(flowRequest);
+              flowResponses.push(flowResponse);
+            }
+          } else {
+            flowRequest = flowRequests.find(_flowRequest => _flowRequest._id === flowDoc._id);
+            flowResponse = flowResponses.find(_flowResponse => _flowResponse._id === flowDoc._id);
+          }
+          const interactionRequest =  await this.$repo.exchange.getRequestById(_id);
+          const interactionResponse =  await this.$repo.exchange.getResponseById(_id);
+          const reqError = this.compareRequest(flowRequest, interactionRequest);
+          if (reqError) {
+            console.log(`Request match failed. | Project: ${this.project} | Flow - '${flow}' | Consumer - '${consumerId}' | Error - '${reqError}'`);
+            exceptions.push({ flow, error: reqError });
+            continue;
+          }
+          const resError = this.compareResponse(flowResponse, interactionResponse);
+          if (resError) {
+            console.log(`Response match failed. | Project: ${this.project} | Flow - '${flow}' | Consumer - '${consumerId}' | Error - '${reqError}'`);
+            exceptions.push({ flow, error: resError });
+            continue;
+          }
+        }
+        const consumerAnalysis = await this.$repo.analysis.getById(consumerAnalysisId);
+        if (count > 0) {
+          const contract = {
+            consumer: consumerId,
+            consumerVersion: consumerAnalysis.version,
+            provider: this.project,
+            providerVersion: analysis.version,
+            status: exceptions.length > 0 ? 'FAILED' : 'PASSED',
+            exceptions: exceptions
+          };
+          await this.$repo.compatibility.save(contract);
+        } else {
+          console.log(`'No interactions matched with current provider. | Consumer: ${consumerId} | Project: ${this.project}`);
+        }
+      }
+    }
   }
 
   compareRequest(actual, expected) {
