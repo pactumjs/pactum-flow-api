@@ -11,6 +11,9 @@ const config = {
       useFindAndModify: false,
       useCreateIndex: true
     }
+  },
+  auth: {
+    token: env.AUTH_TOKEN || Buffer.from('admin:admin').toString('base64')
   }
 };
 

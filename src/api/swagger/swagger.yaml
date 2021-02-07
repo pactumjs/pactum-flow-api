@@ -49,6 +49,8 @@ paths:
         - "Project"
       description: "create a new project"
       operationId: "postProject"
+      security:
+        - AuthToken: []
       parameters:
         - in: "body"
           name: "project"
@@ -84,6 +86,8 @@ paths:
         - "Project"
       description: "delete a project"
       operationId: "deleteProject"
+      security:
+        - AuthToken: []
       parameters:
         - in: "path"
           name: "id"
@@ -118,6 +122,8 @@ paths:
         - "Analyses"
       description: "create a new analysis"
       operationId: "postAnalysis"
+      security:
+        - AuthToken: []
       parameters:
         - in: "body"
           name: "analysis"
@@ -155,6 +161,8 @@ paths:
         - "Analyses"
       description: "delete an analysis"
       operationId: "deleteAnalysis"
+      security:
+        - AuthToken: []
       parameters:
         - in: "path"
           name: "id"
@@ -191,6 +199,8 @@ paths:
         - "Interactions"
       description: "create a new interaction"
       operationId: "postInteractions"
+      security:
+        - AuthToken: []
       parameters:
         - in: "body"
           name: "interactions"
@@ -246,6 +256,8 @@ paths:
         - "Flows"
       description: "create a new flows"
       operationId: "postFlows"
+      security:
+        - AuthToken: []
       parameters:
         - in: "body"
           name: "flow"
@@ -305,6 +317,8 @@ paths:
         - "Process"
       description: "process analysis"
       operationId: "postProcessAnalysis"
+      security:
+        - AuthToken: []
       parameters:
         - in: "body"
           name: "process body"
@@ -432,6 +446,8 @@ paths:
         - "Environments"
       description: "publish a version of project to a environment"
       operationId: "postEnvironment"
+      security:
+        - AuthToken: []
       parameters:
         - in: "body"
           name: "environment"
@@ -678,3 +694,8 @@ definitions:
         type: "string"
     example:
       message: "OK"
+securityDefinitions:
+  AuthToken:
+    type: "apiKey"
+    in: "header"
+    name: "x-auth-token"

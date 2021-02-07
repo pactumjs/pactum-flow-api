@@ -35,6 +35,6 @@
     "c8": "^7.4.0",
     "mocha": "^8.2.1",
     "pactum": "^3.0.4",
-    "pactum-flow-plugin": "^0.0.1"
+    "pactum-flow-plugin": "^0.0.3"
   }
 }
