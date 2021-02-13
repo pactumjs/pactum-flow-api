@@ -8,7 +8,8 @@
     "start": "nodemon src/server.js",
     "test": "mocha -b test/component/specs",
     "coverage": "c8 --include=src npm run test",
-    "seed": "node test/seed/index.js"
+    "seed": "node test/seed/index.js",
+    "seed:1": "node test/seed/1.seed.js"
   },
   "repository": {
     "type": "git",

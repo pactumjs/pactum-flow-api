@@ -51,7 +51,7 @@ async function run() {
       }
     ])
     .expectStatus(200);
-  await pactum.flow('process analysis without flows & interactions')
+  await pactum.spec()
     .post('/api/flow/v1/process/analysis')
     .withJson({
       "id": "$S{P1A1}",

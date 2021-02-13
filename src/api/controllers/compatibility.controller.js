@@ -12,8 +12,13 @@ function deleteCompatibilityResultsByProject(req, res) {
   new CompatibilityService(req, res).deleteCompatibilityResultsByProject();
 }
 
+function deleteCompatibilityResultsByProjectVersion(req, res) {
+  new CompatibilityService(req, res).deleteCompatibilityResultsByProjectVersion();
+}
+
 module.exports = {
   verifyCompatibility,
   getCompatibilityResults,
-  deleteCompatibilityResultsByProject
+  deleteCompatibilityResultsByProject,
+  deleteCompatibilityResultsByProjectVersion
 };

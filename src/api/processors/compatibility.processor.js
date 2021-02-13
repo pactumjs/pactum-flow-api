@@ -187,9 +187,13 @@ class CompatibilityProcessor {
     if (!pathParamsResult.equal) {
       return `Failed to match request path params - ${pathParamsResult.message}`;
     }
-    const queryParamsResult = utils.compare(actual.queryParams, expected.queryParams, rules, '$.query', true);
-    if (!queryParamsResult.equal) {
-      return `Failed to match request query params - ${queryParamsResult.message}`;
+    if (expected.queryParams && typeof actual.queryParams === 'undefined') {
+      return `Failed to match request - Query Params Not Found`;
+    } else {
+      const queryParamsResult = utils.compare(actual.queryParams, expected.queryParams, rules, '$.query', true);
+      if (!queryParamsResult.equal) {
+        return `Failed to match request query params - ${queryParamsResult.message}`;
+      }
     }
     if (typeof expected.headers !== 'undefined') {
       const headersResult = utils.compare(actual.headers, expected.headers, rules, '$.headers', false);
@@ -197,9 +201,13 @@ class CompatibilityProcessor {
         return `Failed to match request headers - ${headersResult.message}`;
       }
     }
-    const bodyResult = utils.compare(actual.body, expected.body, rules, '$.body', true);
-    if (!bodyResult.equal) {
-      return `Failed to match request body - ${bodyResult.message}`;
+    if (expected.body && typeof actual.body === 'undefined') {
+      return `Failed to match request - Body Not Found`;
+    } else {
+      const bodyResult = utils.compare(actual.body, expected.body, rules, '$.body', true);
+      if (!bodyResult.equal) {
+        return `Failed to match request body - ${bodyResult.message}`;
+      }
     }
   }
 
@@ -215,9 +223,13 @@ class CompatibilityProcessor {
       }
     }
     if (typeof expected.body !== 'undefined') {
-      const bodyResult = utils.compare(actual.body, expected.body, rules, '$.body', false);
-      if (!bodyResult.equal) {
-        return `Failed to match response body - ${bodyResult.message}`;
+      if (typeof actual.body === 'undefined') {
+        return `Failed to match response - Body Not Found`;
+      } else {
+        const bodyResult = utils.compare(actual.body, expected.body, rules, '$.body', false);
+        if (!bodyResult.equal) {
+          return `Failed to match response body - ${bodyResult.message}`;
+        }
       }
     }
   }

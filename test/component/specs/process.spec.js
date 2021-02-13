@@ -8,6 +8,10 @@ addRetryHandler('till processed', (ctx) => {
   return !ctx.res.json.processed;
 });
 
+addRetryHandler('at least once compatibility result', (ctx) => {
+  return ctx.res.json.length === 0;
+});
+
 describe('Process new analysis', () => {
 
   before(async () => {
@@ -433,6 +437,24 @@ describe('Process analysis with valid providers', () => {
         .withPathParams('id', '$S{AnalysisId}')
         .retry({ delay: 50, count: 5, strategy: 'till processed' })
         .expectStatus(200);
+      await pactum.flow('get passed compatibility results filtered by project and version')
+        .get('/api/flow/v1/compatibility')
+        .withQueryParams('projectId', 'team_process-service')
+        .withQueryParams('version', '2.0.1')
+        .retry({ delay: 50, count: 5, strategy: 'at least once compatibility result' })
+        .expectJsonMatch([
+          {
+            "_id": like("60276cce979cdc30107d3f93"),
+            "consumer": "team_process-service",
+            "consumerVersion": "2.0.1",
+            "provider": "team_login-service",
+            "providerVersion": "1.0.1",
+            "__v": 0,
+            "exceptions": [],
+            "status": "PASSED",
+            "verifiedAt": like("2021-02-13T07:43:05.615Z")
+          }
+        ]);
     });
 
     it('provider verification failed at request', async () => {
@@ -471,6 +493,30 @@ describe('Process analysis with valid providers', () => {
         .withPathParams('id', '$S{AnalysisId}')
         .retry({ delay: 50, count: 5, strategy: 'till processed' })
         .expectStatus(200);
+      await pactum.flow('get failed compatibility results filtered by project and version')
+        .get('/api/flow/v1/compatibility')
+        .withQueryParams('projectId', 'team_process-service')
+        .withQueryParams('version', '2.0.2')
+        .retry({ delay: 50, count: 5, strategy: 'at least once compatibility result' })
+        .expectJsonMatch([
+          {
+            "_id": like("60276cce979cdc30107d3f93"),
+            "consumer": "team_process-service",
+            "consumerVersion": "2.0.2",
+            "provider": "team_login-service",
+            "providerVersion": "1.0.2",
+            "__v": 0,
+            "exceptions": [
+              {
+                "_id": like("602787e532db9d2380036cc8"),
+                "flow": "flow-name-1",
+                "error": "Failed to match request - Query Params Not Found"
+              }
+            ],
+            "status": "FAILED",
+            "verifiedAt": like("2021-02-13T07:43:05.615Z")
+          }
+        ]);
     });
 
     it('provider verification failed at response', async () => {
@@ -509,6 +555,30 @@ describe('Process analysis with valid providers', () => {
         .withPathParams('id', '$S{AnalysisId}')
         .retry({ delay: 50, count: 5, strategy: 'till processed' })
         .expectStatus(200);
+      await pactum.spec()
+        .get('/api/flow/v1/compatibility')
+        .withQueryParams('projectId', 'team_process-service')
+        .withQueryParams('version', '2.0.3')
+        .retry({ delay: 50, count: 5, strategy: 'at least once compatibility result' })
+        .expectJsonMatch([
+          {
+            "_id": like("60276cce979cdc30107d3f93"),
+            "consumer": "team_process-service",
+            "consumerVersion": "2.0.3",
+            "provider": "team_login-service",
+            "providerVersion": "1.0.3",
+            "__v": 0,
+            "exceptions": [
+              {
+                "_id": like("602787e532db9d2380036cc8"),
+                "flow": "flow-name-1",
+                "error": "Failed to match response - Body Not Found"
+              }
+            ],
+            "status": "FAILED",
+            "verifiedAt": like("2021-02-13T07:43:05.615Z")
+          }
+        ]);
     });
 
   });

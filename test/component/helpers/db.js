@@ -1,5 +1,6 @@
 const pactum = require('pactum');
 const Environment = require('../../../src/api/models/environment.model');
+const Compatibility = require('../../../src/api/models/compatibility.model');
 
 async function createProject(id, name) {
   await pactum.spec()
@@ -98,6 +99,7 @@ async function clean() {
   }
 
   await Environment.deleteMany();
+  await Compatibility.deleteMany();
 }
 
 module.exports = {

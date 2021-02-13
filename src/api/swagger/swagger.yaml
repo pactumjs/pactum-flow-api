@@ -505,12 +505,37 @@ paths:
     delete:
       tags:
         - "Compatibility"
-      description: "delete compatibility results"
+      description: "delete compatibility results by project"
       operationId: "deleteCompatibilityResultsByProject"
       parameters:
         - in: "path"
           name: "id"
           description: "id of the project to delete"
+          type: "string"
+          minLength: 2
+          required: true
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/CompatibilityResults"
+    x-swagger-router-controller: "compatibility.controller"
+  /compatibility/{id}/version/{version}:
+    delete:
+      tags:
+        - "Compatibility"
+      description: "delete compatibility results by version"
+      operationId: "deleteCompatibilityResultsByProjectVersion"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "id of the project to delete"
+          type: "string"
+          minLength: 2
+          required: true
+        - in: "path"
+          name: "version"
+          description: "version of the project to delete"
           type: "string"
           minLength: 2
           required: true

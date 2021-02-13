@@ -53,6 +53,22 @@ class CompatibilityService extends BaseService {
     this.res.status(200).json([cDoc, pDoc]);
   }
 
+  async deleteCompatibilityResultsByProjectVersion() {
+    const id = this.req.swagger.params.id.value;
+    const version = this.req.swagger.params.version.value;
+    const consumerQuery = {
+      consumer: id,
+      consumerVersion: version
+    };
+    const cDoc = await this.$repo.compatibility.delete(consumerQuery);
+    const providerQuery = {
+      provider: id,
+      providerVersion: version
+    };
+    const pDoc = await this.$repo.compatibility.delete(providerQuery);
+    this.res.status(200).json([cDoc, pDoc]);
+  }
+
 }
 
 module.exports = CompatibilityService;
