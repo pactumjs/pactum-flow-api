@@ -75,15 +75,16 @@ class CompatibilityProcessor {
       const providerList = Object.keys(providers);
       for (let j = 0; j < providerList.length; j++) {
         const provider = providers[providerList[j]];
-        const contract = {
+        const compatibility = {
           consumer: this.project,
           consumerVersion: analysis.version,
           provider: providerList[j],
           providerVersion: provider.analysis.version,
           status: provider.exceptions.length > 0 ? 'FAILED' : 'PASSED',
-          exceptions: provider.exceptions
+          exceptions: provider.exceptions,
+          verifiedAt: new Date()
         };
-        await this.$repo.compatibility.save(contract);
+        await this.$repo.compatibility.save(compatibility);
       }
     }
   }
@@ -157,15 +158,16 @@ class CompatibilityProcessor {
         }
         const consumerAnalysis = await this.$repo.analysis.getById(consumerAnalysisId);
         if (count > 0) {
-          const contract = {
+          const compatibility = {
             consumer: consumerId,
             consumerVersion: consumerAnalysis.version,
             provider: this.project,
             providerVersion: analysis.version,
             status: exceptions.length > 0 ? 'FAILED' : 'PASSED',
-            exceptions: exceptions
+            exceptions: exceptions,
+            verifiedAt: new Date()
           };
-          await this.$repo.compatibility.save(contract);
+          await this.$repo.compatibility.save(compatibility);
         } else {
           console.log(`'No interactions matched with current provider. | Consumer: ${consumerId} | Project: ${this.project}`);
         }

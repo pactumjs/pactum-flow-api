@@ -13,7 +13,8 @@ const CompatibilitySchema = new Schema({
   provider: { type: String, required: true },
   providerVersion: { type: String, required: true },
   status: { type: String, required: true },
-  exceptions: { type: [ErrorSchema], default: [] }
+  exceptions: { type: [ErrorSchema], default: [] },
+  verifiedAt: { type: Date, required: true }
 });
 
 CompatibilitySchema.index({ consumer: 1, consumerVersion: 1, provider: 1, providerVersion: 1 });
