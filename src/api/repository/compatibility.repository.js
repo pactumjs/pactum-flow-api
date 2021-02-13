@@ -16,6 +16,10 @@ class CompatibilityRepository {
     return Compatibility.find(query, null, { lean: true });
   }
 
+  delete(query) {
+    return Compatibility.deleteMany(query);
+  }
+
 }
 
 module.exports = CompatibilityRepository;
