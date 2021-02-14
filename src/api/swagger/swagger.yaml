@@ -545,6 +545,29 @@ paths:
           schema:
             $ref: "#/definitions/CompatibilityResults"
     x-swagger-router-controller: "compatibility.controller"
+  /quality-gate/status:
+    get:
+      tags:
+        - "Quality Gate"
+      description: "get quality gate status of a project"
+      operationId: "getQualityGateStatus"
+      parameters:
+        - in: "query"
+          name: "projectId"
+          description: "id of the project"
+          type: "string"
+          required: true
+        - in: "query"
+          name: "version"
+          description: "version of the project to fetch"
+          type: "string"
+          required: true
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/QualityGateStatuses"
+    x-swagger-router-controller: "qualityGate.controller"
 definitions:
   Project:
     type: "object"
@@ -732,6 +755,40 @@ definitions:
     type: "array"
     items:
       $ref: "#/definitions/CompatibilityResult"
+  QualityGateProjectStatus:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      version:
+        type: "string"
+      status:
+        type: "string"
+      message:
+        type: "string"
+      exceptions:
+        type: "array"
+        items:
+          $ref: "#/definitions/Exception"
+  QualityGateStatus:
+    type: "object"
+    properties:
+      environment:
+        type: "string"
+      status:
+        type: "string"
+      consumers:
+        type: "array"
+        items:
+          $ref: "#/definitions/QualityGateProjectStatus"
+      providers:
+        type: "array"
+        items:
+          $ref: "#/definitions/QualityGateProjectStatus"
+  QualityGateStatuses:
+    type: "array"
+    items:
+      $ref: "#/definitions/QualityGateStatus"
   HealthResponse:
     description: "Health Response"
     type: "object"

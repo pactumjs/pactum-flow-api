@@ -3,7 +3,7 @@ const Environment = require('../models/environment.model');
 class EnvironmentRepository {
 
   get() {
-    return Environment.find(null, null, {lean: true});
+    return Environment.find(null, null, { lean: true });
   }
 
   save(data) {
