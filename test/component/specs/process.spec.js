@@ -5,11 +5,11 @@ const db = require('../helpers/db');
 const { addRetryHandler } = pactum.handler;
 
 addRetryHandler('till processed', (ctx) => {
-  return !ctx.res.json.processed;
+  return ctx.res.json.processed;
 });
 
 addRetryHandler('at least once compatibility result', (ctx) => {
-  return ctx.res.json.length === 0;
+  return ctx.res.json.length !== 0;
 });
 
 describe('Process new analysis', () => {

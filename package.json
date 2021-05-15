@@ -5,8 +5,9 @@
   "description": "Backend API for pactum flow",
   "main": "src/server.js",
   "scripts": {
-    "start": "nodemon src/server.js",
-    "test": "mocha -b test/component/specs",
+    "start": "node src/server.js",
+    "start:dev": "nodemon src/server.js",
+    "test": "mocha -b --timeout 5000 --slow 250 test/component/specs",
     "coverage": "c8 --include=src npm run test",
     "seed": "node test/seed/index.js",
     "seed:1": "node test/seed/1.seed.js"
@@ -28,14 +29,14 @@
   "dependencies": {
     "express": "^4.17.1",
     "mongoose": "^5.11.4",
-    "pactum-matchers": "^1.0.0",
+    "pactum-matchers": "^1.0.2",
     "swagger-express-mw": "^0.7.0",
     "swagger-tools": "^0.10.4"
   },
   "devDependencies": {
-    "c8": "^7.4.0",
-    "mocha": "^8.2.1",
-    "pactum": "^3.0.4",
-    "pactum-flow-plugin": "^0.0.3"
+    "c8": "^7.7.2",
+    "mocha": "^8.4.0",
+    "pactum": "^3.0.14",
+    "pactum-flow-plugin": "^0.0.4"
   }
 }
