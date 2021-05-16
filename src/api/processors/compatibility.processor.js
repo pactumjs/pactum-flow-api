@@ -45,7 +45,7 @@ class CompatibilityProcessor {
         }
         const providerAnalysisId = environment.projects[provider];
         if (!providerAnalysisId) {
-          console.log(`Provider Verification | Provider - '${provider}' does not exist in '${environment}' environment`);
+          console.log(`Provider Verification | Provider - '${provider}' does not exist in '${environment._id}' environment`);
           // TODO: provider does not exist in this environment
           continue;
         }

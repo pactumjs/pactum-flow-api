@@ -6,10 +6,18 @@ class EnvironmentRepository {
     return Environment.find(null, null, { lean: true });
   }
 
+  getById(_id) {
+    return Environment.findById({ _id });
+  }
+
   save(data) {
     const key = {};
     key[`projects.${data.projectId}`] = data.version;
     return Environment.updateOne({ _id: data.environment }, { $set: key }, { upsert: true });
+  }
+
+  delete(_id) {
+    return Environment.deleteOne({ _id });
   }
 
   async deleteAnalysis(data) {

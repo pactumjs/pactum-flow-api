@@ -9,8 +9,7 @@
     "start:dev": "nodemon src/server.js",
     "test": "mocha -b --timeout 5000 --slow 250 test/component/specs",
     "coverage": "c8 --include=src npm run test",
-    "seed": "node test/seed/index.js",
-    "seed:1": "node test/seed/1.seed.js"
+    "seed": "node test/seed/index.js"
   },
   "repository": {
     "type": "git",

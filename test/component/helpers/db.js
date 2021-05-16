@@ -1,6 +1,5 @@
 const pactum = require('pactum');
 const { request } = require('pactum');
-const Environment = require('../../../src/api/models/environment.model');
 const Compatibility = require('../../../src/api/models/compatibility.model');
 
 request.setBaseUrl('http://localhost:3000');
@@ -100,17 +99,31 @@ async function processAnalysis(analysisId) {
     .retry(5, 500);
 }
 
-async function clean() {
+async function deleteAllProjects() {
   const ids = await pactum.spec()
-    .get('/api/flow/v1/projects')
+  .get('/api/flow/v1/projects')
+  .returns('[*]._id').toss();
+for (let i = 0; i < ids.length; i++) {
+  await pactum.spec()
+    .delete('/api/flow/v1/projects/{id}')
+    .withPathParams('id', ids[i]);
+}
+}
+
+async function deleteAllEnvironments() {
+  const environments = await pactum.spec()
+    .get('/api/flow/v1/environments')
     .returns('[*]._id').toss();
-  for (let i = 0; i < ids.length; i++) {
+  for (let i = 0; i < environments.length; i++) {
     await pactum.spec()
       .delete('/api/flow/v1/projects/{id}')
-      .withPathParams('id', ids[i]);
+      .withPathParams('id', environments[i]);
   }
+}
 
-  await Environment.deleteMany();
+async function clean() {
+  await deleteAllProjects();
+  await deleteAllEnvironments();
   await Compatibility.deleteMany();
 }
 

@@ -1,98 +1,17 @@
-const pactum = require('pactum');
-const { request } = pactum;
-
-request.setBaseUrl('http://localhost:3000');
-
-async function clean() {
-  const ids = await pactum.spec()
-    .get('/api/flow/v1/projects')
-    .expectStatus(200)
-    .returns('[*]._id');
-  for (let i = 0; i < ids.length; i++) {
-    await pactum.spec()
-      .delete('/api/flow/v1/projects/{id}')
-      .withPathParams('id', ids[i])
-      .expectStatus(200);
-  }
-}
-
-async function projects() {
-  await pactum.spec()
-    .post('/api/flow/v1/projects')
-    .withJson({
-      "id": "team_login-service",
-      "name": "[Team] login-service",
-    })
-    .expectStatus(200);
-  await pactum.spec()
-    .post('/api/flow/v1/projects')
-    .withJson({
-      "id": "team_flow-service",
-      "name": "[Team] flow-service",
-    })
-    .expectStatus(200);
-  await pactum.spec()
-    .post('/api/flow/v1/projects')
-    .withJson({
-      "id": "team_process-service",
-      "name": "[Team] process-service",
-    })
-    .expectStatus(200);
-}
-
-async function analyses() {
-  await pactum.spec()
-    .post('/api/flow/v1/analyses')
-    .withJson({
-      "projectId": "team_login-service",
-      "branch": "main",
-      "version": "1.0.2",
-    })
-    .expectStatus(200)
-    .stores('P1A1', '_id');
-  await pactum.spec()
-    .post('/api/flow/v1/analyses')
-    .withJson({
-      "projectId": "team_process-service",
-      "branch": "main",
-      "version": "2.2.1",
-    })
-    .expectStatus(200)
-    .stores('P3A1', '_id');
-}
-
-async function interactions() {
-  await pactum.spec()
-    .post('/api/flow/v1/interactions')
-    .withJson([
-      {
-        "analysisId": "$S{P1A1}",
-        "provider": "team_flow-service",
-        "flow": "some flow name",
-        "request": {},
-        "response": {}
-      }
-    ])
-    .expectStatus(200);
-  await pactum.spec()
-    .post('/api/flow/v1/interactions')
-    .withJson([
-      {
-        "analysisId": "$S{P3A1}",
-        "provider": "team_login-service",
-        "flow": "some flow name",
-        "request": {},
-        "response": {}
-      }
-    ])
-    .expectStatus(200);
-}
+const db = require('../component/helpers/db');
 
 async function seed() {
-  await clean();
-  await projects();
-  await analyses();
-  await interactions();
+  await db.clean();
+  await db.createProject('team1_project-one', '[Team1] Project One');
+  await db.createAnalysis('team1_project-one', '1.0.1', 't-1-p-1-a-1');
+  await db.createBasicFlow('flow one', 't-1-p-1-a-1');
+  await db.createBasicInteraction('team1_project-two', 'flow two', 't-1-p-1-a-1');
+  await db.processAnalysis('t-1-p-1-a-1');
+  await db.createProject('team1_project-two', '[Team1] Project Two');
+  await db.createAnalysis('team1_project-two', '2.0.1', 't-1-p-1-a-2');
+  await db.createBasicFlow('flow two', 't-1-p-1-a-2');
+  await db.processAnalysis('t-1-p-1-a-2');
+  await db.createProject('team2_project-one', '[Team2] Project One');
 }
 
 seed().then().catch(err => console.log(err));

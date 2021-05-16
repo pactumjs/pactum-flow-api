@@ -461,6 +461,42 @@ paths:
           schema:
             $ref: "#/definitions/Environment"
     x-swagger-router-controller: "environment.controller"
+  /environments/{id}:
+    get:
+      tags:
+        - "Environments"
+      description: "get environment with id"
+      operationId: "getEnvironment"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "environment name"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Environment"
+    delete:
+      tags:
+        - "Environments"
+      description: "delete an environment"
+      operationId: "deleteEnvironment"
+      security:
+        - AuthToken: []
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "environment name"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/HealthResponse"
+    x-swagger-router-controller: "environment.controller"
   /compatibility:
     get:
       tags:
