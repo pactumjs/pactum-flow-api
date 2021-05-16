@@ -7,6 +7,9 @@ class CompatibilityProcessor {
     this.$repo = repo;
     this.environments = [];
     this.projects = [];
+    this.flowDocs = [];
+    this.flowRequestDocs = [];
+    this.flowResponseDocs = [];
   }
 
   async verify() {
@@ -25,63 +28,59 @@ class CompatibilityProcessor {
       const environment = this.environments[i];
       const analysisId = environment.projects[this.project];
       if (!analysisId) {
-        console.log(`Project not found in environment - ${environment._id}`);
+        console.log(`Provider Verification | Project not found in environment - '${environment._id}'`);
         continue;
       }
       const analysis = await this.$repo.analysis.getById(analysisId);
-      const providers = {};
       const interactions = await this.$repo.interaction.get({ analysisId });
-      for (let j = 0; j < interactions.length; j++) {
-        const { _id, provider, flow } = interactions[j];
+      const metrics = await this.$repo.metrics.getAnalysisMetricsById(analysisId);
+      const providers = metrics.providers.all;
+      for (let j = 0; j < providers.length; j++) {
+        const provider = providers[j];
+        const exceptions = [];
         if (!this.projects.includes(provider)) {
-          console.log(`Provider - '${provider}' does not exist`);
+          console.log(`Provider Verification | Provider - '${provider}' does not exist`);
           // TODO: provider does not exist
           continue;
         }
         const providerAnalysisId = environment.projects[provider];
         if (!providerAnalysisId) {
-          console.log(`Provider - '${provider}' does not exist in '${environment}' environment`);
+          console.log(`Provider Verification | Provider - '${provider}' does not exist in '${environment}' environment`);
           // TODO: provider does not exist in this environment
           continue;
         }
-        if (!providers[`${provider}`]) {
-          providers[`${provider}`] = { exceptions: [] };
-          providers[`${provider}`]['analysis'] = await this.$repo.analysis.getById(providerAnalysisId);
+        const providerInteractions = interactions.filter(interaction => interaction.provider === provider);
+        for (let k = 0; k < providerInteractions.length; k++) {
+          const providerInteraction = providerInteractions[k];
+          const { _id, flow } = providerInteraction;
+          const { flowDoc, flowRequest, flowResponse } = await this.getFlowRelatedDocs(flow, providerAnalysisId);
+          if (!flowDoc) {
+            console.log(`Provider Verification | Flow - '${flow}' does not exist in provider - '${provider}'`);
+            exceptions.push({ flow, error: 'flow does not exist' });
+          }
+          const expectedReq = await this.$repo.exchange.getRequestById(_id);
+          const reqError = this.compareRequest(flowRequest, expectedReq);
+          if (reqError) {
+            console.log(`Provider Verification | Request match failed for flow - '${flow}' & provider - '${provider}' with error - '${reqError}'`);
+            exceptions.push({ flow, error: reqError });
+            continue;
+          }
+          const expectedResponse = await this.$repo.exchange.getResponseById(_id);
+          const resError = this.compareResponse(flowResponse, expectedResponse);
+          if (resError) {
+            console.log(`Provider Verification | Request match failed for flow - '${flow}' & provider - '${provider}' with error - '${resError}'`);
+            exceptions.push({ flow, error: resError });
+            continue;
+          }
         }
-        const flowDocs = await this.$repo.flow.get({ name: flow, analysisId: providerAnalysisId });
-        if (flowDocs.length === 0) {
-          console.log(`Flow - '${flow}' does not exist in provider - '${provider}'`);
-          providers[`${provider}`].exceptions.push({ flow, error: 'flow does not exist' });
-          continue;
-        }
-        const flowDoc = flowDocs[0];
-        const expectedReq = await this.$repo.exchange.getRequestById(_id);
-        const actualReq = await this.$repo.exchange.getRequestById(flowDoc._id);
-        const reqError = this.compareRequest(actualReq, expectedReq);
-        if (reqError) {
-          console.log(`Request match failed for flow - '${flow}' & provider - '${provider}' with error - '${reqError}'`);
-          providers[`${provider}`].exceptions.push({ flow, error: reqError });
-          continue;
-        }
-        const expectedResponse = await this.$repo.exchange.getResponseById(_id);
-        const actualResponse = await this.$repo.exchange.getResponseById(flowDoc._id);
-        const resError = this.compareResponse(actualResponse, expectedResponse);
-        if (resError) {
-          console.log(`Request match failed for flow - '${flow}' & provider - '${provider}' with error - '${resError}'`);
-          providers[`${provider}`].exceptions.push({ flow, error: resError });
-          continue;
-        }
-      }
-      const providerList = Object.keys(providers);
-      for (let j = 0; j < providerList.length; j++) {
-        const provider = providers[providerList[j]];
+        const providerAnalysis = await this.$repo.analysis.getById(providerAnalysisId);
         const compatibility = {
           consumer: this.project,
           consumerVersion: analysis.version,
-          provider: providerList[j],
-          providerVersion: provider.analysis.version,
-          status: provider.exceptions.length > 0 ? 'FAILED' : 'PASSED',
-          exceptions: provider.exceptions,
+          provider,
+          providerVersion: providerAnalysis.version,
+          status: exceptions.length > 0 ? 'FAILED' : 'PASSED',
+          exceptions,
           verifiedAt: new Date()
         };
         await this.$repo.compatibility.save(compatibility);
@@ -94,21 +93,18 @@ class CompatibilityProcessor {
       const environment = this.environments[i];
       const analysisId = environment.projects[this.project];
       if (!analysisId) {
-        console.log(`Project not found in environment - ${environment._id}`);
+        console.log(`Consumer Verification | Project not found in environment - ${environment._id}`);
         continue;
       }
       const analysis = await this.$repo.analysis.getById(analysisId);
       const metrics = await this.$repo.metrics.getAnalysisMetricsById(analysisId);
-      const flows = [];
-      const flowRequests = [];
-      const flowResponses = [];
       const consumers = metrics.consumers.all;
       for (let j = 0; j < consumers.length; j++) {
         const consumerId = consumers[j];
         const consumerAnalysisId = environment.projects[consumerId];
         const exceptions = [];
         if (!consumerAnalysisId) {
-          console.log(`Consumer - '${consumerId}' not found in environment - '${environment._id}'`);
+          console.log(`Consumer Verification | Consumer - '${consumerId}' not found in environment - '${environment._id}'`);
           continue;
         }
         const interactions = await this.$repo.interaction.get({ analysisId: consumerAnalysisId });
@@ -119,39 +115,22 @@ class CompatibilityProcessor {
             continue;
           }
           count++;
-          let flowDoc = flows.find(_flow => _flow.name === flow);
-          let flowRequest, flowResponse;
+          const { flowDoc, flowRequest, flowResponse } = await this.getFlowRelatedDocs(flow, analysisId);
           if (!flowDoc) {
-            const flowDocs = await this.$repo.flow.get({
-              name: flow,
-              analysisId
-            });
-            if (!flowDocs || flowDocs.length === 0) {
-              console.log(`Flow - '${flow}' does not exist in project - '${this.project}'`);
-              continue;
-            } else {
-              flowDoc = flowDocs[0];
-              flowRequest = await this.$repo.exchange.getRequestById(flowDoc._id);
-              flowResponse = await this.$repo.exchange.getResponseById(flowDoc._id);
-              flows.push(flowDoc);
-              flowRequests.push(flowRequest);
-              flowResponses.push(flowResponse);
-            }
-          } else {
-            flowRequest = flowRequests.find(_flowRequest => _flowRequest._id === flowDoc._id);
-            flowResponse = flowResponses.find(_flowResponse => _flowResponse._id === flowDoc._id);
+            console.log(`Consumer Verification | Flow - '${flow}' does not exist in project - '${this.project}'`);
+            continue;
           }
-          const interactionRequest =  await this.$repo.exchange.getRequestById(_id);
-          const interactionResponse =  await this.$repo.exchange.getResponseById(_id);
+          const interactionRequest = await this.$repo.exchange.getRequestById(_id);
+          const interactionResponse = await this.$repo.exchange.getResponseById(_id);
           const reqError = this.compareRequest(flowRequest, interactionRequest);
           if (reqError) {
-            console.log(`Request match failed. | Project: ${this.project} | Flow - '${flow}' | Consumer - '${consumerId}' | Error - '${reqError}'`);
+            console.log(`Consumer Verification | Request match failed. | Project: '${this.project}' | Flow - '${flow}' | Consumer - '${consumerId}' | Error - '${reqError}'`);
             exceptions.push({ flow, error: reqError });
             continue;
           }
           const resError = this.compareResponse(flowResponse, interactionResponse);
           if (resError) {
-            console.log(`Response match failed. | Project: ${this.project} | Flow - '${flow}' | Consumer - '${consumerId}' | Error - '${reqError}'`);
+            console.log(`Consumer Verification | Response match failed. | Project: '${this.project}' | Flow - '${flow}' | Consumer - '${consumerId}' | Error - '${reqError}'`);
             exceptions.push({ flow, error: resError });
             continue;
           }
@@ -169,10 +148,35 @@ class CompatibilityProcessor {
           };
           await this.$repo.compatibility.save(compatibility);
         } else {
-          console.log(`'No interactions matched with current provider. | Consumer: ${consumerId} | Project: ${this.project}`);
+          console.log(`Consumer Verification | No interactions matched with current provider. | Consumer: '${consumerId}' | Project: '${this.project}'`);
         }
       }
     }
+  }
+
+  async getFlowRelatedDocs(name, analysisId) {
+    let flowDoc = this.flowDocs.find(flowDoc => flowDoc.name === name);
+    let flowRequest, flowResponse;
+    if (!flowDoc) {
+      const flowDocs = await this.$repo.flow.get({
+        name,
+        analysisId
+      });
+      if (!flowDocs || flowDocs.length === 0) {
+        return {};
+      } else {
+        flowDoc = flowDocs[0];
+        flowRequest = await this.$repo.exchange.getRequestById(flowDoc._id);
+        flowResponse = await this.$repo.exchange.getResponseById(flowDoc._id);
+        this.flowDocs.push(flowDoc);
+        this.flowRequestDocs.push(flowRequest);
+        this.flowResponseDocs.push(flowResponse);
+      }
+    } else {
+      flowRequest = this.flowRequestDocs.find(_flowRequest => _flowRequest._id === flowDoc._id);
+      flowResponse = this.flowResponseDocs.find(_flowResponse => _flowResponse._id === flowDoc._id);
+    }
+    return { flowDoc, flowRequest, flowResponse };
   }
 
   compareRequest(actual, expected) {

@@ -1,6 +1,10 @@
 const pactum = require('pactum');
+const { request } = require('pactum');
 const Environment = require('../../../src/api/models/environment.model');
 const Compatibility = require('../../../src/api/models/compatibility.model');
+
+request.setBaseUrl('http://localhost:3000');
+request.setDefaultHeaders('x-auth-token', Buffer.from('admin:admin').toString('base64'));
 
 async function createProject(id, name) {
   await pactum.spec()
@@ -19,16 +23,16 @@ async function deleteProject() {
     .expectStatus(200);
 }
 
-async function createAnalysis(project, version) {
+async function createAnalysis(projectId, version, storeAnalysisId) {
   await pactum.spec()
     .post('/api/flow/v1/analyses')
     .withJson({
-      "projectId": project || "team_login-service",
+      "projectId": projectId || "team_login-service",
       "branch": "main",
       "version": version || "1.0.1"
     })
     .expectStatus(200)
-    .stores('AnalysisId', '_id');
+    .stores(storeAnalysisId || 'AnalysisId', '_id');
 }
 
 async function deleteAnalysis() {
@@ -38,12 +42,12 @@ async function deleteAnalysis() {
     .expectStatus(200);
 }
 
-async function createBasicFlow(name) {
+async function createBasicFlow(name, analysisId, storeFlowId) {
   await pactum.spec()
     .post('/api/flow/v1/flows')
     .withJson([
       {
-        "analysisId": "$S{AnalysisId}",
+        "analysisId": analysisId ? `$S{${analysisId}}` : "$S{AnalysisId}",
         "name": name || "flow-name-1",
         "request": {
           "method": "GET",
@@ -55,17 +59,17 @@ async function createBasicFlow(name) {
       }
     ])
     .expectStatus(200)
-    .stores('FlowId', '[0]._id');
+    .stores(storeFlowId || 'FlowId', '[0]._id');
 }
 
-async function createBasicInteraction(provider, name) {
+async function createBasicInteraction(provider, flow, analysisId, storeInteractionId) {
   await pactum.spec()
     .post('/api/flow/v1/interactions')
     .withJson([
       {
-        "analysisId": "$S{AnalysisId}",
+        "analysisId": analysisId ? `$S{${analysisId}}` : "$S{AnalysisId}",
         "provider": provider || "provider-id",
-        "flow": name || "flow-name-1",
+        "flow": flow || "flow-name-1",
         "request": {
           "method": "GET",
           "path": "/api/path"
@@ -76,16 +80,24 @@ async function createBasicInteraction(provider, name) {
       }
     ])
     .expectStatus(200)
-    .stores('InteractionId', '[0]._id');
+    .stores(storeInteractionId || 'InteractionId', '[0]._id');
 }
 
-async function processAnalysis() {
+async function processAnalysis(analysisId) {
+  const id = analysisId ? `$S{${analysisId}}` : "$S{AnalysisId}";
   await pactum.spec()
-        .post('/api/flow/v1/process/analysis')
-        .withJson({
-          "id": "$S{AnalysisId}",
-        })
-        .expectStatus(202);
+    .post('/api/flow/v1/process/analysis')
+    .withJson({
+      "id": id,
+    })
+    .expectStatus(202);
+  await pactum.spec()
+    .get('/api/flow/v1/analyses/{analysisId}')
+    .withPathParams('analysisId', id)
+    .expectJsonLike({
+      "processed": true
+    })
+    .retry(5, 500);
 }
 
 async function clean() {
