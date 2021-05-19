@@ -96,7 +96,9 @@ async function processAnalysis(analysisId) {
     .expectJsonLike({
       "processed": true
     })
-    .retry(5, 500);
+    .retry(10, 200);
+  // wait for compatibility results to process
+  await pactum.sleep(50);
 }
 
 async function deleteAllProjects() {

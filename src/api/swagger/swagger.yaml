@@ -598,6 +598,11 @@ paths:
           description: "version of the project to fetch"
           type: "string"
           required: true
+        - in: "query"
+          name: "environment"
+          description: "environment name"
+          type: "string"
+          required: false
       responses:
         200:
           description: "Success"

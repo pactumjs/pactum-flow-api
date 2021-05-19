@@ -10,6 +10,7 @@ class QualityGateService extends BaseService {
     try {
       const projectId = this.req.query.projectId;
       const version = this.req.query.version;
+      const env = this.req.query.environment;
       const analyses = await this.$repo.analysis.get({
         projectId,
         version
@@ -21,7 +22,13 @@ class QualityGateService extends BaseService {
       const metrics = await this.$repo.metrics.getAnalysisMetricsById(analysis._id);
       const consumers = metrics.consumers.all;
       const providers = metrics.providers.all;
-      const environments = await this.$repo.environment.get();
+      let environments = await this.$repo.environment.get();
+      if (env) {
+        environments = environments.filter(environment => environment._id === env);
+      }
+      if (environments.length === 0) {
+        throw new this.$error.ClientRequestError('Environment Not Found');
+      }
       const envStatuses = [];
       for (let i = 0; i < environments.length; i++) {
         const environment = environments[i];
