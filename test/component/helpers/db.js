@@ -103,6 +103,16 @@ async function processAnalysis(analysisId) {
   await pactum.sleep(50);
 }
 
+async function saveProjectInEnvironment(environment, projectId, version) {
+  await pactum.spec()
+    .post('/api/flow/v1/environments')
+    .withJson({
+      projectId,
+      version,
+      environment
+    });
+}
+
 async function deleteAllProjects() {
   const ids = await pactum.spec()
   .get('/api/flow/v1/projects')
@@ -139,5 +149,6 @@ module.exports = {
   createFlow,
   createInteraction,
   processAnalysis,
+  saveProjectInEnvironment,
   clean,
 };

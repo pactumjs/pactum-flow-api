@@ -678,14 +678,14 @@ describe.only('Compatibility - Multiple Projects - Sad Paths', () => {
       ]);
   });
 
-  it('setup project three', async () => {
-    await db.createProject('p-id-3', 'p-name-2');
+  it('setup project three with invalid provider', async () => {
+    await db.createProject('p-id-3', 'p-name-3');
     await db.createAnalysis('p-id-3', '3.0.1', 'p-id-3-a-id-1');
-    await db.createInteraction('p-id-4', 'p-id-4-f-name-1', 'p-id-3-a-id-1');
+    await db.createInteraction('p-id-na', 'p-id-na-f-name-1', 'p-id-3-a-id-1');
     await db.processAnalysis('p-id-3-a-id-1');
   });
 
-  it('compatibility results of project three should be passed', async () => {
+  it('compatibility results of project three should return empty', async () => {
     await pactum.spec()
       .get('/api/flow/v1/compatibility')
       .withQueryParams('projectId', 'p-id-3')
@@ -693,7 +693,7 @@ describe.only('Compatibility - Multiple Projects - Sad Paths', () => {
       .expectJsonMatch([]);
   });
 
-  it('quality gate status of project three should be OK', async () => {
+  it('quality gate status of project three should be ERROR', async () => {
     await pactum.spec()
       .get('/api/flow/v1/quality-gate/status')
       .withQueryParams('projectId', 'p-id-3')
@@ -707,9 +707,72 @@ describe.only('Compatibility - Multiple Projects - Sad Paths', () => {
             {
               "exceptions": [],
               "message": "Project Not Found",
-              "name": "p-id-4",
+              "name": "p-id-na",
               "status": "ERROR",
               "version": ""
+            }
+          ],
+          status: 'ERROR'
+        }
+      ]);
+  });
+
+  it('setup project four with invalid provider flow', async () => {
+    await db.createProject('p-id-4', 'p-name-4');
+    await db.createAnalysis('p-id-4', '4.0.1', 'p-id-4-a-id-1');
+    await db.createInteraction('p-id-1', 'p-id-1-f-name-na', 'p-id-4-a-id-1');
+    await db.processAnalysis('p-id-4-a-id-1');
+  });
+
+  it('compatibility results of project 4 should not return empty', async () => {
+    await pactum.spec()
+      .get('/api/flow/v1/compatibility')
+      .withQueryParams('projectId', 'p-id-4')
+      .expectStatus(200)
+      .expectJsonMatch([
+        {
+          "_id": like("60a8eda734836e34d353c1f3"),
+          "consumer": "p-id-4",
+          "consumerVersion": "4.0.1",
+          "provider": "p-id-1",
+          "providerVersion": "1.0.2",
+          "__v": 0,
+          "exceptions": [
+            {
+              "_id": like("60a8eda7640237374cf3c60a"),
+              "flow": "p-id-1-f-name-na",
+              "error": "Flow Not Found"
+            }
+          ],
+          "status": "FAILED",
+          "verifiedAt": like("2021-05-22T11:40:23.500Z")
+        }
+      ]);
+  });
+
+  it('quality gate status of project 4 should be ERROR', async () => {
+    await pactum.spec()
+      .get('/api/flow/v1/quality-gate/status')
+      .withQueryParams('projectId', 'p-id-4')
+      .withQueryParams('version', '4.0.1')
+      .expectStatus(200)
+      .expectJsonMatchStrict([
+        {
+          consumers: [],
+          environment: 'latest',
+          providers: [
+            {
+              "exceptions": [
+                {
+                  "_id": like("60a8eda7640237374cf3c60a"),
+                  "flow": "p-id-1-f-name-na",
+                  "error": "Flow Not Found"
+                }
+              ],
+              "message": "",
+              "name": "p-id-1",
+              "status": "FAILED",
+              "version": "1.0.2"
             }
           ],
           status: 'ERROR'

@@ -56,7 +56,8 @@ class CompatibilityProcessor {
           const { flowDoc, flowRequest, flowResponse } = await this.getFlowRelatedDocs(flow, providerAnalysisId);
           if (!flowDoc) {
             console.log(`Provider Verification | Flow - '${flow}' does not exist in provider - '${provider}'`);
-            exceptions.push({ flow, error: 'flow does not exist' });
+            exceptions.push({ flow, error: 'Flow Not Found' });
+            continue;
           }
           const expectedReq = await this.$repo.exchange.getRequestById(_id);
           const reqError = this.compareRequest(flowRequest, expectedReq);
