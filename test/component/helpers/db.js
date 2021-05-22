@@ -41,27 +41,29 @@ async function deleteAnalysis() {
     .expectStatus(200);
 }
 
-async function createBasicFlow(name, analysisId, storeFlowId) {
+async function createFlow(name, analysisId, options = {}) {
+  const request = options.request || {
+    "method": "GET",
+    "path": "/api/path"
+  };
+  const response = options.response || {
+    "statusCode": 200
+  };
   await pactum.spec()
     .post('/api/flow/v1/flows')
     .withJson([
       {
         "analysisId": analysisId ? `$S{${analysisId}}` : "$S{AnalysisId}",
         "name": name || "flow-name-1",
-        "request": {
-          "method": "GET",
-          "path": "/api/path"
-        },
-        "response": {
-          "statusCode": 200
-        }
+        request,
+        response
       }
     ])
     .expectStatus(200)
-    .stores(storeFlowId || 'FlowId', '[0]._id');
+    .stores('FlowId', '[0]._id');
 }
 
-async function createBasicInteraction(provider, flow, analysisId, storeInteractionId) {
+async function createInteraction(provider, flow, analysisId, storeInteractionId) {
   await pactum.spec()
     .post('/api/flow/v1/interactions')
     .withJson([
@@ -134,8 +136,8 @@ module.exports = {
   deleteProject,
   createAnalysis,
   deleteAnalysis,
-  createBasicFlow,
-  createBasicInteraction,
+  createFlow,
+  createInteraction,
   processAnalysis,
   clean,
 };

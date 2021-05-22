@@ -93,7 +93,7 @@ describe('Process new analysis', () => {
     });
 
     it('process analysis with a flow', async () => {
-      await db.createBasicFlow();
+      await db.createFlow();
       await pactum.flow('process analysis with a flow')
         .post('/api/flow/v1/process/analysis')
         .withJson({
@@ -149,7 +149,7 @@ describe('Process new analysis', () => {
     });
 
     it('process analysis with a interaction', async () => {
-      await db.createBasicInteraction();
+      await db.createInteraction();
       await pactum.flow('process analysis with a interaction')
         .post('/api/flow/v1/process/analysis')
         .withJson({
@@ -205,8 +205,8 @@ describe('Process new analysis', () => {
     });
 
     it('process analysis', async () => {
-      await db.createBasicFlow();
-      await db.createBasicInteraction();
+      await db.createFlow();
+      await db.createInteraction();
       await pactum.flow('process analysis')
         .post('/api/flow/v1/process/analysis')
         .withJson({
@@ -271,16 +271,16 @@ describe('Process analysis with history', () => {
     beforeEach(async () => {
       await db.createProject();
       await db.createAnalysis();
-      await db.createBasicFlow();
-      await db.createBasicInteraction();
+      await db.createFlow();
+      await db.createInteraction();
       await db.processAnalysis();
       await pactum.sleep(50);
     });
 
     it('analysis with same flows & interactions', async () => {
       await db.createAnalysis(null, '1.0.2');
-      await db.createBasicFlow();
-      await db.createBasicInteraction();
+      await db.createFlow();
+      await db.createInteraction();
       await db.processAnalysis();
       await pactum.spec()
         .get('/api/flow/v1/analyses/{id}')
@@ -319,11 +319,11 @@ describe('Process analysis with history', () => {
 
     it('analysis with new flows & interactions', async () => {
       await db.createAnalysis(null, '1.0.2');
-      await db.createBasicFlow();
-      await db.createBasicFlow('flow-name-2');
-      await db.createBasicInteraction();
-      await db.createBasicInteraction(null, 'flow-name-2');
-      await db.createBasicInteraction('provider-id-2', 'flow-name-3');
+      await db.createFlow();
+      await db.createFlow('flow-name-2');
+      await db.createInteraction();
+      await db.createInteraction(null, 'flow-name-2');
+      await db.createInteraction('provider-id-2', 'flow-name-3');
       await db.processAnalysis();
       await pactum.spec()
         .get('/api/flow/v1/analyses/{id}')
@@ -422,7 +422,7 @@ describe('Process analysis with valid providers', () => {
 
     it('provider verification passed', async () => {
       await db.createAnalysis();
-      await db.createBasicFlow();
+      await db.createFlow();
       await db.processAnalysis();
       await pactum.spec()
         .get('/api/flow/v1/analyses/{id}')
@@ -430,7 +430,7 @@ describe('Process analysis with valid providers', () => {
         .retry({ delay: 50, count: 5, strategy: 'till processed' })
         .expectStatus(200);
       await db.createAnalysis('team_process-service', '2.0.1');
-      await db.createBasicInteraction('team_login-service');
+      await db.createInteraction('team_login-service');
       await db.processAnalysis();
       await pactum.spec()
         .get('/api/flow/v1/analyses/{id}')
@@ -459,7 +459,7 @@ describe('Process analysis with valid providers', () => {
 
     it('provider verification failed at request', async () => {
       await db.createAnalysis('team_login-service', '1.0.2');
-      await db.createBasicFlow();
+      await db.createFlow();
       await db.processAnalysis();
       await pactum.spec()
         .get('/api/flow/v1/analyses/{id}')
@@ -521,7 +521,7 @@ describe('Process analysis with valid providers', () => {
 
     it('provider verification failed at response', async () => {
       await db.createAnalysis('team_login-service', '1.0.3');
-      await db.createBasicFlow();
+      await db.createFlow();
       await db.processAnalysis();
       await pactum.spec()
         .get('/api/flow/v1/analyses/{id}')
