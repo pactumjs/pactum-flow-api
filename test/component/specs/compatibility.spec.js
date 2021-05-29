@@ -6,7 +6,7 @@ describe('Compatibility', () => {
 
   it('get compatibility results of invalid project should return empty array', async () => {
     await pactum.spec()
-      .get('/api/flow/v1/compatibility')
+      .get('/api/flow/v1/compatibility/project')
       .withQueryParams('projectId', 'p-id-100')
       .withQueryParams('version', '1.0.2')
       .expectStatus(200)
@@ -30,7 +30,7 @@ describe('Compatibility - One Project with no consumers or providers', () => {
 
   it('compatibility results of project one should be empty', async () => {
     await pactum.spec()
-      .get('/api/flow/v1/compatibility')
+      .get('/api/flow/v1/compatibility/project')
       .withQueryParams('projectId', 'p-id-1')
       .expectStatus(200)
       .expectJson([]);
@@ -102,7 +102,7 @@ describe('Compatibility - One Project with a provider which is not available', (
 
   it('compatibility results of project one should be empty', async () => {
     await pactum.spec()
-      .get('/api/flow/v1/compatibility')
+      .get('/api/flow/v1/compatibility/project')
       .withQueryParams('projectId', 'p-id-1')
       .expectStatus(200)
       .expectJson([]);
@@ -160,7 +160,7 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
 
   it('compatibility results of project one should be passed', async () => {
     await pactum.spec()
-      .get('/api/flow/v1/compatibility')
+      .get('/api/flow/v1/compatibility/project')
       .withQueryParams('projectId', 'p-id-1')
       .expectStatus(200)
       .expectJsonMatch([
@@ -180,7 +180,7 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
 
   it('compatibility results of project two should be passed', async () => {
     await pactum.spec()
-      .get('/api/flow/v1/compatibility')
+      .get('/api/flow/v1/compatibility/project')
       .withQueryParams('projectId', 'p-id-2')
       .expectStatus(200)
       .expectJsonMatch([
@@ -241,7 +241,7 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
 
   it('get compatibility results of project by version should be passed', async () => {
     await pactum.spec()
-      .get('/api/flow/v1/compatibility')
+      .get('/api/flow/v1/compatibility/project')
       .withQueryParams('projectId', 'p-id-1')
       .withQueryParams('version', '1.0.1')
       .expectStatus(200)
@@ -260,7 +260,7 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
 
   it('get compatibility results of project by invalid version should return empty array', async () => {
     await pactum.spec()
-      .get('/api/flow/v1/compatibility')
+      .get('/api/flow/v1/compatibility/project')
       .withQueryParams('projectId', 'p-id-1')
       .withQueryParams('version', '1.0.2')
       .expectStatus(200)
@@ -275,7 +275,7 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
 
   it('compatibility results of project one should contain both versions and should be passed', async () => {
     await pactum.spec()
-      .get('/api/flow/v1/compatibility')
+      .get('/api/flow/v1/compatibility/project')
       .withQueryParams('projectId', 'p-id-1')
       .expectStatus(200)
       .expectJsonMatch([
@@ -378,7 +378,7 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
 
   it('compatibility results of project three should be passed', async () => {
     await pactum.spec()
-      .get('/api/flow/v1/compatibility')
+      .get('/api/flow/v1/compatibility/project')
       .withQueryParams('projectId', 'p-id-3')
       .expectStatus(200)
       .expectJsonMatch([
@@ -426,7 +426,7 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
 
 });
 
-describe.only('Compatibility - Multiple Projects - Sad Paths', () => {
+describe('Compatibility - Multiple Projects - Sad Paths', () => {
 
   before(async () => {
     await db.clean();
@@ -453,7 +453,7 @@ describe.only('Compatibility - Multiple Projects - Sad Paths', () => {
 
   it('compatibility results of project one should be failed', async () => {
     await pactum.spec()
-      .get('/api/flow/v1/compatibility')
+      .get('/api/flow/v1/compatibility/project')
       .withQueryParams('projectId', 'p-id-1')
       .expectStatus(200)
       .expectJsonMatch([
@@ -479,7 +479,7 @@ describe.only('Compatibility - Multiple Projects - Sad Paths', () => {
 
   it('compatibility results of project two should be failed', async () => {
     await pactum.spec()
-      .get('/api/flow/v1/compatibility')
+      .get('/api/flow/v1/compatibility/project')
       .withQueryParams('projectId', 'p-id-2')
       .expectStatus(200)
       .expectJsonMatch([
@@ -558,7 +558,7 @@ describe.only('Compatibility - Multiple Projects - Sad Paths', () => {
 
   it('second compatibility results of project one should be passed', async () => {
     await pactum.spec()
-      .get('/api/flow/v1/compatibility')
+      .get('/api/flow/v1/compatibility/project')
       .withQueryParams('projectId', 'p-id-1')
       .expectStatus(200)
       .expectJsonMatch([
@@ -595,7 +595,7 @@ describe.only('Compatibility - Multiple Projects - Sad Paths', () => {
 
   it('second compatibility results of project two should be passed', async () => {
     await pactum.spec()
-      .get('/api/flow/v1/compatibility')
+      .get('/api/flow/v1/compatibility/project')
       .withQueryParams('projectId', 'p-id-2')
       .expectStatus(200)
       .expectJsonMatch([
@@ -687,7 +687,7 @@ describe.only('Compatibility - Multiple Projects - Sad Paths', () => {
 
   it('compatibility results of project three should return empty', async () => {
     await pactum.spec()
-      .get('/api/flow/v1/compatibility')
+      .get('/api/flow/v1/compatibility/project')
       .withQueryParams('projectId', 'p-id-3')
       .expectStatus(200)
       .expectJsonMatch([]);
@@ -726,7 +726,7 @@ describe.only('Compatibility - Multiple Projects - Sad Paths', () => {
 
   it('compatibility results of project 4 should not return empty', async () => {
     await pactum.spec()
-      .get('/api/flow/v1/compatibility')
+      .get('/api/flow/v1/compatibility/project')
       .withQueryParams('projectId', 'p-id-4')
       .expectStatus(200)
       .expectJsonMatch([

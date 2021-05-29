@@ -24,6 +24,14 @@ class CompatibilityService extends BaseService {
 
   async getCompatibilityResults() {
     try {
+      this.res.status(200).json(await this.$repo.compatibility.get(this.req.query));
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async getCompatibilityResultsByProject() {
+    try {
       const consumerQuery = {
         consumer: this.req.query.projectId
       };

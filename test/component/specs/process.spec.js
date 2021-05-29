@@ -438,7 +438,7 @@ describe('Process analysis with valid providers', () => {
         .retry({ delay: 50, count: 5, strategy: 'till processed' })
         .expectStatus(200);
       await pactum.flow('get passed compatibility results filtered by project and version')
-        .get('/api/flow/v1/compatibility')
+        .get('/api/flow/v1/compatibility/project')
         .withQueryParams('projectId', 'team_process-service')
         .withQueryParams('version', '2.0.1')
         .retry({ delay: 50, count: 5, strategy: 'at least once compatibility result' })
@@ -494,7 +494,7 @@ describe('Process analysis with valid providers', () => {
         .retry({ delay: 50, count: 5, strategy: 'till processed' })
         .expectStatus(200);
       await pactum.flow('get failed compatibility results filtered by project and version')
-        .get('/api/flow/v1/compatibility')
+        .get('/api/flow/v1/compatibility/project')
         .withQueryParams('projectId', 'team_process-service')
         .withQueryParams('version', '2.0.2')
         .retry({ delay: 50, count: 5, strategy: 'at least once compatibility result' })
@@ -556,7 +556,7 @@ describe('Process analysis with valid providers', () => {
         .retry({ delay: 50, count: 5, strategy: 'till processed' })
         .expectStatus(200);
       await pactum.spec()
-        .get('/api/flow/v1/compatibility')
+        .get('/api/flow/v1/compatibility/project')
         .withQueryParams('projectId', 'team_process-service')
         .withQueryParams('version', '2.0.3')
         .retry({ delay: 50, count: 5, strategy: 'at least once compatibility result' })

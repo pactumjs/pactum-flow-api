@@ -501,17 +501,27 @@ paths:
     get:
       tags:
         - "Compatibility"
-      description: "get compatibility results"
+      description: "get compatibility results by consumer & provider"
       operationId: "getCompatibilityResults"
       parameters:
         - in: "query"
-          name: "projectId"
-          description: "id of the project to fetch"
+          name: "consumer"
+          description: "id of the consumer project"
           type: "string"
           required: true
         - in: "query"
-          name: "version"
-          description: "version of the project to fetch"
+          name: "consumerVersion"
+          description: "version of the consumer project"
+          type: "string"
+          required: false
+        - in: "query"
+          name: "provider"
+          description: "id of the provider project"
+          type: "string"
+          required: true
+        - in: "query"
+          name: "providerVersion"
+          description: "version of the provider project"
           type: "string"
           required: false
       responses:
@@ -537,6 +547,29 @@ paths:
           schema:
             $ref: "#/definitions/HealthResponse"
     x-swagger-router-controller: "compatibility.controller"
+  /compatibility/project:
+    get:
+      tags:
+        - "Compatibility"
+      description: "get compatibility results by project"
+      operationId: "getCompatibilityResultsByProject"
+      parameters:
+        - in: "query"
+          name: "projectId"
+          description: "id of the project to fetch"
+          type: "string"
+          required: true
+        - in: "query"
+          name: "version"
+          description: "version of the project to fetch"
+          type: "string"
+          required: false
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/CompatibilityResults"
+    x-swagger-router-controller: "compatibility.controller" 
   /compatibility/{id}:
     delete:
       tags:
