@@ -642,6 +642,18 @@ paths:
           schema:
             $ref: "#/definitions/QualityGateStatuses"
     x-swagger-router-controller: "qualityGate.controller"
+  /relations:
+    get:
+      tags:
+        - "Relations"
+      description: "get relations between projects"
+      operationId: "getRelations"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Relations"
+    x-swagger-router-controller: "relation.controller"
 definitions:
   Project:
     type: "object"
@@ -863,6 +875,23 @@ definitions:
     type: "array"
     items:
       $ref: "#/definitions/QualityGateStatus"
+  Relation:
+    type: "object"
+    properties:
+      projectId:
+        type: "string"
+      consumers:
+        type: "array"
+        items:
+          type: "string"
+      providers:
+        type: "array"
+        items:
+          type: "string"
+  Relations:
+    type: "array"
+    items:
+      $ref: "#/definitions/Relation"
   HealthResponse:
     description: "Health Response"
     type: "object"
