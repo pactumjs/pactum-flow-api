@@ -21,6 +21,7 @@ class AnalysisProcessor {
 
   async process() {
     try {
+      await this.startJob();
       await this.setProjects();
       await this.setLatestEnvironment();
       await this.setCurrentAnalysis();
@@ -29,9 +30,37 @@ class AnalysisProcessor {
       await this.updateEnvironment();
       await this.updateAnalysis();
       await this.verify();
+      await this.completeJob();
     } catch (error) {
       console.log(error);
+      await this.failJob(error);
     }
+  }
+
+  async startJob() {
+    await this.$repo.job.updateJob({
+      _id: this.analysis._id,
+      status: 'running',
+      updatedAt: new Date(),
+      projectId: this.analysis.projectId
+    });
+  }
+
+  async completeJob() {
+    await this.$repo.job.updateJob({
+      _id: this.analysis._id,
+      status: 'completed',
+      updatedAt: new Date()
+    });
+  }
+
+  async failJob(error) {
+    await this.$repo.job.updateJob({
+      _id: this.analysis._id,
+      status: 'failed',
+      message: error.toString(),
+      updatedAt: new Date()
+    });
   }
 
   async setProjects() {

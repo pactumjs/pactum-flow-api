@@ -207,7 +207,9 @@ paths:
           description: "interactions to create"
           required: true
           schema:
-            $ref: "#/definitions/Interactions"
+            type: array
+            items:
+              $ref: "#/definitions/Interaction"
       responses:
         200:
           description: "Success"
@@ -250,7 +252,9 @@ paths:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/Flows"
+            type: array
+            items:
+              $ref: "#/definitions/Flow"
     post:
       tags:
         - "Flows"
@@ -264,12 +268,16 @@ paths:
           description: "flow to create"
           required: true
           schema:
-            $ref: "#/definitions/Flows"
+            type: array
+            items:
+              $ref: "#/definitions/Flow"
       responses:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/Flows"
+            type: array
+            items:
+              $ref: "#/definitions/Flow"
     x-swagger-router-controller: "flow.controller"
   /flows/{id}:
     get:
@@ -332,6 +340,44 @@ paths:
           schema:
             $ref: "#/definitions/HealthResponse"
     x-swagger-router-controller: "processor.controller"
+  /jobs:
+    get:
+      tags:
+        - "Jobs"
+      description: "get jobs"
+      operationId: "getJobs"
+      security:
+        - AuthToken: []
+      responses:
+        200:
+          description: "Success"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Job"
+    x-swagger-router-controller: "job.controller"
+  /jobs/{id}:
+    get:
+      tags:
+        - "Jobs"
+      description: "get job by id"
+      operationId: "getJobById"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "job id to fetch"
+          required: true
+          type: "string"
+          minLength: 24
+          maxLength: 24
+      security:
+        - AuthToken: []
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Job"
+    x-swagger-router-controller: "job.controller"
   /search/analyses:
     post:
       tags:
@@ -368,7 +414,9 @@ paths:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/Interactions"
+            type: array
+            items:
+              $ref: "#/definitions/Interaction"
     x-swagger-router-controller: "search.controller"
   /search/flows:
     post:
@@ -387,7 +435,9 @@ paths:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/Flows"
+            type: array
+            items:
+              $ref: "#/definitions/Flow"
     x-swagger-router-controller: "search.controller"
   /requests/{id}:
     get:
@@ -440,7 +490,9 @@ paths:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/Environments"
+            type: 'array'
+            items:
+              $ref: "#/definitions/Environment"
     post:
       tags:
         - "Environments"
@@ -528,7 +580,9 @@ paths:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/CompatibilityResults"
+            type: array
+            items:
+              $ref: "#/definitions/CompatibilityResult"
     post:
       tags:
         - "Compatibility"
@@ -568,7 +622,9 @@ paths:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/CompatibilityResults"
+            type: array
+            items:
+              $ref: "#/definitions/CompatibilityResult"
     x-swagger-router-controller: "compatibility.controller" 
   /compatibility/{id}:
     delete:
@@ -587,7 +643,9 @@ paths:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/CompatibilityResults"
+            type: array
+            items:
+              $ref: "#/definitions/CompatibilityResult"
     x-swagger-router-controller: "compatibility.controller"
   /compatibility/{id}/version/{version}:
     delete:
@@ -612,7 +670,9 @@ paths:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/CompatibilityResults"
+            type: array
+            items:
+              $ref: "#/definitions/CompatibilityResult"
     x-swagger-router-controller: "compatibility.controller"
   /quality-gate/status:
     get:
@@ -640,7 +700,9 @@ paths:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/QualityGateStatuses"
+            type: array
+            items:
+              $ref: "#/definitions/QualityGateStatus"
     x-swagger-router-controller: "qualityGate.controller"
   /relations:
     get:
@@ -652,7 +714,9 @@ paths:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/Relations"
+            type: array
+            items:
+              $ref: "#/definitions/Relation"
     x-swagger-router-controller: "relation.controller"
 definitions:
   Project:
@@ -710,10 +774,6 @@ definitions:
       - "flow"
       - "request"
       - "response"
-  Interactions:
-    type: "array"
-    items:
-      $ref: "#/definitions/Interaction"
   Flow:
     type: "object"
     properties:
@@ -733,10 +793,6 @@ definitions:
      - "name"
      - "request"
      - "response"
-  Flows:
-    type: "array"
-    items:
-      $ref: "#/definitions/Flow"
   FlowRequest:
     type: "object"
     properties:
@@ -801,10 +857,6 @@ definitions:
       - "projectId"
       - "version"
       - "environment"
-  Environments:
-    type: "array"
-    items:
-      $ref: "#/definitions/Environment"
   Verify:
     type: "object"
     properties:
@@ -837,10 +889,6 @@ definitions:
         type: "array"
         items:
           $ref: "#/definitions/Exception"
-  CompatibilityResults:
-    type: "array"
-    items:
-      $ref: "#/definitions/CompatibilityResult"
   QualityGateProjectStatus:
     type: "object"
     properties:
@@ -871,10 +919,6 @@ definitions:
         type: "array"
         items:
           $ref: "#/definitions/QualityGateProjectStatus"
-  QualityGateStatuses:
-    type: "array"
-    items:
-      $ref: "#/definitions/QualityGateStatus"
   Relation:
     type: "object"
     properties:
@@ -888,10 +932,6 @@ definitions:
         type: "array"
         items:
           type: "string"
-  Relations:
-    type: "array"
-    items:
-      $ref: "#/definitions/Relation"
   HealthResponse:
     description: "Health Response"
     type: "object"
@@ -900,6 +940,20 @@ definitions:
         type: "string"
     example:
       message: "OK"
+  Job:
+    description: "Job Details"
+    type: "object"
+    properties:
+      _id:
+        type: "string"
+      status:
+        type: "string"
+      message:
+        type: "string"
+      updatedAt:
+        type: "string"
+      projectId:
+        type: "string"
 securityDefinitions:
   AuthToken:
     type: "apiKey"

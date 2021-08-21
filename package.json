@@ -35,7 +35,7 @@
   "devDependencies": {
     "c8": "^7.7.2",
     "mocha": "^8.4.0",
-    "pactum": "^3.0.14",
+    "pactum": "^3.0.18",
     "pactum-flow-plugin": "^0.0.4"
   }
 }

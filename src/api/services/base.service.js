@@ -7,6 +7,7 @@ const ExchangeRepository = require('../repository/exchange.repository');
 const MetricsRepository = require('../repository/metrics.repository');
 const EnvironmentRepository = require('../repository/environment.repository');
 const CompatibilityRepository = require('../repository/compatibility.repository');
+const JobRepository = require('../repository/job.repository');
 
 class BaseService {
 
@@ -21,7 +22,8 @@ class BaseService {
       exchange: new ExchangeRepository(),
       metrics: new MetricsRepository(),
       environment: new EnvironmentRepository(),
-      compatibility: new CompatibilityRepository()
+      compatibility: new CompatibilityRepository(),
+      job: new JobRepository()
     };
     this.$error = {
       ClientRequestError

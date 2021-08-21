@@ -60,6 +60,7 @@ class AnalysisService extends BaseService {
         await this.$repo.exchange.deleteResponseByAnalysisId(id);
         await this.$repo.metrics.deleteAnalysisMetrics(id);
         await this.$repo.environment.deleteAnalysis(analysis);
+        await this.$repo.job.deleteJobById(id);
         const doc = await this.$repo.analysis.delete(id);
         this.res.status(200).json(doc);
       } else {
