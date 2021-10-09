@@ -8,14 +8,48 @@ class CompatibilityProcessor {
     this.environments = [];
     this.projects = [];
     this.flowDocs = [];
-    this.flowRequestDocs = [];
-    this.flowResponseDocs = [];
+    this.interactions = null;
+    this.flows = null;
+    this.analyses = [];
+    this.metrics = [];
+    this.save = true;
+    this.results = [];
+    this.targetEnvironments = null;
+  }
+
+  async init() {
+    this.environments = await this.$repo.environment.get();
+    if (this.targetEnvironments) {
+      this.environments = this.environments.filter(env => this.targetEnvironments.includes(env._id.toString()));
+    }
+    this.projects = (await this.$repo.project.get()).map(project => project._id.toString());
+  }
+
+  async getAnalysis(id) {
+    let analysis = this.analyses.find(_analysis => _analysis._id.equals(id));
+    if (!analysis) {
+      analysis = await this.$repo.analysis.getById(id);
+      if (analysis) {
+        this.analyses.push(analysis);
+      }
+    }
+    return analysis;
+  }
+
+  async getMetrics(id) {
+    let metric = this.metrics.find(_metric => _metric._id.equals(id));
+    if (!metric) {
+      metric = await this.$repo.metrics.getAnalysisMetricsById(id);
+      if (metric) {
+        this.metrics.push(metric);
+      }
+    }
+    return metric;
   }
 
   async verify() {
     try {
-      this.environments = await this.$repo.environment.get();
-      this.projects = (await this.$repo.project.get()).map(project => project._id.toString());
+      await this.init();
       await this.providerVerification();
       await this.consumerVerification();
     } catch (error) {
@@ -31,9 +65,9 @@ class CompatibilityProcessor {
         console.log(`Provider Verification | Project not found in environment - '${environment._id}'`);
         continue;
       }
-      const analysis = await this.$repo.analysis.getById(analysisId);
-      const interactions = await this.$repo.interaction.get({ analysisId });
-      const metrics = await this.$repo.metrics.getAnalysisMetricsById(analysisId);
+      const analysis = await this.getAnalysis(analysisId);
+      const interactions = await this.getInteractionDocs(analysisId);
+      const metrics = await this.getMetrics(analysisId);
       const providers = metrics.providers.all;
       for (let j = 0; j < providers.length; j++) {
         const provider = providers[j];
@@ -52,22 +86,22 @@ class CompatibilityProcessor {
         const providerInteractions = interactions.filter(interaction => interaction.provider === provider);
         for (let k = 0; k < providerInteractions.length; k++) {
           const providerInteraction = providerInteractions[k];
-          const { _id, flow } = providerInteraction;
-          const { flowDoc, flowRequest, flowResponse } = await this.getFlowRelatedDocs(flow, providerAnalysisId);
+          const { flow } = providerInteraction;
+          const flowDoc = await this.getFlow(flow, providerAnalysisId, true);
           if (!flowDoc) {
             console.log(`Provider Verification | Flow - '${flow}' does not exist in provider - '${provider}'`);
             exceptions.push({ flow, error: 'Flow Not Found' });
             continue;
           }
-          const expectedReq = await this.$repo.exchange.getRequestById(_id);
-          const reqError = this.compareRequest(flowRequest, expectedReq);
+          const expectedReq = providerInteraction.request;
+          const reqError = this.compareRequest(flowDoc.request, expectedReq);
           if (reqError) {
             console.log(`Provider Verification | Request match failed for flow - '${flow}' & provider - '${provider}' with error - '${reqError}'`);
             exceptions.push({ flow, error: reqError });
             continue;
           }
-          const expectedResponse = await this.$repo.exchange.getResponseById(_id);
-          const resError = this.compareResponse(flowResponse, expectedResponse);
+          const expectedResponse = providerInteraction.response;
+          const resError = this.compareResponse(flowDoc.response, expectedResponse);
           if (resError) {
             console.log(`Provider Verification | Request match failed for flow - '${flow}' & provider - '${provider}' with error - '${resError}'`);
             exceptions.push({ flow, error: resError });
@@ -84,7 +118,11 @@ class CompatibilityProcessor {
           exceptions,
           verifiedAt: new Date()
         };
-        await this.$repo.compatibility.save(compatibility);
+        if (this.save) {
+          await this.$repo.compatibility.save(compatibility);
+        } else {
+          this.results.push(compatibility);
+        }
       }
     }
   }
@@ -97,8 +135,8 @@ class CompatibilityProcessor {
         console.log(`Consumer Verification | Project not found in environment - ${environment._id}`);
         continue;
       }
-      const analysis = await this.$repo.analysis.getById(analysisId);
-      const metrics = await this.$repo.metrics.getAnalysisMetricsById(analysisId);
+      const analysis = await this.getAnalysis(analysisId);
+      const metrics = await this.getMetrics(analysisId);
       const consumers = metrics.consumers.all;
       for (let j = 0; j < consumers.length; j++) {
         const consumerId = consumers[j];
@@ -116,20 +154,20 @@ class CompatibilityProcessor {
             continue;
           }
           count++;
-          const { flowDoc, flowRequest, flowResponse } = await this.getFlowRelatedDocs(flow, analysisId);
+          const flowDoc = await this.getFlow(flow, analysisId);
           if (!flowDoc) {
             console.log(`Consumer Verification | Flow - '${flow}' does not exist in project - '${this.project}'`);
             continue;
           }
           const interactionRequest = await this.$repo.exchange.getRequestById(_id);
           const interactionResponse = await this.$repo.exchange.getResponseById(_id);
-          const reqError = this.compareRequest(flowRequest, interactionRequest);
+          const reqError = this.compareRequest(flowDoc.request, interactionRequest);
           if (reqError) {
             console.log(`Consumer Verification | Request match failed. | Project: '${this.project}' | Flow - '${flow}' | Consumer - '${consumerId}' | Error - '${reqError}'`);
             exceptions.push({ flow, error: reqError });
             continue;
           }
-          const resError = this.compareResponse(flowResponse, interactionResponse);
+          const resError = this.compareResponse(flowDoc.response, interactionResponse);
           if (resError) {
             console.log(`Consumer Verification | Response match failed. | Project: '${this.project}' | Flow - '${flow}' | Consumer - '${consumerId}' | Error - '${reqError}'`);
             exceptions.push({ flow, error: resError });
@@ -147,7 +185,11 @@ class CompatibilityProcessor {
             exceptions: exceptions,
             verifiedAt: new Date()
           };
-          await this.$repo.compatibility.save(compatibility);
+          if (this.save) {
+            await this.$repo.compatibility.save(compatibility);
+          } else {
+            this.results.push(compatibility);
+          }
         } else {
           console.log(`Consumer Verification | No interactions matched with current provider. | Consumer: '${consumerId}' | Project: '${this.project}'`);
         }
@@ -155,29 +197,39 @@ class CompatibilityProcessor {
     }
   }
 
-  async getFlowRelatedDocs(name, analysisId) {
-    let flowDoc = this.flowDocs.find(flowDoc => flowDoc.name === name);
-    let flowRequest, flowResponse;
-    if (!flowDoc) {
-      const flowDocs = await this.$repo.flow.get({
-        name,
-        analysisId
-      });
-      if (!flowDocs || flowDocs.length === 0) {
-        return {};
-      } else {
-        flowDoc = flowDocs[0];
-        flowRequest = await this.$repo.exchange.getRequestById(flowDoc._id);
-        flowResponse = await this.$repo.exchange.getResponseById(flowDoc._id);
-        this.flowDocs.push(flowDoc);
-        this.flowRequestDocs.push(flowRequest);
-        this.flowResponseDocs.push(flowResponse);
-      }
+  async getFlow(name, analysisId, fromDB = false) {
+    if (this.flows && fromDB === false) {
+      return this.flows.find(flow => flow.name === name);
     } else {
-      flowRequest = this.flowRequestDocs.find(_flowRequest => _flowRequest._id === flowDoc._id);
-      flowResponse = this.flowResponseDocs.find(_flowResponse => _flowResponse._id === flowDoc._id);
+      let flowDoc = this.flowDocs.find(flowDoc => flowDoc.name === name && flowDoc.analysisId.equals(analysisId));
+      if (!flowDoc) {
+        const flowDocs = await this.$repo.flow.get({
+          name,
+          analysisId
+        });
+        if (!flowDocs || flowDocs.length === 0) {
+          return null;
+        }
+        flowDoc = flowDocs[0];
+        flowDoc.request = await this.$repo.exchange.getRequestById(flowDoc._id);
+        flowDoc.response = await this.$repo.exchange.getResponseById(flowDoc._id);
+        return flowDoc;
+      }
+      return flowDoc;
     }
-    return { flowDoc, flowRequest, flowResponse };
+  }
+
+  async getInteractionDocs(analysisId) {
+    if (this.interactions) {
+      return this.interactions;
+    }
+    const interactions = await this.$repo.interaction.get({ analysisId });
+    for (let i = 0; i < interactions.length; i++) {
+      const interaction = interactions[i];
+      interaction.request = await this.$repo.exchange.getRequestById(interaction._id);
+      interaction.response = await this.$repo.exchange.getResponseById(interaction._id);
+    }
+    return interactions;
   }
 
   compareRequest(actual, expected) {

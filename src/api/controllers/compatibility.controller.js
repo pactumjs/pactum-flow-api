@@ -20,10 +20,15 @@ function deleteCompatibilityResultsByProjectVersion(req, res) {
   new CompatibilityService(req, res).deleteCompatibilityResultsByProjectVersion();
 }
 
+function validateCompatibilityOfFlowsAndInteractions(req, res) {
+  new CompatibilityService(req, res).validateCompatibilityOfFlowsAndInteractions();
+}
+
 module.exports = {
   verifyCompatibility,
   getCompatibilityResults,
   getCompatibilityResultsByProject,
   deleteCompatibilityResultsByProject,
-  deleteCompatibilityResultsByProjectVersion
+  deleteCompatibilityResultsByProjectVersion,
+  validateCompatibilityOfFlowsAndInteractions
 };

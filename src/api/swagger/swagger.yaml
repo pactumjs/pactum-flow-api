@@ -674,6 +674,33 @@ paths:
             items:
               $ref: "#/definitions/CompatibilityResult"
     x-swagger-router-controller: "compatibility.controller"
+  /compatibility/project/{id}/validate:
+    post:
+      tags:
+        - "Compatibility"
+      description: "validate compatibility of given flows and interactions"
+      operationId: "validateCompatibilityOfFlowsAndInteractions"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "id of the project"
+          type: "string"
+          minLength: 2
+          required: true
+        - in: "body"
+          name: "payload"
+          description: "flows and interactions to validate"
+          required: true
+          schema:
+            $ref: "#/definitions/CompatibilityPayload"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/HealthResponse"
+    x-swagger-router-controller: "compatibility.controller"
   /quality-gate/status:
     get:
       tags:
@@ -954,6 +981,22 @@ definitions:
         type: "string"
       projectId:
         type: "string"
+  CompatibilityPayload:
+    description: "Compatibility Payload"
+    type: "object"
+    properties:
+      environments:
+        type: "array"
+        items:
+          type: "string"
+      flows:
+        type: "array"
+        items:
+          $ref: "#/definitions/Flow"
+      interactions:
+        type: "array"
+        items:
+          $ref: "#/definitions/Interaction"
 securityDefinitions:
   AuthToken:
     type: "apiKey"

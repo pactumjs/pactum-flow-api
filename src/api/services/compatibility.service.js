@@ -77,6 +77,19 @@ class CompatibilityService extends BaseService {
     this.res.status(200).json([cDoc, pDoc]);
   }
 
+  async validateCompatibilityOfFlowsAndInteractions() {
+    const project = this.req.swagger.params.id.value;
+    const processor = new CompatibilityProcessor(project, this.$repo);
+    processor.save = false;
+    if (this.req.body.environments) {
+      processor.targetEnvironments = this.req.body.environments;
+    }
+    processor.interactions = this.req.body.interactions;
+    processor.flows = this.req.body.flows;
+    await processor.verify();
+    this.res.status(200).json(processor.results);
+  }
+
 }
 
 module.exports = CompatibilityService;

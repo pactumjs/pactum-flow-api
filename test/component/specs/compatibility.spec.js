@@ -81,6 +81,17 @@ describe('Compatibility - One Project with no consumers or providers', () => {
       });
   });
 
+  it('validate compatibility without flows and interactions', async () => {
+    await pactum.spec()
+      .post('/api/flow/v1/compatibility/project/{id}/validate')
+      .withPathParams('id', 'p-id-1')
+      .withJson({
+        "environments": ["latest"]
+      })
+      .expectStatus(200)
+      .expectJson([]);
+  });
+
   after(async () => {
     await db.clean();
   });
@@ -130,6 +141,17 @@ describe('Compatibility - One Project with a provider which is not available', (
           status: 'ERROR'
         }
       ]);
+  });
+
+  it('validate compatibility without flows and interactions', async () => {
+    await pactum.spec()
+      .post('/api/flow/v1/compatibility/project/{id}/validate')
+      .withPathParams('id', 'p-id-1')
+      .withJson({
+        "environments": ["latest"]
+      })
+      .expectStatus(200)
+      .expectJson([]);
   });
 
   after(async () => {
@@ -267,157 +289,371 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
       .expectJson([]);
   });
 
-  it('run new analysis for project one', async () => {
-    await db.createAnalysis('p-id-1', '1.0.2', 'p-id-1-a-id-2');
-    await db.createFlow('p-id-1-f-name-1', 'p-id-1-a-id-2');
-    await db.processAnalysis('p-id-1-a-id-2');
-  });
-
-  it('compatibility results of project one should contain both versions and should be passed', async () => {
+  it('validate compatibility of project 2', async () => {
     await pactum.spec()
-      .get('/api/flow/v1/compatibility/project')
-      .withQueryParams('projectId', 'p-id-1')
+      .post('/api/flow/v1/compatibility/project/{id}/validate')
+      .withPathParams('id', 'p-id-2')
+      .withJson({
+        "environments": ["latest"],
+        "interactions": [
+          {
+            "analysisId": "abcdefghijklmnopqrstuvwx",
+            "flow": "p-id-1-f-name-1",
+            "provider": "p-id-1",
+            "request": {
+              "method": "GET",
+              "path": "/api/path"
+            },
+            "response": {
+              "statusCode": 200
+            }
+          }
+        ]
+      })
       .expectStatus(200)
       .expectJsonMatch([
         {
-          "_id": like("60a0aec5331891b08cb8a0f6"),
           "consumer": "p-id-2",
           "consumerVersion": "2.0.1",
           "provider": "p-id-1",
           "providerVersion": "1.0.1",
-          "__v": 0,
-          "exceptions": [],
           "status": "PASSED",
-          "verifiedAt": like("2021-05-16T05:33:57.880Z")
-        },
-        {
-          "_id": like("60a0aec5331891b08cb8a0f6"),
-          "consumer": "p-id-2",
-          "consumerVersion": "2.0.1",
-          "provider": "p-id-1",
-          "providerVersion": "1.0.2",
-          "__v": 0,
           "exceptions": [],
-          "status": "PASSED",
-          "verifiedAt": like("2021-05-16T05:33:57.880Z")
+          "verifiedAt": like("2021-10-09T10:17:34.043Z")
         }
       ]);
   });
 
-  it('quality gate status of project one for version 1.0.2 should be OK & consumers should not be empty', async () => {
+  it('validate compatibility of project 2 with invalid flow name', async () => {
     await pactum.spec()
-      .get('/api/flow/v1/quality-gate/status')
-      .withQueryParams('projectId', 'p-id-1')
-      .withQueryParams('version', '1.0.2')
-      .expectStatus(200)
-      .expectJson([
-        {
-          consumers: [
-            {
-              "name": "p-id-2",
-              "version": "2.0.1",
-              "status": "PASSED",
-              "message": "",
-              "exceptions": []
+      .post('/api/flow/v1/compatibility/project/{id}/validate')
+      .withPathParams('id', 'p-id-2')
+      .withJson({
+        "environments": ["latest"],
+        "interactions": [
+          {
+            "analysisId": "abcdefghijklmnopqrstuvwx",
+            "flow": "invalid",
+            "provider": "p-id-1",
+            "request": {
+              "method": "GET",
+              "path": "/api/path"
+            },
+            "response": {
+              "statusCode": 200
             }
-          ],
-          environment: 'latest',
-          providers: [],
-          status: 'OK'
-        }
-      ]);
-  });
-
-  it('quality gate status of project one for version 1.0.1 should be OK & consumers should be empty', async () => {
-    // consumers are empty because at the time of analyzing project one with version 1.0.1, there is no project two
-    await pactum.spec()
-      .get('/api/flow/v1/quality-gate/status')
-      .withQueryParams('projectId', 'p-id-1')
-      .withQueryParams('version', '1.0.1')
-      .expectStatus(200)
-      .expectJson([
-        {
-          consumers: [],
-          environment: 'latest',
-          providers: [],
-          status: 'OK'
-        }
-      ]);
-  });
-
-  it('quality gate status of project two should be OK and should contain latest version of project one in providers', async () => {
-    await pactum.spec()
-      .get('/api/flow/v1/quality-gate/status')
-      .withQueryParams('projectId', 'p-id-2')
-      .withQueryParams('version', '2.0.1')
-      .expectStatus(200)
-      .expectJson([
-        {
-          consumers: [],
-          environment: 'latest',
-          providers: [
-            {
-              "exceptions": [],
-              "message": "",
-              "name": "p-id-1",
-              "status": "PASSED",
-              "version": "1.0.2"
-            }
-          ],
-          status: 'OK'
-        }
-      ]);
-  });
-
-  it('setup project three', async () => {
-    await db.createProject('p-id-3', 'p-name-2');
-    await db.createAnalysis('p-id-3', '3.0.1', 'p-id-3-a-id-1');
-    await db.createInteraction('p-id-1', 'p-id-1-f-name-1', 'p-id-3-a-id-1');
-    await db.processAnalysis('p-id-3-a-id-1');
-  });
-
-  it('compatibility results of project three should be passed', async () => {
-    await pactum.spec()
-      .get('/api/flow/v1/compatibility/project')
-      .withQueryParams('projectId', 'p-id-3')
+          }
+        ]
+      })
       .expectStatus(200)
       .expectJsonMatch([
         {
-          "_id": like("60a0aec5331891b08cb8a0f6"),
-          "consumer": "p-id-3",
-          "consumerVersion": "3.0.1",
+          "consumer": "p-id-2",
+          "consumerVersion": "2.0.1",
           "provider": "p-id-1",
-          "providerVersion": "1.0.2",
-          "__v": 0,
-          "exceptions": [],
-          "status": "PASSED",
-          "verifiedAt": like("2021-05-16T05:33:57.880Z")
+          "providerVersion": "1.0.1",
+          "status": "FAILED",
+          "exceptions": [
+            {
+              "flow": "invalid",
+              "error": "Flow Not Found"
+            }
+          ],
+          "verifiedAt": like("2021-10-09T10:17:34.043Z")
         }
       ]);
   });
 
-  it('quality gate status of project three should be OK', async () => {
+  it('validate compatibility of project 2 - interaction does not match', async () => {
     await pactum.spec()
-      .get('/api/flow/v1/quality-gate/status')
-      .withQueryParams('projectId', 'p-id-3')
-      .withQueryParams('version', '3.0.1')
+      .post('/api/flow/v1/compatibility/project/{id}/validate')
+      .withPathParams('id', 'p-id-2')
+      .withJson({
+        "environments": ["latest"],
+        "interactions": [
+          {
+            "analysisId": "abcdefghijklmnopqrstuvwx",
+            "flow": "p-id-1-f-name-1",
+            "provider": "p-id-1",
+            "request": {
+              "method": "GET",
+              "path": "/api/path/2"
+            },
+            "response": {
+              "statusCode": 200
+            }
+          }
+        ]
+      })
       .expectStatus(200)
-      .expectJson([
+      .expectJsonMatch([
         {
-          consumers: [],
-          environment: 'latest',
-          providers: [
+          "consumer": "p-id-2",
+          "consumerVersion": "2.0.1",
+          "provider": "p-id-1",
+          "providerVersion": "1.0.1",
+          "status": "FAILED",
+          "exceptions": [
             {
-              "exceptions": [],
-              "message": "",
-              "name": "p-id-1",
-              "status": "PASSED",
-              "version": "1.0.2"
+              "flow": "p-id-1-f-name-1",
+              "error": "Failed to match request path"
             }
           ],
-          status: 'OK'
+          "verifiedAt": like("2021-10-09T10:17:34.043Z")
         }
       ]);
+  });
+
+  describe('Run new analysis of project one', () => {
+
+    before('run new analysis for project one', async () => {
+      await db.createAnalysis('p-id-1', '1.0.2', 'p-id-1-a-id-2');
+      await db.createFlow('p-id-1-f-name-1', 'p-id-1-a-id-2');
+      await db.processAnalysis('p-id-1-a-id-2');
+    });
+
+    it('compatibility results of project one should contain both versions and should be passed', async () => {
+      await pactum.spec()
+        .get('/api/flow/v1/compatibility/project')
+        .withQueryParams('projectId', 'p-id-1')
+        .expectStatus(200)
+        .expectJsonMatch([
+          {
+            "_id": like("60a0aec5331891b08cb8a0f6"),
+            "consumer": "p-id-2",
+            "consumerVersion": "2.0.1",
+            "provider": "p-id-1",
+            "providerVersion": "1.0.1",
+            "__v": 0,
+            "exceptions": [],
+            "status": "PASSED",
+            "verifiedAt": like("2021-05-16T05:33:57.880Z")
+          },
+          {
+            "_id": like("60a0aec5331891b08cb8a0f6"),
+            "consumer": "p-id-2",
+            "consumerVersion": "2.0.1",
+            "provider": "p-id-1",
+            "providerVersion": "1.0.2",
+            "__v": 0,
+            "exceptions": [],
+            "status": "PASSED",
+            "verifiedAt": like("2021-05-16T05:33:57.880Z")
+          }
+        ]);
+    });
+
+    it('quality gate status of project one for version 1.0.2 should be OK & consumers should not be empty', async () => {
+      await pactum.spec()
+        .get('/api/flow/v1/quality-gate/status')
+        .withQueryParams('projectId', 'p-id-1')
+        .withQueryParams('version', '1.0.2')
+        .expectStatus(200)
+        .expectJson([
+          {
+            consumers: [
+              {
+                "name": "p-id-2",
+                "version": "2.0.1",
+                "status": "PASSED",
+                "message": "",
+                "exceptions": []
+              }
+            ],
+            environment: 'latest',
+            providers: [],
+            status: 'OK'
+          }
+        ]);
+    });
+
+    it('quality gate status of project one for version 1.0.1 should be OK & consumers should be empty', async () => {
+      // consumers are empty because at the time of analyzing project one with version 1.0.1, there is no project two
+      await pactum.spec()
+        .get('/api/flow/v1/quality-gate/status')
+        .withQueryParams('projectId', 'p-id-1')
+        .withQueryParams('version', '1.0.1')
+        .expectStatus(200)
+        .expectJson([
+          {
+            consumers: [],
+            environment: 'latest',
+            providers: [],
+            status: 'OK'
+          }
+        ]);
+    });
+
+    it('quality gate status of project two should be OK and should contain latest version of project one in providers', async () => {
+      await pactum.spec()
+        .get('/api/flow/v1/quality-gate/status')
+        .withQueryParams('projectId', 'p-id-2')
+        .withQueryParams('version', '2.0.1')
+        .expectStatus(200)
+        .expectJson([
+          {
+            consumers: [],
+            environment: 'latest',
+            providers: [
+              {
+                "exceptions": [],
+                "message": "",
+                "name": "p-id-1",
+                "status": "PASSED",
+                "version": "1.0.2"
+              }
+            ],
+            status: 'OK'
+          }
+        ]);
+    });
+
+    it('validate compatibility of project 1', async () => {
+      await pactum.spec()
+        .post('/api/flow/v1/compatibility/project/{id}/validate')
+        .withPathParams('id', 'p-id-1')
+        .withJson({
+          "environments": ["latest"],
+          "flows": []
+        })
+        .expectStatus(200)
+        .expectJsonMatch([
+          {
+            "consumer": "p-id-2",
+            "consumerVersion": "2.0.1",
+            "provider": "p-id-1",
+            "providerVersion": "1.0.2",
+            "status": "PASSED",
+            "exceptions": [],
+            "verifiedAt": like("2021-10-09T10:17:34.043Z")
+          }
+        ]);
+    });
+
+    it('validate compatibility of project 1 with valid flow', async () => {
+      await pactum.spec()
+        .post('/api/flow/v1/compatibility/project/{id}/validate')
+        .withPathParams('id', 'p-id-1')
+        .withJson({
+          "environments": ["latest"],
+          "flows": [
+            {
+              "analysisId": "abcdefghijklmnopqrstuvwx",
+              "name": "p-id-1-f-name-1",
+              "request": {
+                "method": "GET",
+                "path": "/api/path"
+              },
+              "response": {
+                "statusCode": 200
+              }
+            }
+          ]
+        })
+        .expectStatus(200)
+        .expectJsonMatch([
+          {
+            "consumer": "p-id-2",
+            "consumerVersion": "2.0.1",
+            "provider": "p-id-1",
+            "providerVersion": "1.0.2",
+            "status": "PASSED",
+            "exceptions": [],
+            "verifiedAt": like("2021-10-09T10:17:34.043Z")
+          }
+        ]);
+    });
+
+    it('validate compatibility of project 1 with invalid flow', async () => {
+      await pactum.spec()
+        .post('/api/flow/v1/compatibility/project/{id}/validate')
+        .withPathParams('id', 'p-id-1')
+        .withJson({
+          "environments": ["latest"],
+          "flows": [
+            {
+              "analysisId": "abcdefghijklmnopqrstuvwx",
+              "name": "p-id-1-f-name-1",
+              "request": {
+                "method": "GET",
+                "path": "/api/path/2"
+              },
+              "response": {
+                "statusCode": 200
+              }
+            }
+          ]
+        })
+        .expectStatus(200)
+        .expectJsonMatch([
+          {
+            "consumer": "p-id-2",
+            "consumerVersion": "2.0.1",
+            "provider": "p-id-1",
+            "providerVersion": "1.0.2",
+            "status": "FAILED",
+            "exceptions": [
+              {
+                "flow": "p-id-1-f-name-1",
+                "error": "Failed to match request path"
+              }
+            ],
+            "verifiedAt": like("2021-10-09T10:17:34.043Z")
+          }
+        ]);
+    });
+
+    it('setup project three', async () => {
+      await db.createProject('p-id-3', 'p-name-2');
+      await db.createAnalysis('p-id-3', '3.0.1', 'p-id-3-a-id-1');
+      await db.createInteraction('p-id-1', 'p-id-1-f-name-1', 'p-id-3-a-id-1');
+      await db.processAnalysis('p-id-3-a-id-1');
+    });
+
+    it('compatibility results of project three should be passed', async () => {
+      await pactum.spec()
+        .get('/api/flow/v1/compatibility/project')
+        .withQueryParams('projectId', 'p-id-3')
+        .expectStatus(200)
+        .expectJsonMatch([
+          {
+            "_id": like("60a0aec5331891b08cb8a0f6"),
+            "consumer": "p-id-3",
+            "consumerVersion": "3.0.1",
+            "provider": "p-id-1",
+            "providerVersion": "1.0.2",
+            "__v": 0,
+            "exceptions": [],
+            "status": "PASSED",
+            "verifiedAt": like("2021-05-16T05:33:57.880Z")
+          }
+        ]);
+    });
+
+    it('quality gate status of project three should be OK', async () => {
+      await pactum.spec()
+        .get('/api/flow/v1/quality-gate/status')
+        .withQueryParams('projectId', 'p-id-3')
+        .withQueryParams('version', '3.0.1')
+        .expectStatus(200)
+        .expectJson([
+          {
+            consumers: [],
+            environment: 'latest',
+            providers: [
+              {
+                "exceptions": [],
+                "message": "",
+                "name": "p-id-1",
+                "status": "PASSED",
+                "version": "1.0.2"
+              }
+            ],
+            status: 'OK'
+          }
+        ]);
+    });
+
   });
 
   after(async () => {
