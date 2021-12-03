@@ -23,4 +23,8 @@ if (env.DB_USER || env.DB_PASSWORD) {
   config.mongo.options.auth.password = env.DB_PASSWORD;
 }
 
+if (env.DB_SSL) config.mongo.options.ssl = (env.DB_SSL === true);
+if (env.DB_REPLICA_SET) config.mongo.options.replicaSet = env.DB_REPLICA_SET;
+if (env.DB_RETRY_WRITES) config.mongo.options.retryWrites = (env.DB_RETRY_WRITES === true);
+
 module.exports = config;
