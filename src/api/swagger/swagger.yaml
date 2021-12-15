@@ -30,6 +30,9 @@ paths:
         - "Project"
       description: "get projects"
       operationId: "getProjects"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "query"
           name: "key"
@@ -51,6 +54,7 @@ paths:
       operationId: "postProject"
       security:
         - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "body"
           name: "project"
@@ -70,6 +74,9 @@ paths:
         - "Project"
       description: "get project with id"
       operationId: "getProject"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "path"
           name: "id"
@@ -88,6 +95,7 @@ paths:
       operationId: "deleteProject"
       security:
         - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "path"
           name: "id"
@@ -106,6 +114,9 @@ paths:
         - "Analyses"
       description: "get analyses"
       operationId: "getAnalyses"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "query"
           name: "projectId"
@@ -124,6 +135,7 @@ paths:
       operationId: "postAnalysis"
       security:
         - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "body"
           name: "analysis"
@@ -143,6 +155,9 @@ paths:
         - "Analyses"
       description: "get analysis with id"
       operationId: "getAnalysisById"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "path"
           name: "id"
@@ -183,6 +198,9 @@ paths:
         - "Interactions"
       description: "get interactions"
       operationId: "getInteractions"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "query"
           name: "analysisId"
@@ -201,6 +219,7 @@ paths:
       operationId: "postInteractions"
       security:
         - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "body"
           name: "interactions"
@@ -222,6 +241,9 @@ paths:
         - "Interactions"
       description: "get interaction with id"
       operationId: "getInteractionById"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "path"
           name: "id"
@@ -242,6 +264,9 @@ paths:
         - "Flows"
       description: "get flows"
       operationId: "getFlows"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "query"
           name: "analysisId"
@@ -262,6 +287,7 @@ paths:
       operationId: "postFlows"
       security:
         - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "body"
           name: "flow"
@@ -285,6 +311,9 @@ paths:
         - "Flows"
       description: "get flow with id"
       operationId: "getFlow"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "path"
           name: "id"
@@ -305,6 +334,9 @@ paths:
         - "Metrics"
       description: "get analysis metrics"
       operationId: "getAnalysisMetrics"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "path"
           name: "id"
@@ -327,6 +359,7 @@ paths:
       operationId: "postProcessAnalysis"
       security:
         - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "body"
           name: "process body"
@@ -348,6 +381,7 @@ paths:
       operationId: "getJobs"
       security:
         - AuthToken: []
+        - SessionToken: []
       responses:
         200:
           description: "Success"
@@ -362,6 +396,9 @@ paths:
         - "Jobs"
       description: "get job by id"
       operationId: "getJobById"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "path"
           name: "id"
@@ -370,8 +407,6 @@ paths:
           type: "string"
           minLength: 24
           maxLength: 24
-      security:
-        - AuthToken: []
       responses:
         200:
           description: "Success"
@@ -384,6 +419,9 @@ paths:
         - "Search"
       description: "search analyses"
       operationId: "postSearchAnalyses"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "body"
           name: "search"
@@ -403,6 +441,9 @@ paths:
         - "Search"
       description: "search interactions"
       operationId: "postSearchInteractions"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "body"
           name: "search"
@@ -424,6 +465,9 @@ paths:
         - "Search"
       description: "search flows"
       operationId: "postSearchFlows"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "body"
           name: "search"
@@ -445,6 +489,9 @@ paths:
         - "Exchanges"
       description: "get request with id"
       operationId: "getExchangeRequestById"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "path"
           name: "id"
@@ -465,6 +512,9 @@ paths:
         - "Exchanges"
       description: "get response with id"
       operationId: "getExchangeResponseById"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "path"
           name: "id"
@@ -485,6 +535,9 @@ paths:
         - "Environments"
       description: "get environments"
       operationId: "getEnvironments"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters: []
       responses:
         200:
@@ -500,6 +553,7 @@ paths:
       operationId: "postEnvironment"
       security:
         - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "body"
           name: "environment"
@@ -519,6 +573,9 @@ paths:
         - "Environments"
       description: "get environment with id"
       operationId: "getEnvironment"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "path"
           name: "id"
@@ -537,6 +594,7 @@ paths:
       operationId: "deleteEnvironment"
       security:
         - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "path"
           name: "id"
@@ -555,6 +613,9 @@ paths:
         - "Compatibility"
       description: "get compatibility results by consumer & provider"
       operationId: "getCompatibilityResults"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "query"
           name: "consumer"
@@ -588,6 +649,9 @@ paths:
         - "Compatibility"
       description: "verify compatibility"
       operationId: "verifyCompatibility"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "body"
           name: "verify"
@@ -607,6 +671,9 @@ paths:
         - "Compatibility"
       description: "get compatibility results by project"
       operationId: "getCompatibilityResultsByProject"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "query"
           name: "projectId"
@@ -632,6 +699,9 @@ paths:
         - "Compatibility"
       description: "delete compatibility results by project"
       operationId: "deleteCompatibilityResultsByProject"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "path"
           name: "id"
@@ -653,6 +723,9 @@ paths:
         - "Compatibility"
       description: "delete compatibility results by version"
       operationId: "deleteCompatibilityResultsByProjectVersion"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "path"
           name: "id"
@@ -680,6 +753,9 @@ paths:
         - "Compatibility"
       description: "validate compatibility of given flows and interactions"
       operationId: "validateCompatibilityOfFlowsAndInteractions"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "path"
           name: "id"
@@ -707,6 +783,9 @@ paths:
         - "Quality Gate"
       description: "get quality gate status of a project"
       operationId: "getQualityGateStatus"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "query"
           name: "projectId"
@@ -737,6 +816,9 @@ paths:
         - "Relations"
       description: "get relations between projects"
       operationId: "getRelations"
+      security:
+        - AuthToken: []
+        - SessionToken: []
       responses:
         200:
           description: "Success"
@@ -1002,3 +1084,7 @@ securityDefinitions:
     type: "apiKey"
     in: "header"
     name: "x-auth-token"
+  SessionToken:
+    type: apiKey
+    in: header
+    name: x-session-token
