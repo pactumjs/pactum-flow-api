@@ -1,7 +1,6 @@
 const SEM = require('swagger-express-mw');
 const SUI = require('swagger-tools/middleware/swagger-ui');
 const authTokenHandler = require('./auth.handler');
-const sessionHandler = require('./session.handler');
 
 function init(app, rootDir) {
   return new Promise((resolve, reject) => {
@@ -10,7 +9,7 @@ function init(app, rootDir) {
         appRoot: rootDir,
         swaggerSecurityHandlers: {
           AuthToken: authTokenHandler,
-          SessionToken: sessionHandler
+          SessionToken: authTokenHandler
         }
       };
       SEM.create(swaggerConfig, (err, se) => {

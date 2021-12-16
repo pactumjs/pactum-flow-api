@@ -31,8 +31,12 @@ paths:
       description: "get projects"
       operationId: "getProjects"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "query"
           name: "key"
@@ -53,8 +57,11 @@ paths:
       description: "create a new project"
       operationId: "postProject"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
       parameters:
         - in: "body"
           name: "project"
@@ -75,8 +82,12 @@ paths:
       description: "get project with id"
       operationId: "getProject"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "path"
           name: "id"
@@ -94,8 +105,10 @@ paths:
       description: "delete a project"
       operationId: "deleteProject"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
       parameters:
         - in: "path"
           name: "id"
@@ -115,8 +128,12 @@ paths:
       description: "get analyses"
       operationId: "getAnalyses"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "query"
           name: "projectId"
@@ -134,8 +151,11 @@ paths:
       description: "create a new analysis"
       operationId: "postAnalysis"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
       parameters:
         - in: "body"
           name: "analysis"
@@ -156,8 +176,12 @@ paths:
       description: "get analysis with id"
       operationId: "getAnalysisById"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "path"
           name: "id"
@@ -177,7 +201,7 @@ paths:
       description: "delete an analysis"
       operationId: "deleteAnalysis"
       security:
-        - AuthToken: []
+        - SessionToken: []
       parameters:
         - in: "path"
           name: "id"
@@ -199,8 +223,12 @@ paths:
       description: "get interactions"
       operationId: "getInteractions"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "query"
           name: "analysisId"
@@ -218,8 +246,11 @@ paths:
       description: "create a new interaction"
       operationId: "postInteractions"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
       parameters:
         - in: "body"
           name: "interactions"
@@ -242,8 +273,12 @@ paths:
       description: "get interaction with id"
       operationId: "getInteractionById"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "path"
           name: "id"
@@ -265,8 +300,12 @@ paths:
       description: "get flows"
       operationId: "getFlows"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "query"
           name: "analysisId"
@@ -286,8 +325,11 @@ paths:
       description: "create a new flows"
       operationId: "postFlows"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
       parameters:
         - in: "body"
           name: "flow"
@@ -312,8 +354,12 @@ paths:
       description: "get flow with id"
       operationId: "getFlow"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "path"
           name: "id"
@@ -335,8 +381,12 @@ paths:
       description: "get analysis metrics"
       operationId: "getAnalysisMetrics"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "path"
           name: "id"
@@ -358,8 +408,11 @@ paths:
       description: "process analysis"
       operationId: "postProcessAnalysis"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
       parameters:
         - in: "body"
           name: "process body"
@@ -380,8 +433,12 @@ paths:
       description: "get jobs"
       operationId: "getJobs"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       responses:
         200:
           description: "Success"
@@ -397,8 +454,12 @@ paths:
       description: "get job by id"
       operationId: "getJobById"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "path"
           name: "id"
@@ -420,8 +481,12 @@ paths:
       description: "search analyses"
       operationId: "postSearchAnalyses"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "body"
           name: "search"
@@ -442,8 +507,12 @@ paths:
       description: "search interactions"
       operationId: "postSearchInteractions"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "body"
           name: "search"
@@ -466,8 +535,12 @@ paths:
       description: "search flows"
       operationId: "postSearchFlows"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "body"
           name: "search"
@@ -490,8 +563,12 @@ paths:
       description: "get request with id"
       operationId: "getExchangeRequestById"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "path"
           name: "id"
@@ -513,8 +590,12 @@ paths:
       description: "get response with id"
       operationId: "getExchangeResponseById"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "path"
           name: "id"
@@ -536,8 +617,12 @@ paths:
       description: "get environments"
       operationId: "getEnvironments"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters: []
       responses:
         200:
@@ -552,8 +637,11 @@ paths:
       description: "publish a version of project to a environment"
       operationId: "postEnvironment"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
       parameters:
         - in: "body"
           name: "environment"
@@ -574,8 +662,12 @@ paths:
       description: "get environment with id"
       operationId: "getEnvironment"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "path"
           name: "id"
@@ -593,8 +685,10 @@ paths:
       description: "delete an environment"
       operationId: "deleteEnvironment"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
       parameters:
         - in: "path"
           name: "id"
@@ -614,8 +708,12 @@ paths:
       description: "get compatibility results by consumer & provider"
       operationId: "getCompatibilityResults"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "query"
           name: "consumer"
@@ -650,8 +748,11 @@ paths:
       description: "verify compatibility"
       operationId: "verifyCompatibility"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
       parameters:
         - in: "body"
           name: "verify"
@@ -672,8 +773,12 @@ paths:
       description: "get compatibility results by project"
       operationId: "getCompatibilityResultsByProject"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "query"
           name: "projectId"
@@ -700,8 +805,10 @@ paths:
       description: "delete compatibility results by project"
       operationId: "deleteCompatibilityResultsByProject"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
       parameters:
         - in: "path"
           name: "id"
@@ -724,8 +831,10 @@ paths:
       description: "delete compatibility results by version"
       operationId: "deleteCompatibilityResultsByProjectVersion"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
       parameters:
         - in: "path"
           name: "id"
@@ -754,8 +863,11 @@ paths:
       description: "validate compatibility of given flows and interactions"
       operationId: "validateCompatibilityOfFlowsAndInteractions"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
       parameters:
         - in: "path"
           name: "id"
@@ -784,8 +896,12 @@ paths:
       description: "get quality gate status of a project"
       operationId: "getQualityGateStatus"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       parameters:
         - in: "query"
           name: "projectId"
@@ -817,8 +933,12 @@ paths:
       description: "get relations between projects"
       operationId: "getRelations"
       security:
-        - AuthToken: []
         - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
       responses:
         200:
           description: "Success"
