@@ -36,7 +36,7 @@ class BaseService {
     } else if (error instanceof ClientRequestError) {
       this.res.status(error.code).json({ error: error.message });
     } else {
-      console.log(error);
+      this.req.log.error(error);
       this.res.status(500).json({ error: "Internal Server Error" });
     }
   }

@@ -14,7 +14,7 @@ class CompatibilityService extends BaseService {
       if (!doc) {
         throw new this.$error.ClientRequestError('Project does not exist', 404);
       }
-      const processor = new CompatibilityProcessor(projectId, this.$repo);
+      const processor = new CompatibilityProcessor(projectId, this.$repo, this.req.log);
       processor.verify();
       this.res.status(202).json({ message: 'OK' });
     } catch (error) {
@@ -79,7 +79,7 @@ class CompatibilityService extends BaseService {
 
   async validateCompatibilityOfFlowsAndInteractions() {
     const project = this.req.swagger.params.id.value;
-    const processor = new CompatibilityProcessor(project, this.$repo);
+    const processor = new CompatibilityProcessor(project, this.$repo, this.req.log);
     processor.save = false;
     if (this.req.body.environments) {
       processor.targetEnvironments = this.req.body.environments;

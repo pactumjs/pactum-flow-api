@@ -2,9 +2,10 @@ const { utils } = require('pactum-matchers');
 
 class CompatibilityProcessor {
 
-  constructor(project, repo) {
+  constructor(project, repo, log) {
     this.project = project;
     this.$repo = repo;
+    this.log = log;
     this.environments = [];
     this.projects = [];
     this.flowDocs = [];
@@ -53,7 +54,7 @@ class CompatibilityProcessor {
       await this.providerVerification();
       await this.consumerVerification();
     } catch (error) {
-      console.log(error);
+      this.log.error(error);
     }
   }
 
@@ -62,7 +63,7 @@ class CompatibilityProcessor {
       const environment = this.environments[i];
       const analysisId = environment.projects[this.project];
       if (!analysisId) {
-        console.log(`Provider Verification | Project not found in environment - '${environment._id}'`);
+        this.log.info(`Provider Verification | Project not found in environment - '${environment._id}'`);
         continue;
       }
       const analysis = await this.getAnalysis(analysisId);
@@ -73,13 +74,13 @@ class CompatibilityProcessor {
         const provider = providers[j];
         const exceptions = [];
         if (!this.projects.includes(provider)) {
-          console.log(`Provider Verification | Provider - '${provider}' does not exist`);
+          this.log.info(`Provider Verification | Provider - '${provider}' does not exist`);
           // TODO: provider does not exist
           continue;
         }
         const providerAnalysisId = environment.projects[provider];
         if (!providerAnalysisId) {
-          console.log(`Provider Verification | Provider - '${provider}' does not exist in '${environment._id}' environment`);
+          this.log.info(`Provider Verification | Provider - '${provider}' does not exist in '${environment._id}' environment`);
           // TODO: provider does not exist in this environment
           continue;
         }
@@ -89,21 +90,21 @@ class CompatibilityProcessor {
           const { flow } = providerInteraction;
           const flowDoc = await this.getFlow(flow, providerAnalysisId, true);
           if (!flowDoc) {
-            console.log(`Provider Verification | Flow - '${flow}' does not exist in provider - '${provider}'`);
+            this.log.info(`Provider Verification | Flow - '${flow}' does not exist in provider - '${provider}'`);
             exceptions.push({ flow, error: 'Flow Not Found' });
             continue;
           }
           const expectedReq = providerInteraction.request;
           const reqError = this.compareRequest(flowDoc.request, expectedReq);
           if (reqError) {
-            console.log(`Provider Verification | Request match failed for flow - '${flow}' & provider - '${provider}' with error - '${reqError}'`);
+            this.log.info(`Provider Verification | Request match failed for flow - '${flow}' & provider - '${provider}' with error - '${reqError}'`);
             exceptions.push({ flow, error: reqError });
             continue;
           }
           const expectedResponse = providerInteraction.response;
           const resError = this.compareResponse(flowDoc.response, expectedResponse);
           if (resError) {
-            console.log(`Provider Verification | Request match failed for flow - '${flow}' & provider - '${provider}' with error - '${resError}'`);
+            this.log.info(`Provider Verification | Request match failed for flow - '${flow}' & provider - '${provider}' with error - '${resError}'`);
             exceptions.push({ flow, error: resError });
             continue;
           }
@@ -132,7 +133,7 @@ class CompatibilityProcessor {
       const environment = this.environments[i];
       const analysisId = environment.projects[this.project];
       if (!analysisId) {
-        console.log(`Consumer Verification | Project not found in environment - ${environment._id}`);
+        this.log.info(`Consumer Verification | Project not found in environment - ${environment._id}`);
         continue;
       }
       const analysis = await this.getAnalysis(analysisId);
@@ -143,7 +144,7 @@ class CompatibilityProcessor {
         const consumerAnalysisId = environment.projects[consumerId];
         const exceptions = [];
         if (!consumerAnalysisId) {
-          console.log(`Consumer Verification | Consumer - '${consumerId}' not found in environment - '${environment._id}'`);
+          this.log.info(`Consumer Verification | Consumer - '${consumerId}' not found in environment - '${environment._id}'`);
           continue;
         }
         const interactions = await this.$repo.interaction.get({ analysisId: consumerAnalysisId });
@@ -156,20 +157,20 @@ class CompatibilityProcessor {
           count++;
           const flowDoc = await this.getFlow(flow, analysisId);
           if (!flowDoc) {
-            console.log(`Consumer Verification | Flow - '${flow}' does not exist in project - '${this.project}'`);
+            this.log.info(`Consumer Verification | Flow - '${flow}' does not exist in project - '${this.project}'`);
             continue;
           }
           const interactionRequest = await this.$repo.exchange.getRequestById(_id);
           const interactionResponse = await this.$repo.exchange.getResponseById(_id);
           const reqError = this.compareRequest(flowDoc.request, interactionRequest);
           if (reqError) {
-            console.log(`Consumer Verification | Request match failed. | Project: '${this.project}' | Flow - '${flow}' | Consumer - '${consumerId}' | Error - '${reqError}'`);
+            this.log.info(`Consumer Verification | Request match failed. | Project: '${this.project}' | Flow - '${flow}' | Consumer - '${consumerId}' | Error - '${reqError}'`);
             exceptions.push({ flow, error: reqError });
             continue;
           }
           const resError = this.compareResponse(flowDoc.response, interactionResponse);
           if (resError) {
-            console.log(`Consumer Verification | Response match failed. | Project: '${this.project}' | Flow - '${flow}' | Consumer - '${consumerId}' | Error - '${reqError}'`);
+            this.log.info(`Consumer Verification | Response match failed. | Project: '${this.project}' | Flow - '${flow}' | Consumer - '${consumerId}' | Error - '${reqError}'`);
             exceptions.push({ flow, error: resError });
             continue;
           }
@@ -191,7 +192,7 @@ class CompatibilityProcessor {
             this.results.push(compatibility);
           }
         } else {
-          console.log(`Consumer Verification | No interactions matched with current provider. | Consumer: '${consumerId}' | Project: '${this.project}'`);
+          this.log.info(`Consumer Verification | No interactions matched with current provider. | Consumer: '${consumerId}' | Project: '${this.project}'`);
         }
       }
     }

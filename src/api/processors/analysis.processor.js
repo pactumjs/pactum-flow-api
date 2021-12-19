@@ -2,7 +2,7 @@ const CompatibilityProcessor = require('./compatibility.processor');
 
 class AnalysisProcessor {
 
-  constructor(analysis, repo) {
+  constructor(analysis, repo, log) {
     this.project = null;
     this.projects = null;
     this.latestEnvironment = null;
@@ -17,6 +17,7 @@ class AnalysisProcessor {
     this.prevProviders = [];
     this.prevConsumers = [];
     this.$repo = repo;
+    this.log = log;
   }
 
   async process() {
@@ -32,7 +33,7 @@ class AnalysisProcessor {
       await this.verify();
       await this.completeJob();
     } catch (error) {
-      console.log(error);
+      this.log.error(error);
       await this.failJob(error);
     }
   }
@@ -159,7 +160,7 @@ class AnalysisProcessor {
   }
 
   async verify() {
-    const processor = new CompatibilityProcessor(this.analysis.projectId, this.$repo);
+    const processor = new CompatibilityProcessor(this.analysis.projectId, this.$repo, this.log);
     await processor.verify();
   }
 

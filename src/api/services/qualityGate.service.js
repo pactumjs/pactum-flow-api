@@ -70,7 +70,7 @@ class QualityGateService extends BaseService {
               });
             }
           } else {
-            console.log(`Consumer Not Found - '${consumer}'`);
+            this.req.log.info(`Consumer Not Found - '${consumer}'`);
           }
         }
         for (let j = 0; j < providers.length; j++) {

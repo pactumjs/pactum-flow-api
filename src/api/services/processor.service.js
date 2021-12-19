@@ -13,7 +13,7 @@ class ProcessorService extends BaseService {
       const analysis = await this.$repo.analysis.getById(id);
       if (analysis) {
         if (!analysis.processed) {
-          const processor = new AnalysisProcessor(analysis, this.$repo);
+          const processor = new AnalysisProcessor(analysis, this.$repo, this.req.log);
           processor.process();
           this.res.status(202).json({ id });
         } else {

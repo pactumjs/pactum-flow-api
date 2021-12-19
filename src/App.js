@@ -1,8 +1,10 @@
 const express = require('express');
 const http = require('http');
 const mongoose = require('mongoose');
+require('loglevel').setLevel('INFO');
 
 const config = require('./config');
+const logger_middleware = require('./middleware/logger.middleware');
 const swaggerMiddleware = require('./middleware/swagger.middleware');
 
 class App {
@@ -33,6 +35,7 @@ class App {
   }
 
   async initMiddleware() {
+    this.app.use(logger_middleware);
     this.app.use(express.json());
     await swaggerMiddleware.init(this.app, __dirname);
   }
