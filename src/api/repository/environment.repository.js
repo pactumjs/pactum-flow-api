@@ -7,7 +7,7 @@ class EnvironmentRepository {
   }
 
   getById(_id) {
-    return Environment.findById({ _id });
+    return Environment.findById({ _id }, null, { lean: true });
   }
 
   save(data) {
@@ -20,11 +20,10 @@ class EnvironmentRepository {
     return Environment.deleteOne({ _id });
   }
 
-  async deleteAnalysis(data) {
-    const analysis = data.toObject();
-    const envs = await Environment.find();
+  async deleteAnalysis(analysis) {
+    const envs = await this.get();
     for (let i = 0; i < envs.length; i++) {
-      const env = envs[i].toObject();
+      const env = envs[i];
       if (env.projects[analysis.projectId].toString() === analysis._id.toString()) {
         if ((Object.keys(env.projects).length > 1)) {
           const unset = {};
@@ -38,9 +37,9 @@ class EnvironmentRepository {
   }
 
   async deleteProject(project) {
-    const envs = await Environment.find();
+    const envs = await this.get();
     for (let i = 0; i < envs.length; i++) {
-      const env = envs[i].toObject();
+      const env = envs[i];
       if (env.projects[project]) {
         if ((Object.keys(env.projects).length > 1)) {
           const unset = {};

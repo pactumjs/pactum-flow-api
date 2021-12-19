@@ -95,8 +95,8 @@ class AnalysisProcessor {
   }
 
   async setPreviousAnalysis() {
-    if (this.latestEnvironment && this.latestEnvironment.projects[this.project.id]) {
-      const lastAnalysisId = this.latestEnvironment.projects[this.project.id];
+    if (this.latestEnvironment && this.latestEnvironment.projects[this.project._id]) {
+      const lastAnalysisId = this.latestEnvironment.projects[this.project._id];
       this.prevAnalysis = await this.$repo.analysis.getById(lastAnalysisId);
       this.prevInteractions = await this.$repo.interaction.get({ analysisId: lastAnalysisId });
       this.prevFlows = await this.$repo.flow.get({ analysisId: lastAnalysisId });

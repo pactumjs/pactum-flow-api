@@ -3,15 +3,15 @@ const Analysis = require('../models/analysis.model');
 class AnalysisRepository {
 
   get(query) {
-    return Analysis.find(query);
+    return Analysis.find(query, null, { lean: true });
   }
 
   getById(_id) {
-    return Analysis.findById({ _id });
+    return Analysis.findById({ _id }, null, { lean: true });
   }
 
   getByIds(ids) {
-    return Analysis.find({ _id: { $in: ids } });
+    return Analysis.find({ _id: { $in: ids } }, null, { lean: true });
   }
 
   async save(data) {

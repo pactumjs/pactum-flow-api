@@ -3,11 +3,11 @@ const Project = require('../models/project.model');
 class ProjectRepository {
 
   get(query) {
-    return Project.find(query);
+    return Project.find(query, null, { lean: true });
   }
 
   getById(_id) {
-    return Project.findById({ _id });
+    return Project.findById({ _id }, null, { lean: true });
   }
 
   async save(data) {

@@ -9,7 +9,7 @@ class CompatibilityRepository {
       provider: contract.provider,
       providerVersion: contract.providerVersion
     };
-    return Compatibility.updateOne(query, { $set: contract }, { upsert: true });
+    return Compatibility.updateOne(query, { $set: contract }, { upsert: true, lean: true });
   }
 
   get(query) {
