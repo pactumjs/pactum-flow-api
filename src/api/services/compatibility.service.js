@@ -1,4 +1,4 @@
-const CompatibilityProcessor = require('../processors/compatibility.processor');
+const CompatibilityProcessor = require('../processors/compatibility.processor.v2');
 const BaseService = require('./base.service');
 
 class CompatibilityService extends BaseService {
@@ -79,15 +79,16 @@ class CompatibilityService extends BaseService {
 
   async validateCompatibilityOfFlowsAndInteractions() {
     const project = this.req.swagger.params.id.value;
-    const processor = new CompatibilityProcessor(project, this.$repo, this.req.log);
-    processor.save = false;
-    if (this.req.body.environments) {
-      processor.targetEnvironments = this.req.body.environments;
-    }
-    processor.interactions = this.req.body.interactions;
-    processor.flows = this.req.body.flows;
-    await processor.verify();
-    this.res.status(200).json(processor.results);
+    
+    const cp = new CompatibilityProcessor(this.$repo, this.req.log);
+    cp.project_id = project;
+    cp.project_flows = this.req.body.flows || [];
+    cp.project_interactions = this.req.body.interactions || [];
+    cp.target_environment_names = this.req.body.environments || [];
+    cp.save = false;
+    await cp.run();
+
+    this.res.status(200).json(cp.compatibility_results);
   }
 
 }

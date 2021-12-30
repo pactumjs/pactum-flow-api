@@ -192,7 +192,6 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
           "consumerVersion": "2.0.1",
           "provider": "p-id-1",
           "providerVersion": "1.0.1",
-          "__v": 0,
           "exceptions": [],
           "status": "PASSED",
           "verifiedAt": like("2021-05-16T05:33:57.880Z")
@@ -212,7 +211,6 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
           "consumerVersion": "2.0.1",
           "provider": "p-id-1",
           "providerVersion": "1.0.1",
-          "__v": 0,
           "exceptions": [],
           "status": "PASSED",
           "verifiedAt": like("2021-05-16T05:33:57.880Z")
@@ -273,7 +271,6 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
         "consumerVersion": "2.0.1",
         "provider": "p-id-1",
         "providerVersion": "1.0.1",
-        "__v": 0,
         "exceptions": [],
         "status": "PASSED",
         "verifiedAt": like("2021-05-16T05:33:57.880Z")
@@ -424,7 +421,6 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
             "consumerVersion": "2.0.1",
             "provider": "p-id-1",
             "providerVersion": "1.0.1",
-            "__v": 0,
             "exceptions": [],
             "status": "PASSED",
             "verifiedAt": like("2021-05-16T05:33:57.880Z")
@@ -435,7 +431,6 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
             "consumerVersion": "2.0.1",
             "provider": "p-id-1",
             "providerVersion": "1.0.2",
-            "__v": 0,
             "exceptions": [],
             "status": "PASSED",
             "verifiedAt": like("2021-05-16T05:33:57.880Z")
@@ -622,7 +617,6 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
             "consumerVersion": "3.0.1",
             "provider": "p-id-1",
             "providerVersion": "1.0.2",
-            "__v": 0,
             "exceptions": [],
             "status": "PASSED",
             "verifiedAt": like("2021-05-16T05:33:57.880Z")
@@ -699,7 +693,6 @@ describe('Compatibility - Multiple Projects - Sad Paths', () => {
           "consumerVersion": "2.0.1",
           "provider": "p-id-1",
           "providerVersion": "1.0.1",
-          "__v": 0,
           "exceptions": [
             {
               "_id": like("60a8a320fe73ab47588ce8fd"),
@@ -725,7 +718,6 @@ describe('Compatibility - Multiple Projects - Sad Paths', () => {
           "consumerVersion": "2.0.1",
           "provider": "p-id-1",
           "providerVersion": "1.0.1",
-          "__v": 0,
           "exceptions": [
             {
               "_id": like("60a8a320fe73ab47588ce8fd"),
@@ -804,7 +796,6 @@ describe('Compatibility - Multiple Projects - Sad Paths', () => {
           "consumerVersion": "2.0.1",
           "provider": "p-id-1",
           "providerVersion": "1.0.1",
-          "__v": 0,
           "exceptions": [
             {
               "_id": like("60a8a320fe73ab47588ce8fd"),
@@ -821,7 +812,6 @@ describe('Compatibility - Multiple Projects - Sad Paths', () => {
           "consumerVersion": "2.0.1",
           "provider": "p-id-1",
           "providerVersion": "1.0.2",
-          "__v": 0,
           "exceptions": [],
           "status": "PASSED",
           "verifiedAt": like("2021-05-22T06:30:48.722Z")
@@ -841,7 +831,6 @@ describe('Compatibility - Multiple Projects - Sad Paths', () => {
           "consumerVersion": "2.0.1",
           "provider": "p-id-1",
           "providerVersion": "1.0.1",
-          "__v": 0,
           "exceptions": [
             {
               "_id": like("60a8a320fe73ab47588ce8fd"),
@@ -858,7 +847,6 @@ describe('Compatibility - Multiple Projects - Sad Paths', () => {
           "consumerVersion": "2.0.1",
           "provider": "p-id-1",
           "providerVersion": "1.0.2",
-          "__v": 0,
           "exceptions": [],
           "status": "PASSED",
           "verifiedAt": like("2021-05-22T06:35:50.911Z")
@@ -972,7 +960,6 @@ describe('Compatibility - Multiple Projects - Sad Paths', () => {
           "consumerVersion": "4.0.1",
           "provider": "p-id-1",
           "providerVersion": "1.0.2",
-          "__v": 0,
           "exceptions": [
             {
               "_id": like("60a8eda7640237374cf3c60a"),

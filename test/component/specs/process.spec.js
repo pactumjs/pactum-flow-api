@@ -449,7 +449,6 @@ describe('Process analysis with valid providers', () => {
             "consumerVersion": "2.0.1",
             "provider": "team_login-service",
             "providerVersion": "1.0.1",
-            "__v": 0,
             "exceptions": [],
             "status": "PASSED",
             "verifiedAt": like("2021-02-13T07:43:05.615Z")
@@ -505,7 +504,6 @@ describe('Process analysis with valid providers', () => {
             "consumerVersion": "2.0.2",
             "provider": "team_login-service",
             "providerVersion": "1.0.2",
-            "__v": 0,
             "exceptions": [
               {
                 "_id": like("602787e532db9d2380036cc8"),
@@ -567,7 +565,6 @@ describe('Process analysis with valid providers', () => {
             "consumerVersion": "2.0.3",
             "provider": "team_login-service",
             "providerVersion": "1.0.3",
-            "__v": 0,
             "exceptions": [
               {
                 "_id": like("602787e532db9d2380036cc8"),

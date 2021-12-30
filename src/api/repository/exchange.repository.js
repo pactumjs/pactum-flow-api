@@ -86,6 +86,16 @@ class ExchangeRepository {
     }
   }
 
+  async getRequestByIds(_ids) {
+    const docs = await RequestSchema.find({ _id: { $in: _ids } }, null, { lean: true });
+    if (docs && docs.length > 0) {
+      for (let i = 0; i < docs.length; i++) {
+        docs[i] = unSanitize(docs[i]);
+      }
+    }
+    return docs;
+  }
+
   async getResponseById(_id) {
     const doc = await ResponseSchema.findById({ _id }, null, { lean: true });
     if (doc) {
@@ -93,6 +103,16 @@ class ExchangeRepository {
     } else {
       return doc;
     }
+  }
+
+  async getResponseByIds(_ids) {
+    const docs = await ResponseSchema.find({ _id: { $in: _ids } }, null, { lean: true });
+    if (docs && docs.length > 0) {
+      for (let i = 0; i < docs.length; i++) {
+        docs[i] = unSanitize(docs[i]);
+      }
+    }
+    return docs;
   }
 
   async saveRequest(data) {

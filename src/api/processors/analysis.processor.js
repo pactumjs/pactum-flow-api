@@ -1,4 +1,4 @@
-const CompatibilityProcessor = require('./compatibility.processor');
+const CompatibilityProcessor = require('./compatibility.processor.v2');
 
 class AnalysisProcessor {
 
@@ -160,8 +160,10 @@ class AnalysisProcessor {
   }
 
   async verify() {
-    const processor = new CompatibilityProcessor(this.analysis.projectId, this.$repo, this.log);
-    await processor.verify();
+    const cp = new CompatibilityProcessor(this.$repo, this.log);
+    cp.project_id = this.project._id;
+    cp.project_version = this.analysis.version;
+    await cp.run();
   }
 
 }
