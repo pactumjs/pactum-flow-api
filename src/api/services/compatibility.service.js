@@ -7,7 +7,7 @@ class CompatibilityService extends BaseService {
     super(req, res);
   }
 
-  async verifyCompatibility() {
+  async validateCompatibility() {
     try {
       const { projectId } = this.req.body;
       const doc = await this.$repo.project.getById(projectId);
@@ -77,18 +77,20 @@ class CompatibilityService extends BaseService {
     this.res.status(200).json([cDoc, pDoc]);
   }
 
-  async validateCompatibilityOfFlowsAndInteractions() {
-    const project = this.req.swagger.params.id.value;
-    
-    const cp = new CompatibilityProcessor(this.$repo, this.req.log);
-    cp.project_id = project;
-    cp.project_flows = this.req.body.flows || [];
-    cp.project_interactions = this.req.body.interactions || [];
-    cp.target_environment_names = this.req.body.environments || [];
-    cp.save = false;
-    await cp.run();
+  async verifyCompatibility() {
+    try {
+      const cp = new CompatibilityProcessor(this.$repo, this.req.log);
+      cp.project_id = this.req.body.projectId;
+      cp.project_flows = this.req.body.flows || [];
+      cp.project_interactions = this.req.body.interactions || [];
+      cp.target_environment_names = this.req.body.environments || [];
+      cp.save = false;
+      await cp.run();
 
-    this.res.status(200).json(cp.compatibility_results);
+      this.res.status(200).json(cp.compatibility_results);
+    } catch (error) {
+      this.handleError(error);
+    }
   }
 
 }

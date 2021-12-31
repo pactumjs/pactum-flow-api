@@ -1,7 +1,7 @@
 const CompatibilityService = require('../services/compatibility.service');
 
-function verifyCompatibility(req, res) {
-  new CompatibilityService(req, res).verifyCompatibility();
+function validateCompatibility(req, res) {
+  new CompatibilityService(req, res).validateCompatibility();
 }
 
 function getCompatibilityResults(req, res) {
@@ -20,15 +20,15 @@ function deleteCompatibilityResultsByProjectVersion(req, res) {
   new CompatibilityService(req, res).deleteCompatibilityResultsByProjectVersion();
 }
 
-function validateCompatibilityOfFlowsAndInteractions(req, res) {
-  new CompatibilityService(req, res).validateCompatibilityOfFlowsAndInteractions();
+function verifyCompatibility(req, res) {
+  new CompatibilityService(req, res).verifyCompatibility();
 }
 
 module.exports = {
-  verifyCompatibility,
+  validateCompatibility,
   getCompatibilityResults,
   getCompatibilityResultsByProject,
   deleteCompatibilityResultsByProject,
   deleteCompatibilityResultsByProjectVersion,
-  validateCompatibilityOfFlowsAndInteractions
+  verifyCompatibility
 };

@@ -748,8 +748,8 @@ paths:
     post:
       tags:
         - "Compatibility"
-      description: "verify compatibility"
-      operationId: "verifyCompatibility"
+      description: "validate compatibility"
+      operationId: "validateCompatibility"
       security:
         - SessionToken: []
         - AuthToken: []
@@ -758,11 +758,11 @@ paths:
         - scanner
       parameters:
         - in: "body"
-          name: "verify"
-          description: "project to verify"
+          name: "validate"
+          description: "project to validate"
           required: true
           schema:
-            $ref: "#/definitions/Verify"
+            $ref: "#/definitions/CompatibilityValidate"
       responses:
         202:
           description: "Success"
@@ -859,31 +859,26 @@ paths:
             items:
               $ref: "#/definitions/CompatibilityResult"
     x-swagger-router-controller: "compatibility.controller"
-  /compatibility/project/{id}/validate:
+  /compatibility/project/verify:
     post:
       tags:
         - "Compatibility"
-      description: "validate compatibility of given flows and interactions"
-      operationId: "validateCompatibilityOfFlowsAndInteractions"
+      description: "verify compatibility"
+      operationId: "verifyCompatibility"
       security:
         - SessionToken: []
         - AuthToken: []
       x-role:
         - admin
         - scanner
+        - viewer
       parameters:
-        - in: "path"
-          name: "id"
-          description: "id of the project"
-          type: "string"
-          minLength: 2
-          required: true
         - in: "body"
           name: "payload"
           description: "flows and interactions to validate"
           required: true
           schema:
-            $ref: "#/definitions/CompatibilityPayload"
+            $ref: "#/definitions/CompatibilityVerify"
       responses:
         200:
           description: "Success"
@@ -1089,12 +1084,6 @@ definitions:
       - "projectId"
       - "version"
       - "environment"
-  Verify:
-    type: "object"
-    properties:
-      projectId:
-        type: "string"
-        minLength: 2
   Exception:
     type: "object"
     properties:
@@ -1186,10 +1175,22 @@ definitions:
         type: "string"
       projectId:
         type: "string"
-  CompatibilityPayload:
-    description: "Compatibility Payload"
+  CompatibilityValidate:
     type: "object"
     properties:
+      projectId:
+        type: "string"
+        minLength: 2
+      version:
+        type: "string"
+    required:
+      - "projectId"
+  CompatibilityVerify:
+    description: "Compatibility Verification Payload"
+    type: "object"
+    properties:
+      projectId:
+        type: "string"
       environments:
         type: "array"
         items:

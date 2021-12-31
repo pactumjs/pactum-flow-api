@@ -81,11 +81,11 @@ describe('Compatibility - One Project with no consumers or providers', () => {
       });
   });
 
-  it('validate compatibility without flows and interactions', async () => {
+  it('verify compatibility without flows and interactions', async () => {
     await pactum.spec()
-      .post('/api/flow/v1/compatibility/project/{id}/validate')
-      .withPathParams('id', 'p-id-1')
+      .post('/api/flow/v1/compatibility/project/verify')
       .withJson({
+        "projectId": "p-id-1",
         "environments": ["latest"]
       })
       .expectStatus(200)
@@ -143,11 +143,11 @@ describe('Compatibility - One Project with a provider which is not available', (
       ]);
   });
 
-  it('validate compatibility without flows and interactions', async () => {
+  it('verify compatibility without flows and interactions', async () => {
     await pactum.spec()
-      .post('/api/flow/v1/compatibility/project/{id}/validate')
-      .withPathParams('id', 'p-id-1')
+      .post('/api/flow/v1/compatibility/project/verify')
       .withJson({
+        "projectId": "p-id-1",
         "environments": ["latest"]
       })
       .expectStatus(200)
@@ -286,11 +286,11 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
       .expectJson([]);
   });
 
-  it('validate compatibility of project 2', async () => {
+  it('verify compatibility of project 2', async () => {
     await pactum.spec()
-      .post('/api/flow/v1/compatibility/project/{id}/validate')
-      .withPathParams('id', 'p-id-2')
+      .post('/api/flow/v1/compatibility/project/verify')
       .withJson({
+        "projectId": "p-id-2",
         "environments": ["latest"],
         "interactions": [
           {
@@ -321,11 +321,11 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
       ]);
   });
 
-  it('validate compatibility of project 2 with invalid flow name', async () => {
+  it('verify compatibility of project 2 with invalid flow name', async () => {
     await pactum.spec()
-      .post('/api/flow/v1/compatibility/project/{id}/validate')
-      .withPathParams('id', 'p-id-2')
+      .post('/api/flow/v1/compatibility/project/verify')
       .withJson({
+        "projectId": "p-id-2",
         "environments": ["latest"],
         "interactions": [
           {
@@ -361,11 +361,11 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
       ]);
   });
 
-  it('validate compatibility of project 2 - interaction does not match', async () => {
+  it('verify compatibility of project 2 - interaction does not match', async () => {
     await pactum.spec()
-      .post('/api/flow/v1/compatibility/project/{id}/validate')
-      .withPathParams('id', 'p-id-2')
+      .post('/api/flow/v1/compatibility/project/verify')
       .withJson({
+        "projectId": "p-id-2",
         "environments": ["latest"],
         "interactions": [
           {
@@ -503,11 +503,11 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
         ]);
     });
 
-    it('validate compatibility of project 1', async () => {
+    it('verify compatibility of project 1', async () => {
       await pactum.spec()
-        .post('/api/flow/v1/compatibility/project/{id}/validate')
-        .withPathParams('id', 'p-id-1')
+        .post('/api/flow/v1/compatibility/project/verify')
         .withJson({
+          "projectId": "p-id-1",
           "environments": ["latest"],
           "flows": []
         })
@@ -525,11 +525,11 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
         ]);
     });
 
-    it('validate compatibility of project 1 with valid flow', async () => {
+    it('verify compatibility of project 1 with valid flow', async () => {
       await pactum.spec()
-        .post('/api/flow/v1/compatibility/project/{id}/validate')
-        .withPathParams('id', 'p-id-1')
+        .post('/api/flow/v1/compatibility/project/verify')
         .withJson({
+          "projectId": "p-id-1",
           "environments": ["latest"],
           "flows": [
             {
@@ -559,11 +559,11 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
         ]);
     });
 
-    it('validate compatibility of project 1 with invalid flow', async () => {
+    it('verify compatibility of project 1 with invalid flow', async () => {
       await pactum.spec()
-        .post('/api/flow/v1/compatibility/project/{id}/validate')
-        .withPathParams('id', 'p-id-1')
+        .post('/api/flow/v1/compatibility/project/verify')
         .withJson({
+          "projectId": "p-id-1",
           "environments": ["latest"],
           "flows": [
             {
