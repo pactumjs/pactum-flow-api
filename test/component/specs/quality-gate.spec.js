@@ -178,4 +178,160 @@ describe('Quality Gate', () => {
       ]);
   });
 
+  it('verification status of project 1 should be passed as it does not have any dependents', async () => {
+    await pactum.spec()
+      .post('/api/flow/v1/quality-gate/status/verify')
+      .withJson({
+        "projectId": "p-id-1",
+        "environments": [],
+        "compatibility_results": [
+          {
+            "consumer": "p-id-2",
+            "consumerVersion": "2.0.1",
+            "provider": "p-id-1",
+            "providerVersion": "1.0.1",
+            "exceptions": [],
+            "status": "PASSED"
+          }
+        ]
+      })
+      .expectStatus(200)
+      .expectJson([
+        {
+          "environment": "latest",
+          "status": "OK",
+          "consumers": [],
+          "providers": []
+        },
+        {
+          "environment": "dev",
+          "status": "OK",
+          "consumers": [],
+          "providers": []
+        }
+      ]);
+  });
+
+  it('should be fail with missing compatibility results and missing project', async () => {
+    await pactum.spec()
+      .post('/api/flow/v1/quality-gate/status/verify')
+      .withJson({
+        "projectId": "p-id-2",
+        "environments": [],
+        "compatibility_results": []
+      })
+      .expectStatus(200)
+      .expectJson([
+        {
+          "environment": "latest",
+          "status": "ERROR",
+          "consumers": [],
+          "providers": [
+            {
+              "name": "p-id-1",
+              "version": "1.0.1",
+              "status": "ERROR",
+              "message": "Compatibility Results Not Found",
+              "exceptions": []
+            }
+          ]
+        },
+        {
+          "environment": "test",
+          "status": "ERROR",
+          "consumers": [],
+          "providers": [
+            {
+              "name": "p-id-1",
+              "version": "",
+              "status": "ERROR",
+              "message": "Project Not Found",
+              "exceptions": []
+            }
+          ]
+        }
+      ]);
+  });
+
+  it('should be fail with missing compatibility results', async () => {
+    await pactum.spec()
+      .post('/api/flow/v1/quality-gate/status/verify')
+      .withJson({
+        "projectId": "p-id-2",
+        "environments": [ "latest" ],
+        "compatibility_results": []
+      })
+      .expectStatus(200)
+      .expectJson([
+        {
+          "environment": "latest",
+          "status": "ERROR",
+          "consumers": [],
+          "providers": [
+            {
+              "name": "p-id-1",
+              "version": "1.0.1",
+              "status": "ERROR",
+              "message": "Compatibility Results Not Found",
+              "exceptions": []
+            }
+          ]
+        }
+      ]);
+  });
+
+  it('should be fail with missing project', async () => {
+    await pactum.spec()
+      .post('/api/flow/v1/quality-gate/status/verify')
+      .withJson({
+        "projectId": "p-id-2",
+        "environments": [ "test" ],
+        "compatibility_results": []
+      })
+      .expectStatus(200)
+      .expectJson([
+        {
+          "environment": "test",
+          "status": "ERROR",
+          "consumers": [],
+          "providers": [
+            {
+              "name": "p-id-1",
+              "version": "",
+              "status": "ERROR",
+              "message": "Project Not Found",
+              "exceptions": []
+            }
+          ]
+        }
+      ]);
+  });
+
+  it('should be fail with missing compatibility results in a new environment', async () => {
+    await pactum.spec()
+      .post('/api/flow/v1/quality-gate/status/verify')
+      .withJson({
+        "projectId": "p-id-2",
+        "environments": [ "dev" ],
+        "compatibility_results": []
+      })
+      .expectStatus(200)
+      .expectJson([
+        {
+          "environment": "dev",
+          "status": "ERROR",
+          "consumers": [],
+          "providers": [
+            {
+              "name": "p-id-1",
+              "version": "1.0.1",
+              "status": "ERROR",
+              "message": "Compatibility Results Not Found",
+              "exceptions": []
+            }
+          ]
+        }
+      ]);
+  });
+
 });

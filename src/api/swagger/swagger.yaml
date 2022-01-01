@@ -924,6 +924,34 @@ paths:
             items:
               $ref: "#/definitions/QualityGateStatus"
     x-swagger-router-controller: "qualityGate.controller"
+  /quality-gate/status/verify:
+    post:
+      tags:
+         - "Quality Gate"
+      description: "verify quality gate status for given compatibility results"
+      operationId: "verifyQualityGateStatus"
+      security:
+        - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
+      parameters:
+        - in: "body"
+          name: "payload"
+          description: "quality gate verification payload"
+          required: true
+          schema:
+            $ref: "#/definitions/QualityGateVerify"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/QualityGateStatus"
+    x-swagger-router-controller: "qualityGate.controller"
   /relations:
     get:
       tags:
@@ -1203,6 +1231,24 @@ definitions:
         type: "array"
         items:
           $ref: "#/definitions/Interaction"
+  QualityGateVerify:
+    description: "Quality Gate Verification Payload"
+    type: "object"
+    properties:
+      projectId:
+        type: "string"
+      environments:
+        type: "array"
+        items:
+          type: "string"
+      compatibility_results:
+        type: "array"
+        items:
+          $ref: "#/definitions/CompatibilityResult"
+    required:
+      - "projectId"
+      - "environments"
+      - "compatibility_results"
 securityDefinitions:
   AuthToken:
     type: "apiKey"

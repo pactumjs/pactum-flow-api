@@ -18,7 +18,7 @@ class QualityGateService extends BaseService {
 
       const envStatuses = [];
       for (let i = 0; i < environments.length; i++) {
-        const params = { projectId, version, environment:environments[i], consumers, providers }
+        const params = { projectId, version, environment: environments[i], consumers, providers }
         envStatuses.push(await this.getEnvironmentQualityGateStatus(params));
       }
       this.res.status(200).json(envStatuses);
@@ -58,7 +58,7 @@ class QualityGateService extends BaseService {
     return environments;
   }
 
-  async getEnvironmentQualityGateStatus({ projectId, version, environment, consumers, providers }) {
+  async getEnvironmentQualityGateStatus({ projectId, version, environment, consumers, providers, results }) {
     const envStatus = {
       environment: environment._id,
       status: 'OK',
@@ -72,12 +72,13 @@ class QualityGateService extends BaseService {
       if (consumerAnalysisId) {
         const consumerAnalysis = await this.$repo.analysis.getById(consumerAnalysisId);
         const consumerVersion = consumerAnalysis.version;
-        const compatibilities = await this.$repo.compatibility.get({
+        const query = {
           provider: projectId,
           providerVersion: version,
           consumer,
           consumerVersion
-        });
+        };
+        const compatibilities = await this.getCompatibilityResults(query, results);
         if (compatibilities.length > 0) {
           const compatibility = compatibilities[0];
           envStatus.consumers.push({
@@ -106,12 +107,13 @@ class QualityGateService extends BaseService {
       if (providerAnalysisId) {
         const providerAnalysis = await this.$repo.analysis.getById(providerAnalysisId);
         const providerVersion = providerAnalysis.version;
-        const compatibilities = await this.$repo.compatibility.get({
+        const query = {
           consumer: projectId,
           consumerVersion: version,
           provider,
           providerVersion
-        });
+        };
+        const compatibilities = await this.getCompatibilityResults(query, results);
         if (compatibilities.length > 0) {
           const compatibility = compatibilities[0];
           envStatus.providers.push({
@@ -156,6 +158,44 @@ class QualityGateService extends BaseService {
       }
     }
     return envStatus;
+  }
+
+  getCompatibilityResults(query, results) {
+    if (results) {
+      return results.filter(_result => {
+        return _result.provider === query.provider && _result.providerVersion === query.providerVersion && _result.consumer === query.consumer && _result.consumerVersion === query.consumerVersion
+      });
+    } else {
+      return this.$repo.compatibility.get(query);
+    }
+  }
+
+  async verifyQualityGateStatus() {
+    try {
+      const { projectId, environments: environment_names, compatibility_results } = this.req.body;
+
+      let environments = await this.$repo.environment.get();
+      const latest_environment = environments.find(_env => _env._id === 'latest');
+      const latest_project_analysis_id = latest_environment.projects[projectId];
+      const version = (await this.$repo.analysis.getById(latest_project_analysis_id)).version;
+      const { consumers, providers } = await this.getConsumersAndProviders(latest_project_analysis_id);
+
+      if (environment_names.length > 0) {
+        environments = environments.filter(_env => environment_names.includes(_env._id));
+      } else {
+        environments = await this.getEnvironments(projectId);
+      }
+
+      const envStatuses = [];
+      for (let i = 0; i < environments.length; i++) {
+        const params = { projectId, version, environment: environments[i], consumers, providers, results: compatibility_results };
+        envStatuses.push(await this.getEnvironmentQualityGateStatus(params));
+      }
+
+      this.res.status(200).json(envStatuses);
+    } catch (error) {
+      this.handleError(error);
+    }
   }
 
 }
