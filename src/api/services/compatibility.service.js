@@ -9,14 +9,11 @@ class CompatibilityService extends BaseService {
 
   async validateCompatibility() {
     try {
-      const { projectId } = this.req.body;
-      const doc = await this.$repo.project.getById(projectId);
-      if (!doc) {
-        throw new this.$error.ClientRequestError('Project does not exist', 404);
-      }
-      const processor = new CompatibilityProcessor(projectId, this.$repo, this.req.log);
-      processor.verify();
-      this.res.status(202).json({ message: 'OK' });
+      const cp = new CompatibilityProcessor(this.$repo, this.req.log);
+      cp.project_id = this.req.body.projectId;
+      cp.project_version = this.req.body.version;
+      await cp.run();
+      this.res.status(200).json(cp.compatibility_results);
     } catch (error) {
       this.handleError(error);
     }

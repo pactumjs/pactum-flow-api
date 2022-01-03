@@ -55,7 +55,12 @@ class CompatibilityProcessor {
       let environments = await this.$repo.environment.get();
       if (environments.length > 0) {
         const latest_env = environments.find(_env => _env._id === 'latest');
-        this.project_version = (await this.$repo.analysis.getById(latest_env.projects[this.project_id])).version;
+        const latest_analysis_id = latest_env.projects[this.project_id];
+        if (latest_analysis_id) {
+          this.project_version = (await this.$repo.analysis.getById(latest_analysis_id)).version;
+        } else {
+          throw `Project "${this.project_id}" not found in "latest" environment`;
+        }
       }
     }
   }

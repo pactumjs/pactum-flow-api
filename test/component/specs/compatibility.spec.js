@@ -1039,6 +1039,25 @@ describe('Compatibility - Multiple Projects - Sad Paths', () => {
       ]);
   });
 
+  it('validate compatibility', async () => {
+    await pactum.spec()
+      .post('/api/flow/v1/compatibility/project/validate')
+      .withJson({
+        "projectId": "p-id-2"
+      })
+      .expectStatus(200)
+      .expectJsonLike([
+        {
+          "consumer": "p-id-2",
+          "consumerVersion": "2.0.1",
+          "provider": "p-id-1",
+          "providerVersion": "1.0.2",
+          "status": "PASSED",
+          "exceptions": []
+        }
+      ]);
+  });
+
   after(async () => {
     await db.clean();
   });

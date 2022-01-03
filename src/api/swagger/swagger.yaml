@@ -745,29 +745,6 @@ paths:
             type: array
             items:
               $ref: "#/definitions/CompatibilityResult"
-    post:
-      tags:
-        - "Compatibility"
-      description: "validate compatibility"
-      operationId: "validateCompatibility"
-      security:
-        - SessionToken: []
-        - AuthToken: []
-      x-role:
-        - admin
-        - scanner
-      parameters:
-        - in: "body"
-          name: "validate"
-          description: "project to validate"
-          required: true
-          schema:
-            $ref: "#/definitions/CompatibilityValidate"
-      responses:
-        202:
-          description: "Success"
-          schema:
-            $ref: "#/definitions/HealthResponse"
     x-swagger-router-controller: "compatibility.controller"
   /compatibility/project:
     get:
@@ -885,7 +862,34 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/definitions/HealthResponse"
+              $ref: "#/definitions/CompatibilityResult"
+    x-swagger-router-controller: "compatibility.controller"
+  /compatibility/project/validate:
+    post:
+      tags:
+        - "Compatibility"
+      description: "validate compatibility"
+      operationId: "validateCompatibility"
+      security:
+        - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+      parameters:
+        - in: "body"
+          name: "payload"
+          description: "flows and interactions to validate"
+          required: true
+          schema:
+            $ref: "#/definitions/CompatibilityValidate"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/CompatibilityResult"
     x-swagger-router-controller: "compatibility.controller"
   /quality-gate/status:
     get:
