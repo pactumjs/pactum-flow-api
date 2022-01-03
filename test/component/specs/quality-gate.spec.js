@@ -1,6 +1,8 @@
 const pactum = require('pactum');
 const db = require('../helpers/db');
 
+const { like } = require('pactum-matchers');
+
 describe('Quality Gate', () => {
 
   before(async () => {
@@ -26,6 +28,14 @@ describe('Quality Gate', () => {
     await db.createAnalysis('p-id-3', '3.0.1', 'p-id-3-a-id-1');
     await db.createInteraction('p-id-1', 'p-id-1-f-name-1', 'p-id-3-a-id-1');
     await db.processAnalysis('p-id-3-a-id-1');
+  });
+
+  before('setup project four', async () => {
+    const pid = 'p-id-4';
+    const aid = `${pid}-a-id-1`
+    await db.createProject(pid, 'p-name-4');
+    await db.createAnalysis(pid, '4.0.1', aid);
+    await db.processAnalysis(aid);
   });
 
   before('setup environments', async () => {
@@ -258,7 +268,7 @@ describe('Quality Gate', () => {
       .post('/api/flow/v1/quality-gate/status/verify')
       .withJson({
         "projectId": "p-id-2",
-        "environments": [ "latest" ],
+        "environments": ["latest"],
         "compatibility_results": []
       })
       .expectStatus(200)
@@ -285,7 +295,7 @@ describe('Quality Gate', () => {
       .post('/api/flow/v1/quality-gate/status/verify')
       .withJson({
         "projectId": "p-id-2",
-        "environments": [ "test" ],
+        "environments": ["test"],
         "compatibility_results": []
       })
       .expectStatus(200)
@@ -312,7 +322,7 @@ describe('Quality Gate', () => {
       .post('/api/flow/v1/quality-gate/status/verify')
       .withJson({
         "projectId": "p-id-2",
-        "environments": [ "dev" ],
+        "environments": ["dev"],
         "compatibility_results": []
       })
       .expectStatus(200)
@@ -330,6 +340,60 @@ describe('Quality Gate', () => {
               "exceptions": []
             }
           ]
+        }
+      ]);
+  });
+
+  it('project 4 compatibility with new provider', async () => {
+    const results = await pactum.spec()
+      .post('/api/flow/v1/compatibility/project/verify')
+      .withJson({
+        "projectId": "p-id-4",
+        "environments": ["latest"],
+        "interactions": [
+          {
+            "analysisId": "abcdefghijklmnopqrstuvwx",
+            "flow": "p-id-1-f-name-1",
+            "provider": "p-id-1",
+            "request": {
+              "method": "GET",
+              "path": "/api/path",
+              "queryParams": {}
+            },
+            "response": {
+              "statusCode": 200
+            }
+          }
+        ]
+      })
+      .expectStatus(200)
+      .expectJsonMatch([
+        {
+          "consumer": "p-id-4",
+          "consumerVersion": "4.0.1",
+          "provider": "p-id-1",
+          "providerVersion": "1.0.1",
+          "status": "PASSED",
+          "exceptions": [],
+          "verifiedAt": like("2021-10-09T10:17:34.043Z")
+        }
+      ])
+      .returns('.');
+
+    await pactum.spec()
+      .post('/api/flow/v1/quality-gate/status/verify')
+      .withJson({
+        "projectId": "p-id-4",
+        "environments": [],
+        "compatibility_results": results
+      })
+      .expectStatus(200)
+      .expectJson([
+        {
+          "environment": "latest",
+          "status": "OK",
+          "consumers": [],
+          "providers": []
         }
       ]);
   });

@@ -401,6 +401,42 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
       ]);
   });
 
+  it('verify compatibility of project 2 - interaction with empty query params', async () => {
+    await pactum.spec()
+      .post('/api/flow/v1/compatibility/project/verify')
+      .withJson({
+        "projectId": "p-id-2",
+        "environments": ["latest"],
+        "interactions": [
+          {
+            "analysisId": "abcdefghijklmnopqrstuvwx",
+            "flow": "p-id-1-f-name-1",
+            "provider": "p-id-1",
+            "request": {
+              "method": "GET",
+              "path": "/api/path",
+              "queryParams": {}
+            },
+            "response": {
+              "statusCode": 200
+            }
+          }
+        ]
+      })
+      .expectStatus(200)
+      .expectJsonMatch([
+        {
+          "consumer": "p-id-2",
+          "consumerVersion": "2.0.1",
+          "provider": "p-id-1",
+          "providerVersion": "1.0.1",
+          "status": "PASSED",
+          "exceptions": [],
+          "verifiedAt": like("2021-10-09T10:17:34.043Z")
+        }
+      ]);
+  });
+
   describe('Run new analysis of project one', () => {
 
     before('run new analysis for project one', async () => {

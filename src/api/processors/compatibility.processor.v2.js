@@ -76,6 +76,15 @@ class CompatibilityProcessor {
   setConsumersAndProviders() {
     this.consumer_ids = this.project_metric.consumers.all;
     this.provider_ids = this.project_metric.providers.all;
+    if (this.project_interactions.length > 0) {
+      const new_providers = this.project_interactions.map(_interaction => _interaction.provider);
+      for (let i = 0; i < new_providers.length; i++) {
+        const new_provider = new_providers[i];
+        if (!this.provider_ids.includes(new_provider)) {
+          this.provider_ids.push(new_provider);
+        }
+      }
+    }
   }
 
   async setEnvironments() {
@@ -92,7 +101,9 @@ class CompatibilityProcessor {
       const environment = this.environments[i];
       for (let j = 0; j < this.consumer_ids.length; j++) {
         const analysis_id = environment.projects[this.consumer_ids[j]];
-        consumer_analyses_ids.push(analysis_id);
+        if (analysis_id) {
+          consumer_analyses_ids.push(analysis_id);
+        }
       }
     }
     this.consumer_analyses = await this.$repo.analysis.getByIds(consumer_analyses_ids);
@@ -104,7 +115,10 @@ class CompatibilityProcessor {
       const environment = this.environments[i];
       for (let j = 0; j < this.provider_ids.length; j++) {
         const analysis_id = environment.projects[this.provider_ids[j]];
-        provider_analyses_ids.push(analysis_id);
+        if (analysis_id) {
+          provider_analyses_ids.push(analysis_id);
+        }
+        // provider not found will be handled by quality gate
       }
     }
     this.provider_analyses = await this.$repo.analysis.getByIds(provider_analyses_ids);
@@ -208,10 +222,11 @@ class CompatibilityProcessor {
     for (let i = 0; i < this.provider_analyses.length; i++) {
       const provider_analysis = this.provider_analyses[i];
       const flows = this.provider_flows.filter(_flow => _flow.analysisId.toString() === provider_analysis._id.toString());
+      const interactions = this.project_interactions.filter(_interaction => _interaction.provider === provider_analysis.projectId);
       const exceptions = [];
 
       const actual_flow_names = flows.map(_flow => _flow.name);
-      const expected_flow_names = this.project_interactions.map(_interaction => _interaction.flow);
+      const expected_flow_names = interactions.map(_interaction => _interaction.flow);
       const missing_flow_names = expected_flow_names.filter(_name => !actual_flow_names.includes(_name));
       for (let j = 0; j < missing_flow_names.length; j++) {
         exceptions.push({ flow: missing_flow_names[j], error: 'Flow Not Found' })
@@ -219,7 +234,7 @@ class CompatibilityProcessor {
 
       for (let j = 0; j < flows.length; j++) {
         const flow = flows[j];
-        const interaction = this.project_interactions.find(_interaction => _interaction.flow === flow.name);
+        const interaction = interactions.find(_interaction => _interaction.flow === flow.name);
         if (!interaction) {
           // exceptions.push({ flow: interaction.flow, error: 'Flow Not Found' })
           continue;
@@ -269,9 +284,13 @@ class CompatibilityProcessor {
     if (!pathParamsResult.equal) {
       return `Failed to match request path params - ${pathParamsResult.message}`;
     }
-    if (expected.queryParams && typeof actual.queryParams === 'undefined') {
+    if (expected.queryParams && Object.keys(expected.queryParams).length > 0 && typeof actual.queryParams === 'undefined') {
       return `Failed to match request - Query Params Not Found`;
     } else {
+      // empty object is not saved in MongoDB
+      if (expected.queryParams && Object.keys(expected.queryParams).length === 0) {
+        expected.queryParams = undefined;
+      }
       const queryParamsResult = utils.compare(actual.queryParams, expected.queryParams, rules, '$.query', true);
       if (!queryParamsResult.equal) {
         return `Failed to match request query params - ${queryParamsResult.message}`;

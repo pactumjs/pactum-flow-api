@@ -24,13 +24,16 @@ class EnvironmentRepository {
     const envs = await this.get();
     for (let i = 0; i < envs.length; i++) {
       const env = envs[i];
-      if (env.projects[analysis.projectId].toString() === analysis._id.toString()) {
-        if ((Object.keys(env.projects).length > 1)) {
-          const unset = {};
-          unset[`projects.${data.projectId}`] = "";
-          await Environment.updateOne({ _id: env._id }, { $unset: unset });
-        } else {
-          await Environment.deleteOne({ _id: env._id });
+      const project_analysis_id = env.projects[analysis.projectId];
+      if (project_analysis_id) {
+        if (project_analysis_id.toString() === analysis._id.toString()) {
+          if ((Object.keys(env.projects).length > 1)) {
+            const unset = {};
+            unset[`projects.${data.projectId}`] = "";
+            await Environment.updateOne({ _id: env._id }, { $unset: unset });
+          } else {
+            await Environment.deleteOne({ _id: env._id });
+          }
         }
       }
     }
