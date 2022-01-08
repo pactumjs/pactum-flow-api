@@ -9,11 +9,7 @@ class EnvironmentService extends BaseService {
   async getEnvironmentResponse() {
     try {
       const id = this.req.swagger.params.id.value;
-      const doc = await this.$repo.environment.getById(id);
-      if (!doc) {
-        throw new this.$error.ClientRequestError('Environment does not exist', 404);
-      }
-      this.res.status(200).json(doc);
+      this.res.status(200).json(await this.$repo.environment.get({ name: id }));
     } catch (error) {
       this.handleError(error);
     }
@@ -21,8 +17,7 @@ class EnvironmentService extends BaseService {
 
   async getEnvironmentsResponse() {
     try {
-      const doc = await this.$repo.environment.get();
-      this.res.status(200).json(doc);
+      this.res.status(200).json(await this.$repo.environment.get());
     } catch (error) {
       this.handleError(error);
     }
@@ -39,7 +34,8 @@ class EnvironmentService extends BaseService {
           const doc = await this.$repo.environment.save({
             environment: env.environment,
             projectId: env.projectId,
-            version: analysis._id
+            analysisId: analysis._id,
+            version: analysis.version
           });
           this.res.status(200).json(doc);
         } else {
@@ -56,12 +52,7 @@ class EnvironmentService extends BaseService {
   async deleteEnvironmentResponse() {
     try {
       const id = this.req.swagger.params.id.value;
-      const doc = await this.$repo.environment.getById(id);
-      if (!doc) {
-        throw new this.$error.ClientRequestError('Environment does not exist', 404);
-      }
-      const deleteDoc = await this.$repo.environment.delete(id);
-      this.res.status(200).json(deleteDoc);
+      this.res.status(200).json(await this.$repo.environment.delete(id));
     } catch (error) {
       this.handleError(error);
     }

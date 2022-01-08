@@ -81,13 +81,15 @@ describe('Process new analysis', () => {
       await pactum.flow('get environments')
         .get('/api/flow/v1/environments')
         .expectStatus(200)
-        .expectJson([
+        .expectJsonMatchStrict([
           {
+            "_id": like("61d9ab56fe7d05844ee3b180"),
+            "name": "latest",
+            "projectId": "team_login-service",
             "__v": 0,
-            "_id": "latest",
-            "projects": {
-              "team_login-service": "$S{AnalysisId}"
-            }
+            "analysisId": "$S{AnalysisId}",
+            "publishedAt": like("2022-01-08T15:18:46.249Z"),
+            "version": "1.0.1"
           }
         ]);
     });

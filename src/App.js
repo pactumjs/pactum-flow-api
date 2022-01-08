@@ -7,6 +7,8 @@ const config = require('./config');
 const logger_middleware = require('./middleware/logger.middleware');
 const swaggerMiddleware = require('./middleware/swagger.middleware');
 
+const migrations = require('./db/migrations');
+
 class App {
 
   constructor() {
@@ -18,6 +20,7 @@ class App {
     this.handleInterruptions();
     await this.initDatabase();
     await this.initMiddleware();
+    await migrations.run();
   }
 
   handleInterruptions() {

@@ -5,7 +5,7 @@ class AnalysisProcessor {
   constructor(analysis, repo, log) {
     this.project = null;
     this.projects = null;
-    this.latestEnvironment = null;
+    this.latestEnvironmentProjects = [];
     this.analysis = analysis;
     this.interactions = [];
     this.flows = [];
@@ -70,8 +70,7 @@ class AnalysisProcessor {
   }
 
   async setLatestEnvironment() {
-    const envs = await this.$repo.environment.get();
-    this.latestEnvironment = envs.find(_env => _env._id === 'latest');
+    this.latestEnvironmentProjects = await this.$repo.environment.get({ name: 'latest' });
   }
 
   async setCurrentAnalysis() {
@@ -80,10 +79,7 @@ class AnalysisProcessor {
     const providers = new Set();
     this.interactions.forEach(interaction => providers.add(interaction.provider));
     this.providers = Array.from(providers);
-    let latestAnalysisIds = [];
-    if (this.latestEnvironment) {
-      latestAnalysisIds = Object.values(this.latestEnvironment.projects);
-    }
+    const latestAnalysisIds = this.latestEnvironmentProjects.map(ep => ep.analysisId);
     const metrics = await this.$repo.metrics.getAnalysisMetricsByIds(latestAnalysisIds);
     for (let i = 0; i < metrics.length; i++) {
       const metric = metrics[i];
@@ -95,8 +91,9 @@ class AnalysisProcessor {
   }
 
   async setPreviousAnalysis() {
-    if (this.latestEnvironment && this.latestEnvironment.projects[this.project._id]) {
-      const lastAnalysisId = this.latestEnvironment.projects[this.project._id];
+    const latestProject = this.latestEnvironmentProjects.find(ev => ev.projectId === this.project._id);
+    const lastAnalysisId = latestProject ? latestProject.analysisId : null;
+    if (lastAnalysisId) {
       this.prevAnalysis = await this.$repo.analysis.getById(lastAnalysisId);
       this.prevInteractions = await this.$repo.interaction.get({ analysisId: lastAnalysisId });
       this.prevFlows = await this.$repo.flow.get({ analysisId: lastAnalysisId });
@@ -155,7 +152,8 @@ class AnalysisProcessor {
     await this.$repo.environment.save({
       environment: 'latest',
       projectId: this.analysis.projectId,
-      version: this.analysis._id
+      analysisId: this.analysis._id,
+      version: this.analysis.version
     });
   }
 

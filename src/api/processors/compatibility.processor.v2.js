@@ -52,15 +52,11 @@ class CompatibilityProcessor {
   async setProjectVersion() {
     if (!this.project_version) {
       // from outside analysis processor
-      let environments = await this.$repo.environment.get();
-      if (environments.length > 0) {
-        const latest_env = environments.find(_env => _env._id === 'latest');
-        const latest_analysis_id = latest_env.projects[this.project_id];
-        if (latest_analysis_id) {
-          this.project_version = (await this.$repo.analysis.getById(latest_analysis_id)).version;
-        } else {
-          throw `Project "${this.project_id}" not found in "latest" environment`;
-        }
+      const project_environments = await this.$repo.environment.get({ name: 'latest', projectId: this.project_id });
+      if (project_environments.length > 0) {
+        this.project_version = project_environments[0].version;
+      } else {
+        throw `Project "${this.project_id}" not found in "latest" environment`;
       }
     }
   }
@@ -93,39 +89,22 @@ class CompatibilityProcessor {
   }
 
   async setEnvironments() {
-    let environments = await this.$repo.environment.get();
     if (this.target_environment_names.length > 0) {
-      environments = environments.filter(env => this.target_environment_names.includes(env._id.toString()));
+      this.environments = await this.$repo.environment.get({ name: { $in: this.target_environment_names } });
+    } else {
+      this.environments = await this.$repo.environment.get();
     }
-    this.environments = environments;
   }
 
   async setConsumerAnalyses() {
-    const consumer_analyses_ids = [];
-    for (let i = 0; i < this.environments.length; i++) {
-      const environment = this.environments[i];
-      for (let j = 0; j < this.consumer_ids.length; j++) {
-        const analysis_id = environment.projects[this.consumer_ids[j]];
-        if (analysis_id) {
-          consumer_analyses_ids.push(analysis_id);
-        }
-      }
-    }
+    const consumer_projects = this.environments.filter(_env => this.consumer_ids.includes(_env.projectId));
+    const consumer_analyses_ids = consumer_projects.map(_env => _env.analysisId);
     this.consumer_analyses = await this.$repo.analysis.getByIds(consumer_analyses_ids);
   }
 
   async setProviderAnalyses() {
-    const provider_analyses_ids = [];
-    for (let i = 0; i < this.environments.length; i++) {
-      const environment = this.environments[i];
-      for (let j = 0; j < this.provider_ids.length; j++) {
-        const analysis_id = environment.projects[this.provider_ids[j]];
-        if (analysis_id) {
-          provider_analyses_ids.push(analysis_id);
-        }
-        // provider not found will be handled by quality gate
-      }
-    }
+    const provider_projects = this.environments.filter(_env => this.provider_ids.includes(_env.projectId));
+    const provider_analyses_ids = provider_projects.map(_env => _env.analysisId);
     this.provider_analyses = await this.$repo.analysis.getByIds(provider_analyses_ids);
   }
 
