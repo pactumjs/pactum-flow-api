@@ -52,7 +52,7 @@ class CompatibilityProcessor {
   async setProjectVersion() {
     if (!this.project_version) {
       // from outside analysis processor
-      const project_environments = await this.$repo.environment.get({ name: 'latest', projectId: this.project_id });
+      const project_environments = await this.$repo.release.get({ name: 'latest', projectId: this.project_id });
       if (project_environments.length > 0) {
         this.project_version = project_environments[0].version;
       } else {
@@ -90,9 +90,9 @@ class CompatibilityProcessor {
 
   async setEnvironments() {
     if (this.target_environment_names.length > 0) {
-      this.environments = await this.$repo.environment.get({ name: { $in: this.target_environment_names } });
+      this.environments = await this.$repo.release.get({ name: { $in: this.target_environment_names } });
     } else {
-      this.environments = await this.$repo.environment.get();
+      this.environments = await this.$repo.release.get();
     }
   }
 

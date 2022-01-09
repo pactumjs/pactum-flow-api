@@ -48,7 +48,7 @@ class QualityGateService extends BaseService {
   }
 
   async getEnvironments(projectId, environment_name) {
-    let environments = await this.$repo.environment.get();
+    let environments = await this.$repo.release.get();
     if (environment_name) {
       environments = environments.filter(_env => _env.name === environment_name);
     } else {
@@ -175,7 +175,7 @@ class QualityGateService extends BaseService {
     try {
       const { projectId, environments: environment_names, compatibility_results } = this.req.body;
 
-      const env_projects = await this.$repo.environment.get({ name: 'latest', projectId });
+      const env_projects = await this.$repo.release.get({ name: 'latest', projectId });
       if (env_projects.length === 0) {
         throw new this.$error.ClientRequestError('Project Not Found in latest environment');
       }
@@ -184,7 +184,7 @@ class QualityGateService extends BaseService {
       const version = env_project.version;
       const { consumers, providers } = await this.getConsumersAndProviders(latest_project_analysis_id);
 
-      let environments = await this.$repo.environment.get();
+      let environments = await this.$repo.release.get();
       if (environment_names.length > 0) {
         environments = environments.filter(_env => environment_names.includes(_env.name));
       } else {

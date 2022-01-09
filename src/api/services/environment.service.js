@@ -9,7 +9,7 @@ class EnvironmentService extends BaseService {
   async getEnvironmentResponse() {
     try {
       const id = this.req.swagger.params.id.value;
-      this.res.status(200).json(await this.$repo.environment.get({ name: id }));
+      this.res.status(200).json(await this.$repo.release.get({ name: id }));
     } catch (error) {
       this.handleError(error);
     }
@@ -17,7 +17,7 @@ class EnvironmentService extends BaseService {
 
   async getEnvironmentsResponse() {
     try {
-      this.res.status(200).json(await this.$repo.environment.get());
+      this.res.status(200).json(await this.$repo.release.get());
     } catch (error) {
       this.handleError(error);
     }
@@ -31,7 +31,7 @@ class EnvironmentService extends BaseService {
         const analyses = await this.$repo.analysis.get({ projectId: env.projectId, version: env.version });
         if (analyses.length > 0) {
           const analysis = analyses[0];
-          const doc = await this.$repo.environment.save({
+          const doc = await this.$repo.release.save({
             environment: env.environment,
             projectId: env.projectId,
             analysisId: analysis._id,
@@ -52,7 +52,7 @@ class EnvironmentService extends BaseService {
   async deleteEnvironmentResponse() {
     try {
       const id = this.req.swagger.params.id.value;
-      this.res.status(200).json(await this.$repo.environment.delete(id));
+      this.res.status(200).json(await this.$repo.release.delete(id));
     } catch (error) {
       this.handleError(error);
     }

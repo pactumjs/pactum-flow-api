@@ -8,7 +8,7 @@ class RelationService extends BaseService {
 
   async getRelationsResponse() {
     const relations = [];
-    const project_environments = await this.$repo.environment.get({ name: 'latest' });
+    const project_environments = await this.$repo.release.get({ name: 'latest' });
     for (let i = 0; i < project_environments.length; i++) {
       const metrics = await this.$repo.metrics.getAnalysisMetricsById(project_environments[i].analysisId);
       relations.push({

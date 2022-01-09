@@ -5,7 +5,7 @@ const AnalysisRepository = require('../repository/analysis.repository');
 const InteractionRepository = require('../repository/interaction.repository');
 const ExchangeRepository = require('../repository/exchange.repository');
 const MetricsRepository = require('../repository/metrics.repository');
-const EnvironmentRepository = require('../repository/environment.repository');
+const ReleaseRepository = require('../repository/release.repository');
 const CompatibilityRepository = require('../repository/compatibility.repository');
 const JobRepository = require('../repository/job.repository');
 
@@ -21,7 +21,7 @@ class BaseService {
       flow: new FlowRepository(),
       exchange: new ExchangeRepository(),
       metrics: new MetricsRepository(),
-      environment: new EnvironmentRepository(),
+      release: new ReleaseRepository(),
       compatibility: new CompatibilityRepository(),
       job: new JobRepository()
     };

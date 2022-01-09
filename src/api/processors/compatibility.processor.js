@@ -19,7 +19,7 @@ class CompatibilityProcessor {
   }
 
   async init() {
-    this.environments = await this.$repo.environment.get();
+    this.environments = await this.$repo.release.get();
     if (this.targetEnvironments) {
       this.environments = this.environments.filter(env => this.targetEnvironments.includes(env._id.toString()));
     }

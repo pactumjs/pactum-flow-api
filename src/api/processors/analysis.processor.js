@@ -70,7 +70,7 @@ class AnalysisProcessor {
   }
 
   async setLatestEnvironment() {
-    this.latestEnvironmentProjects = await this.$repo.environment.get({ name: 'latest' });
+    this.latestEnvironmentProjects = await this.$repo.release.get({ name: 'latest' });
   }
 
   async setCurrentAnalysis() {
@@ -149,7 +149,7 @@ class AnalysisProcessor {
   }
 
   async updateEnvironment() {
-    await this.$repo.environment.save({
+    await this.$repo.release.save({
       environment: 'latest',
       projectId: this.analysis.projectId,
       analysisId: this.analysis._id,
