@@ -554,8 +554,13 @@ describe('Compatibility - Multiple Projects - Happy Paths', () => {
             "consumerVersion": "2.0.1",
             "provider": "p-id-1",
             "providerVersion": "1.0.2",
-            "status": "PASSED",
-            "exceptions": [],
+            "status": "FAILED",
+            "exceptions": [
+              {
+                "flow": "p-id-1-f-name-1",
+                "error": "Flow Not Found"
+              }
+            ],
             "verifiedAt": like("2021-10-09T10:17:34.043Z")
           }
         ]);

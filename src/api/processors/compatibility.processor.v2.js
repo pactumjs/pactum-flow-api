@@ -26,6 +26,7 @@ class CompatibilityProcessor {
 
     this.compatibility_results = [];
     this.save = true;
+    this.load_flows_and_interactions = true;
   }
 
   async run() {
@@ -127,7 +128,7 @@ class CompatibilityProcessor {
   }
 
   async setFlows() {
-    if (this.project_flows.length === 0) {
+    if (this.load_flows_and_interactions) {
       const flow_names_with_duplicates = this.consumer_interactions.map(_interaction => _interaction.flow);
       const flow_names = Array.from(new Set(flow_names_with_duplicates).values());
       this.project_flows = await this.$repo.flow.get({ analysisId: this.project_analysis._id, name: { $in: flow_names } });
@@ -143,7 +144,7 @@ class CompatibilityProcessor {
   }
 
   async setInteractions() {
-    if (this.project_interactions.length === 0) {
+    if (this.load_flows_and_interactions) {
       this.project_interactions = await this.$repo.interaction.get({ analysisId: this.project_analysis._id });
       const interaction_ids = this.project_interactions.map(interaction => interaction._id);
       const interaction_requests = await this.$repo.exchange.getRequestByIds(interaction_ids);

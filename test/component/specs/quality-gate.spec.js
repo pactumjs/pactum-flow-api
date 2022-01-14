@@ -3,6 +3,146 @@ const db = require('../helpers/db');
 
 const { like } = require('pactum-matchers');
 
+describe('Quality Gate Status - Consumer First', () => {
+
+  before(async () => {
+    await db.clean();
+  });
+
+  before('setup project two', async () => {
+    await db.createProject('p-id-2', 'p-name-2');
+    await db.createAnalysis('p-id-2', '2.0.1', 'p-id-2-a-id-1');
+    await db.createInteraction('p-id-1', 'p-id-1-f-name-1', 'p-id-2-a-id-1');
+    await db.processAnalysis('p-id-2-a-id-1');
+  });
+
+  before('setup project one', async () => {
+    await db.createProject('p-id-1', 'p-name-1');
+    await db.createAnalysis('p-id-1', '1.0.1', 'p-id-1-a-id-1');
+    await db.createFlow('p-id-1-f-name-1', 'p-id-1-a-id-1');
+    await db.processAnalysis('p-id-1-a-id-1');
+  });
+
+  after(async () => {
+    await db.clean();
+  });
+
+  it('qg status project 1 should be passed and includes project 2 as consumer', async () => {
+    await pactum.spec()
+      .get('/api/flow/v1/quality-gate/status')
+      .withQueryParams('projectId', 'p-id-1')
+      .withQueryParams('version', '1.0.1')
+      .expectStatus(200)
+      .expectJson([
+        {
+          "environment": "latest",
+          "status": "OK",
+          "consumers": [
+            {
+              "name": "p-id-2",
+              "version": "2.0.1",
+              "status": "PASSED",
+              "message": "",
+              "exceptions": []
+            }
+          ],
+          "providers": []
+        }
+      ]);
+  });
+
+  it('qg status project 2 should be passed and includes project 1 as provider', async () => {
+    await pactum.spec()
+      .get('/api/flow/v1/quality-gate/status')
+      .withQueryParams('projectId', 'p-id-2')
+      .withQueryParams('version', '2.0.1')
+      .expectStatus(200)
+      .expectJson([
+        {
+          "environment": "latest",
+          "status": "OK",
+          "providers": [
+            {
+              "name": "p-id-1",
+              "version": "1.0.1",
+              "status": "PASSED",
+              "message": "",
+              "exceptions": []
+            }
+          ],
+          "consumers": []
+        }
+      ]);
+  });
+
+  it('verify compatibility of project 1 with empty flows', async () => {
+    await pactum.spec()
+      .post('/api/flow/v1/compatibility/project/verify')
+      .withJson({
+        "projectId": "p-id-1",
+        "environments": ["latest"],
+        "flows": []
+      })
+      .expectStatus(200)
+      .expectJsonMatch([
+        {
+          "consumer": "p-id-2",
+          "consumerVersion": "2.0.1",
+          "provider": "p-id-1",
+          "providerVersion": "1.0.1",
+          "status": "FAILED",
+          "exceptions": [
+            {
+              "flow": "p-id-1-f-name-1",
+              "error": "Flow Not Found"
+            }
+          ],
+          "verifiedAt": like("2021-10-09T10:17:34.043Z")
+        }
+      ]);
+  });
+
+  it('verify qg status of project 1 with a missing flows', async () => {
+    await pactum.spec()
+      .post('/api/flow/v1/compatibility/project/verify')
+      .withJson({
+        "projectId": "p-id-1",
+        "environments": ["latest"],
+        "flows": [
+          {
+            "name": "invalid",
+            "analysisId": "123456789012345678901234",
+            "request": {
+              "method": "DELETE",
+              "path": "/invalid"
+            },
+            "response": {
+              "statusCode": 204
+            }
+          }
+        ]
+      })
+      .expectStatus(200)
+      .expectJsonMatch([
+        {
+          "consumer": "p-id-2",
+          "consumerVersion": "2.0.1",
+          "provider": "p-id-1",
+          "providerVersion": "1.0.1",
+          "status": "FAILED",
+          "exceptions": [
+            {
+              "flow": "p-id-1-f-name-1",
+              "error": "Flow Not Found"
+            }
+          ],
+          "verifiedAt": like("2021-10-09T10:17:34.043Z")
+        }
+      ]);
+  });
+
+});
+
 describe('Quality Gate', () => {
 
   before(async () => {

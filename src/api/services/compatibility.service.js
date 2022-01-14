@@ -82,6 +82,7 @@ class CompatibilityService extends BaseService {
       cp.project_interactions = this.req.body.interactions || [];
       cp.target_environment_names = this.req.body.environments || [];
       cp.save = false;
+      cp.load_flows_and_interactions = false;
       await cp.run();
 
       this.res.status(200).json(cp.compatibility_results);
