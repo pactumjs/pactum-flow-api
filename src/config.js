@@ -14,6 +14,10 @@ const config = {
   },
   auth: {
     token: env.AUTH_TOKEN || Buffer.from('admin:admin').toString('base64')
+  },
+  housekeeping: {
+    maxVersions: env.HK_MAX_VERSIONS || '20',
+    maxResults: env.HK_MAX_RESULTS || '100'
   }
 };
 

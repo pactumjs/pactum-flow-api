@@ -25,8 +25,8 @@ class ReleaseRepository {
     return Release.deleteOne({ name: _id });
   }
 
-  deleteAnalysis(analysis) {
-    return Release.deleteMany({ analysisId: analysis._id });
+  deleteAnalysis(id) {
+    return Release.deleteMany({ analysisId: id });
   }
 
   deleteProject(project) {

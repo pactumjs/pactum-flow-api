@@ -38,7 +38,7 @@ class AnalysisService extends BaseService {
         const doc = await this.$repo.analysis.save(analysis);
         this.res.status(200).json(doc);
       } else {
-        this.res.status(400).json({ error: 'Project not found'});
+        this.res.status(400).json({ error: 'Project not found' });
       }
     } catch (error) {
       if (error.toString().includes('duplicate key')) {
@@ -54,14 +54,7 @@ class AnalysisService extends BaseService {
       const id = this.req.swagger.params.id.value;
       const analysis = await this.$repo.analysis.getById(id);
       if (analysis) {
-        await this.$repo.flow.deleteByAnalysisId(id);
-        await this.$repo.interaction.deleteByAnalysisId(id);
-        await this.$repo.exchange.deleteRequestByAnalysisId(id);
-        await this.$repo.exchange.deleteResponseByAnalysisId(id);
-        await this.$repo.metrics.deleteAnalysisMetrics(id);
-        await this.$repo.release.deleteAnalysis(analysis);
-        await this.$repo.job.deleteJobById(id);
-        const doc = await this.$repo.analysis.delete(id);
+        const doc = await this.cleanAnalysis(id);
         this.res.status(200).json(doc);
       } else {
         this.res.status(404).json({ message: 'Analysis not found' });
@@ -69,6 +62,17 @@ class AnalysisService extends BaseService {
     } catch (error) {
       this.handleError(error);
     }
+  }
+
+  async cleanAnalysis(id) {
+    await this.$repo.flow.deleteByAnalysisId(id);
+    await this.$repo.interaction.deleteByAnalysisId(id);
+    await this.$repo.exchange.deleteRequestByAnalysisId(id);
+    await this.$repo.exchange.deleteResponseByAnalysisId(id);
+    await this.$repo.metrics.deleteAnalysisMetrics(id);
+    await this.$repo.release.deleteAnalysis(id);
+    await this.$repo.job.deleteJobById(id);
+    return await this.$repo.analysis.delete(id);
   }
 
 }

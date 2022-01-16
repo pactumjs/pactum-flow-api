@@ -1,4 +1,5 @@
 const CompatibilityProcessor = require('./compatibility.processor.v2');
+const CleanProcessor = require('./clean.processor');
 
 class AnalysisProcessor {
 
@@ -31,6 +32,7 @@ class AnalysisProcessor {
       await this.updateEnvironment();
       await this.updateAnalysis();
       await this.verify();
+      await this.clean();
       await this.completeJob();
     } catch (error) {
       this.log.error(error);
@@ -161,6 +163,12 @@ class AnalysisProcessor {
     const cp = new CompatibilityProcessor(this.$repo, this.log);
     cp.project_id = this.project._id;
     cp.project_version = this.analysis.version;
+    await cp.run();
+  }
+
+  async clean() {
+    const cp = new CleanProcessor(this.$repo, this.log);
+    cp.project_id = this.project._id;
     await cp.run();
   }
 
