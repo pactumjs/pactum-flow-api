@@ -616,9 +616,9 @@ paths:
   /environments:
     get:
       tags:
-        - "Environments"
-      description: "get environments"
-      operationId: "getEnvironments"
+        - "Releases"
+      description: "get releases"
+      operationId: "getReleases"
       security:
         - SessionToken: []
         - AuthToken: []
@@ -633,12 +633,12 @@ paths:
           schema:
             type: 'array'
             items:
-              $ref: "#/definitions/Environment"
+              $ref: "#/definitions/Release"
     post:
       tags:
-        - "Environments"
+        - "Releases"
       description: "publish a version of project to a environment"
-      operationId: "postEnvironment"
+      operationId: "postRelease"
       security:
         - SessionToken: []
         - AuthToken: []
@@ -647,23 +647,23 @@ paths:
         - scanner
       parameters:
         - in: "body"
-          name: "environment"
+          name: "release"
           description: "project, version & environment to publish"
           required: true
           schema:
-            $ref: "#/definitions/Environment"
+            $ref: "#/definitions/Release"
       responses:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/Environment"
-    x-swagger-router-controller: "environment.controller"
+            $ref: "#/definitions/Release"
+    x-swagger-router-controller: "release.controller"
   /environments/{id}:
     get:
       tags:
-        - "Environments"
-      description: "get environment with id"
-      operationId: "getEnvironment"
+        - "Releases"
+      description: "get release with id"
+      operationId: "getRelease"
       security:
         - SessionToken: []
         - AuthToken: []
@@ -681,12 +681,12 @@ paths:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/Environment"
+            $ref: "#/definitions/Release"
     delete:
       tags:
-        - "Environments"
-      description: "delete an environment"
-      operationId: "deleteEnvironment"
+        - "Releases"
+      description: "delete a release"
+      operationId: "deleteRelease"
       security:
         - SessionToken: []
         - AuthToken: []
@@ -703,7 +703,98 @@ paths:
           description: "Success"
           schema:
             $ref: "#/definitions/HealthResponse"
-    x-swagger-router-controller: "environment.controller"
+    x-swagger-router-controller: "release.controller"
+  /releases:
+    get:
+      tags:
+        - "Releases"
+      description: "get releases"
+      operationId: "getReleases"
+      security:
+        - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
+      parameters: []
+      responses:
+        200:
+          description: "Success"
+          schema:
+            type: 'array'
+            items:
+              $ref: "#/definitions/Release"
+    post:
+      tags:
+        - "Releases"
+      description: "publish a version of project to a environment"
+      operationId: "postRelease"
+      security:
+        - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+      parameters:
+        - in: "body"
+          name: "release"
+          description: "project, version & environment to publish"
+          required: true
+          schema:
+            $ref: "#/definitions/Release"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Release"
+    x-swagger-router-controller: "release.controller"
+  /releases/{id}:
+    get:
+      tags:
+        - "Releases"
+      description: "get release with id"
+      operationId: "getRelease"
+      security:
+        - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+        - scanner
+        - viewer
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "environment name"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Release"
+    delete:
+      tags:
+        - "Releases"
+      description: "delete a release"
+      operationId: "deleteRelease"
+      security:
+        - SessionToken: []
+        - AuthToken: []
+      x-role:
+        - admin
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "environment name"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/HealthResponse"
+    x-swagger-router-controller: "release.controller"
   /compatibility:
     get:
       tags:
@@ -1100,7 +1191,7 @@ definitions:
           type: "string"
     required:
       - "ids"
-  Environment:
+  Release:
     type: "object"
     properties:
       projectId:

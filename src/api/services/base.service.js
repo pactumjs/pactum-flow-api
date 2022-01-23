@@ -8,6 +8,7 @@ const MetricsRepository = require('../repository/metrics.repository');
 const ReleaseRepository = require('../repository/release.repository');
 const CompatibilityRepository = require('../repository/compatibility.repository');
 const JobRepository = require('../repository/job.repository');
+const RelationRepository = require('../repository/relation.repository');
 
 class BaseService {
 
@@ -23,7 +24,8 @@ class BaseService {
       metrics: new MetricsRepository(),
       release: new ReleaseRepository(),
       compatibility: new CompatibilityRepository(),
-      job: new JobRepository()
+      job: new JobRepository(),
+      relation: new RelationRepository()
     };
     this.$error = {
       ClientRequestError

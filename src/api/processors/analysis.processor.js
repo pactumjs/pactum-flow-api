@@ -33,6 +33,7 @@ class AnalysisProcessor {
       await this.updateAnalysis();
       await this.verify();
       await this.clean();
+      await this.updateRelations();
       await this.completeJob();
     } catch (error) {
       this.log.error(error);
@@ -170,6 +171,59 @@ class AnalysisProcessor {
     const cp = new CleanProcessor(this.$repo, this.log);
     cp.project_id = this.project._id;
     await cp.run();
+  }
+
+  async updateRelations() {
+    const existing_relations = await this.$repo.relation.get({
+      projectId: this.project._id,
+      environment: 'latest'
+    });
+    for (let i = 0; i < existing_relations.length; i++) {
+      const relation = existing_relations[i];
+      if (relation.relationType === 'provider') {
+        if (!this.providers.includes(relation.relatedProjectId)) {
+          relation.deleted = true;
+        }
+      }
+    }
+    const existing_relations_set = new Set(existing_relations.map(_relation => `${_relation.relationType}::${_relation.relatedProjectId}`))
+    const new_relations = [];
+    for (let i = 0; i < this.providers.length; i++) {
+      const provider = this.providers[i];
+      if (!existing_relations_set.has(`provider::${provider}`)) {
+        new_relations.push({
+          projectId: this.project._id,
+          relatedProjectId: provider,
+          relationType: 'provider',
+          environment: 'latest'
+        });
+        new_relations.push({
+          projectId: provider,
+          relatedProjectId: this.project._id,
+          relationType: 'consumer',
+          environment: 'latest'
+        });
+      }
+    }
+    if (new_relations.length > 0) {
+      await this.$repo.relation.saveMany(new_relations);
+    }
+    const delete_relations = existing_relations.filter(_relation => _relation.delete);
+    for (let i = 0; i < delete_relations.length; i++) {
+      const relation = delete_relations[i];
+      await this.$repo.relation.delete({
+        projectId: this.project._id,
+        environment: relation.environment,
+        relatedProjectId: relation.relatedProjectId,
+        relationType: 'provider',
+      });
+      await this.$repo.relation.delete({
+        projectId: relation.relatedProjectId,
+        environment: relation.environment,
+        relatedProjectId: this.project._id,
+        relationType: 'consumer',
+      });
+    }
   }
 
 }

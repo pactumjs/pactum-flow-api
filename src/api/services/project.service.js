@@ -59,6 +59,8 @@ class ProjectService extends BaseService {
       await this.$repo.metrics.deleteAnalysisMetricsByProjectId(id);
       await this.$repo.release.deleteProject(id);
       await this.$repo.job.deleteJobsByProjectId(id);
+      await this.$repo.relation.deleteByProjectId(id);
+      await this.$repo.relation.deleteByRelatedProjectConsumers(id);
       const doc = await this.$repo.project.delete(id);
       this.res.status(200).json(doc);
     } catch (error) {

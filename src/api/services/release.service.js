@@ -1,12 +1,12 @@
 const BaseService = require('./base.service');
 
-class EnvironmentService extends BaseService {
+class ReleaseService extends BaseService {
 
   constructor(req, res) {
     super(req, res);
   }
 
-  async getEnvironmentResponse() {
+  async getReleaseResponse() {
     try {
       const id = this.req.swagger.params.id.value;
       this.res.status(200).json(await this.$repo.release.get({ name: id }));
@@ -15,7 +15,7 @@ class EnvironmentService extends BaseService {
     }
   }
 
-  async getEnvironmentsResponse() {
+  async getReleasesResponse() {
     try {
       this.res.status(200).json(await this.$repo.release.get());
     } catch (error) {
@@ -23,7 +23,7 @@ class EnvironmentService extends BaseService {
     }
   }
 
-  async postEnvironmentResponse() {
+  async postReleaseResponse() {
     try {
       const env = this.req.body;
       const project = await this.$repo.project.getById(env.projectId);
@@ -49,9 +49,10 @@ class EnvironmentService extends BaseService {
     }
   }
 
-  async deleteEnvironmentResponse() {
+  async deleteReleaseResponse() {
     try {
       const id = this.req.swagger.params.id.value;
+      await this.$repo.relation.deleteByEnvironment(id);
       this.res.status(200).json(await this.$repo.release.delete(id));
     } catch (error) {
       this.handleError(error);
@@ -60,4 +61,4 @@ class EnvironmentService extends BaseService {
 
 }
 
-module.exports = EnvironmentService;
+module.exports = ReleaseService;

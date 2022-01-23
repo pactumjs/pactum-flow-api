@@ -31,7 +31,7 @@ class CompatibilityRepository {
         }
       });
     }
-    return Compatibility.bulkWrite(ops)
+    return Compatibility.bulkWrite(ops);
   }
 
   get(query) {
