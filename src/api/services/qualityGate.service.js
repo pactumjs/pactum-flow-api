@@ -13,7 +13,7 @@ class QualityGateService extends BaseService {
       const environment_name = this.req.query.environment;
 
       const analysis = await this.getAnalysis(projectId, version);
-      const { consumers, providers } = await this.getConsumersAndProviders(analysis._id)
+      const { consumers, providers } = await this.getConsumersAndProviders(projectId, analysis._id)
       const environments = await this.getEnvironments(projectId, environment_name);
 
       const envStatuses = [];
@@ -40,10 +40,15 @@ class QualityGateService extends BaseService {
     return analyses[0];
   }
 
-  async getConsumersAndProviders(analysisId) {
+  async getConsumersAndProviders(projectId, analysisId, compatibility_results) {
     const metrics = await this.$repo.metrics.getAnalysisMetricsById(analysisId);
     const consumers = metrics.consumers.all;
-    const providers = metrics.providers.all;
+    let providers = metrics.providers.all;
+    if (compatibility_results) {
+      const providers_from_results = compatibility_results.map(_result => _result.provider);
+      const actual_providers = providers_from_results.filter(_provider => _provider !== projectId);
+      providers = [...new Set([...providers, ...actual_providers])];
+    }
     return { consumers, providers };
   }
 
@@ -177,31 +182,51 @@ class QualityGateService extends BaseService {
 
       const env_projects = await this.$repo.release.get({ name: 'latest', projectId });
       if (env_projects.length === 0) {
-        throw new this.$error.ClientRequestError('Project Not Found in latest environment');
-      }
-      const env_project = env_projects[0];
-      const latest_project_analysis_id = env_project.analysisId;
-      const version = env_project.version;
-      const { consumers, providers } = await this.getConsumersAndProviders(latest_project_analysis_id);
-
-      let environments = await this.$repo.release.get();
-      if (environment_names.length > 0) {
-        environments = environments.filter(_env => environment_names.includes(_env.name));
+        const envStatus = {
+          environment: 'NA',
+          status: 'OK',
+          consumers: [],
+          providers: []
+        };
+        for (let i = 0; i < compatibility_results.length; i++) {
+          const result = compatibility_results[i];
+          envStatus.providers.push({
+            name: result.provider,
+            version: result.providerVersion,
+            status: result.status,
+            message: '',
+            exceptions: result.exceptions
+          });
+          if (result.status === 'FAILED') {
+            envStatus.status = 'ERROR'
+          }
+        }
+        this.res.status(200).json([envStatus]);
       } else {
-        const project_environments = environments.filter(_env => _env.projectId === projectId);
-        const unique_environment_names = Array.from(new Set(project_environments.map(_env => _env.name)));
-        environments = environments.filter(_env => unique_environment_names.includes(_env.name));
-      }
+        const env_project = env_projects[0];
+        const latest_project_analysis_id = env_project.analysisId;
+        const version = env_project.version;
+        const { consumers, providers } = await this.getConsumersAndProviders(projectId, latest_project_analysis_id, compatibility_results);
 
-      const envStatuses = [];
-      const unique_environment_names = Array.from(new Set(environments.map(_env => _env.name)));
-      for (let i = 0; i < unique_environment_names.length; i++) {
-        const environment_projects = environments.filter(_env => _env.name === unique_environment_names[i]);
-        const params = { projectId, version, environment: unique_environment_names[i], consumers, providers, results: compatibility_results, environment_projects };
-        envStatuses.push(await this.getEnvironmentQualityGateStatus(params));
-      }
+        let environments = await this.$repo.release.get();
+        if (environment_names.length > 0) {
+          environments = environments.filter(_env => environment_names.includes(_env.name));
+        } else {
+          const project_environments = environments.filter(_env => _env.projectId === projectId);
+          const unique_environment_names = Array.from(new Set(project_environments.map(_env => _env.name)));
+          environments = environments.filter(_env => unique_environment_names.includes(_env.name));
+        }
 
-      this.res.status(200).json(envStatuses);
+        const envStatuses = [];
+        const unique_environment_names = Array.from(new Set(environments.map(_env => _env.name)));
+        for (let i = 0; i < unique_environment_names.length; i++) {
+          const environment_projects = environments.filter(_env => _env.name === unique_environment_names[i]);
+          const params = { projectId, version, environment: unique_environment_names[i], consumers, providers, results: compatibility_results, environment_projects };
+          envStatuses.push(await this.getEnvironmentQualityGateStatus(params));
+        }
+
+        this.res.status(200).json(envStatuses);
+      }
     } catch (error) {
       this.handleError(error);
     }

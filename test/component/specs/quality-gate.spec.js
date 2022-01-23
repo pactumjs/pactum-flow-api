@@ -533,7 +533,219 @@ describe('Quality Gate', () => {
           "environment": "latest",
           "status": "OK",
           "consumers": [],
-          "providers": []
+          "providers": [
+            {
+              "name": "p-id-1",
+              "version": "1.0.1",
+              "status": "PASSED",
+              "message": "",
+              "exceptions": []
+            }
+          ]
+        }
+      ]);
+  });
+
+  it('project 4 compatibility with new provider - fail', async () => {
+    const results = await pactum.spec()
+      .post('/api/flow/v1/compatibility/project/verify')
+      .withJson({
+        "projectId": "p-id-4",
+        "environments": ["latest"],
+        "interactions": [
+          {
+            "analysisId": "abcdefghijklmnopqrstuvwx",
+            "flow": "p-id-1-f-name-1",
+            "provider": "p-id-1",
+            "request": {
+              "method": "POST",
+              "path": "/api/path",
+              "queryParams": {}
+            },
+            "response": {
+              "statusCode": 200
+            }
+          }
+        ]
+      })
+      .expectStatus(200)
+      .expectJsonMatch([
+        {
+          "consumer": "p-id-4",
+          "consumerVersion": "4.0.1",
+          "provider": "p-id-1",
+          "providerVersion": "1.0.1",
+          "status": "FAILED",
+          "exceptions": [
+            {
+              "flow": "p-id-1-f-name-1",
+              "error": "Failed to match request method"
+            }
+          ],
+          "verifiedAt": like("2021-10-09T10:17:34.043Z")
+        }
+      ])
+      .returns('.');
+
+    await pactum.spec()
+      .post('/api/flow/v1/quality-gate/status/verify')
+      .withJson({
+        "projectId": "p-id-4",
+        "environments": [],
+        "compatibility_results": results
+      })
+      .expectStatus(200)
+      .expectJson([
+        {
+          "environment": "latest",
+          "status": "ERROR",
+          "consumers": [],
+          "providers": [
+            {
+              "name": "p-id-1",
+              "version": "1.0.1",
+              "status": "FAILED",
+              "message": "",
+              "exceptions": [
+                {
+                  "flow": "p-id-1-f-name-1",
+                  "error": "Failed to match request method"
+                }
+              ]
+            }
+          ]
+        }
+      ]);
+  });
+
+  it('new project - verify compatibility results and quality gate should pass', async () => {
+    const results = await pactum.spec()
+      .post('/api/flow/v1/compatibility/project/verify')
+      .withJson({
+        "projectId": "p-invalid",
+        "environments": ["latest"],
+        "interactions": [
+          {
+            "analysisId": "abcdefghijklmnopqrstuvwx",
+            "flow": "p-id-1-f-name-1",
+            "provider": "p-id-1",
+            "request": {
+              "method": "GET",
+              "path": "/api/path",
+              "queryParams": {}
+            },
+            "response": {
+              "statusCode": 200
+            }
+          }
+        ]
+      })
+      .expectStatus(200)
+      .expectJsonMatch([
+        {
+          "consumer": "p-invalid",
+          "consumerVersion": "",
+          "provider": "p-id-1",
+          "providerVersion": "1.0.1",
+          "status": "PASSED",
+          "exceptions": [],
+          "verifiedAt": like("2021-10-09T10:17:34.043Z")
+        }
+      ])
+      .returns('.');
+    await pactum.spec()
+      .post('/api/flow/v1/quality-gate/status/verify')
+      .withJson({
+        "projectId": "p-invalid",
+        "environments": [],
+        "compatibility_results": results
+      })
+      .expectStatus(200)
+      .expectJson([
+        {
+          "environment": "NA",
+          "status": "OK",
+          "consumers": [],
+          "providers": [
+            {
+              "name": "p-id-1",
+              "version": "1.0.1",
+              "status": "PASSED",
+              "message": "",
+              "exceptions": []
+            }
+          ]
+        }
+      ]);
+  });
+
+  it('new project - verify compatibility results and quality gate should fail', async () => {
+    const results = await pactum.spec()
+      .post('/api/flow/v1/compatibility/project/verify')
+      .withJson({
+        "projectId": "p-invalid",
+        "environments": ["latest"],
+        "interactions": [
+          {
+            "analysisId": "abcdefghijklmnopqrstuvwx",
+            "flow": "p-id-1-f-name-1",
+            "provider": "p-id-1",
+            "request": {
+              "method": "POST",
+              "path": "/api/path",
+              "queryParams": {}
+            },
+            "response": {
+              "statusCode": 200
+            }
+          }
+        ]
+      })
+      .expectStatus(200)
+      .expectJsonMatch([
+        {
+          "consumer": "p-invalid",
+          "consumerVersion": "",
+          "provider": "p-id-1",
+          "providerVersion": "1.0.1",
+          "status": "FAILED",
+          "exceptions": [
+            {
+              "flow": "p-id-1-f-name-1",
+              "error": "Failed to match request method"
+            }
+          ],
+          "verifiedAt": like("2021-10-09T10:17:34.043Z")
+        }
+      ])
+      .returns('.');
+    await pactum.spec()
+      .post('/api/flow/v1/quality-gate/status/verify')
+      .withJson({
+        "projectId": "p-invalid",
+        "environments": [],
+        "compatibility_results": results
+      })
+      .expectStatus(200)
+      .expectJson([
+        {
+          "environment": "NA",
+          "status": "ERROR",
+          "consumers": [],
+          "providers": [
+            {
+              "name": "p-id-1",
+              "version": "1.0.1",
+              "status": "FAILED",
+              "message": "",
+              "exceptions": [
+                {
+                  "flow": "p-id-1-f-name-1",
+                  "error": "Failed to match request method"
+                }
+              ]
+            }
+          ]
         }
       ]);
   });

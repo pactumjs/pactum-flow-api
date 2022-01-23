@@ -57,27 +57,34 @@ class CompatibilityProcessor {
       if (project_environments.length > 0) {
         this.project_version = project_environments[0].version;
       } else {
-        throw `Project "${this.project_id}" not found in "latest" environment`;
+        this.log.info(`Project "${this.project_id}" not found in "latest" environment`);
+        this.project_version = '';
       }
     }
   }
 
   async setProjectAnalysis() {
-    const analyses = await this.$repo.analysis.get({ projectId: this.project_id, version: this.project_version });
-    if (analyses && analyses.length > 0) {
-      this.project_analysis = analyses[0];
-    } else {
-      throw `Analysis not found for project "${this.project_id}" with version "${this.project_version}"`;
+    if (this.project_version) {
+      const analyses = await this.$repo.analysis.get({ projectId: this.project_id, version: this.project_version });
+      if (analyses && analyses.length > 0) {
+        this.project_analysis = analyses[0];
+      } else {
+        throw `Analysis not found for project "${this.project_id}" with version "${this.project_version}"`;
+      }
     }
   }
 
   async setProjectMetric() {
-    this.project_metric = await this.$repo.metrics.getAnalysisMetricsById(this.project_analysis._id);
+    if (this.project_analysis) {
+      this.project_metric = await this.$repo.metrics.getAnalysisMetricsById(this.project_analysis._id);
+    }
   }
 
   setConsumersAndProviders() {
-    this.consumer_ids = this.project_metric.consumers.all;
-    this.provider_ids = this.project_metric.providers.all;
+    if (this.project_metric) {
+      this.consumer_ids = this.project_metric.consumers.all;
+      this.provider_ids = this.project_metric.providers.all;
+    }
     if (this.project_interactions.length > 0) {
       const new_providers = this.project_interactions.map(_interaction => _interaction.provider);
       for (let i = 0; i < new_providers.length; i++) {
