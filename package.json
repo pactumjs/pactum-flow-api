@@ -30,15 +30,15 @@
     "jsonwebtoken": "^8.5.1",
     "loglevel": "^1.8.0",
     "mongoose": "^5.11.4",
-    "pactum-matchers": "^1.1.0",
+    "pactum-matchers": "^1.1.2",
     "swagger-express-mw": "^0.7.0",
     "swagger-tools": "^0.10.4",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "c8": "^7.7.2",
-    "mocha": "^8.4.0",
-    "pactum": "^3.0.18",
+    "c8": "^7.12.0",
+    "mocha": "^10.0.0",
+    "pactum": "^3.1.13",
     "pactum-flow-plugin": "^0.0.4"
   }
 }
