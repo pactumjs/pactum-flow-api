@@ -26,11 +26,11 @@
   },
   "homepage": "https://github.com/pactumjs/pactum-flow-api#readme",
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.19.2",
     "jsonwebtoken": "^8.5.1",
     "loglevel": "^1.8.0",
     "mongoose": "^5.11.4",
-    "pactum-matchers": "^1.1.2",
+    "pactum-matchers": "latest",
     "swagger-express-mw": "^0.7.0",
     "swagger-tools": "^0.10.4",
     "uuid": "^8.3.2"
@@ -38,7 +38,8 @@
   "devDependencies": {
     "c8": "^7.12.0",
     "mocha": "^10.0.0",
-    "pactum": "^3.1.13",
-    "pactum-flow-plugin": "^0.0.4"
+    "pactum": "^3.6.5",
+    "pactum-flow-plugin": "^0.0.4",
+    "nodemon": "^3.1.0"
   }
 }
